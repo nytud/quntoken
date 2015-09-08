@@ -1,0 +1,30 @@
+header {
+#include <cstdlib> // for atoi()
+#include <iostream>
+}
+
+token
+{
+    TAG;
+    TOKEN;
+    WSPACE;
+    PUNCT;
+    ANYCHAR;
+}
+
+start = TOKENIZER;
+
+mode TOKENIZER
+{
+    <<EOF>>                 => TKN_TERMINATION;
+    [:alnum:]+              => TKN_TOKEN(Lexeme);
+    [:blank:]+              => TKN_WSPACE(Lexeme);
+    [:punct:]+              => TKN_PUNCT(Lexeme);
+    <[^>]*>                 => TKN_TAG(Lexeme);
+    .|"\n"                  => TKN_ANYCHAR(Lexeme);
+    // on_failure              => TKN_TERMINATION(Lexeme);
+}
+
+
+// vim: set syntax=cpp:
+

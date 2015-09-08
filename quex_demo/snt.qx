@@ -1,0 +1,33 @@
+header {
+#include <cstdlib> // for atoi()
+#include <iostream>
+}
+
+
+define
+{
+    SNT_BEGIN       [:alnum:]
+    SNT_CHAR        [:alnum:]|[ ,;:\-]
+    SNT_BOUNDARY    [.!?]
+}
+
+token
+{
+    SNT;
+    ANYCHAR;
+}
+
+start = SENTENCE;
+
+mode SENTENCE
+{
+    <<EOF>>                                 => SNT_TERMINATION;
+
+    {SNT_BEGIN}{SNT_CHAR}+{SNT_BOUNDARY}+   => SNT_SNT(Lexeme);
+    .|"\n"                                  => SNT_ANYCHAR(Lexeme);
+    // on_failure                              => SNT_TERMINATION;
+}
+
+
+// vim: set syntax=cpp:
+
