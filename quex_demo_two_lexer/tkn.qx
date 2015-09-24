@@ -3,26 +3,32 @@ header {
 #include <iostream>
 }
 
+
 token
 {
-    TAG;
-    TOKEN;
-    WSPACE;
-    PUNCT;
-    ANYCHAR;
+    TAG;            // előző elemzők által kiosztott tag-ek
+    TOKEN;          // szószerűségek
+    WSPACE;         // sortörés nem
+    NEWLINE;        // \n
+    PUNCT;          // punktuációk
+    ANYCHAR;        // bármi más
 }
 
 start = TOKENIZER;
 
 mode TOKENIZER
 {
-    <<EOF>>                 => TKN_TERMINATION;
-    [:alnum:]+              => TKN_TOKEN(Lexeme);
-    [:blank:]+              => TKN_WSPACE(Lexeme);
-    [:punct:]+              => TKN_PUNCT(Lexeme);
-    <[^>]*>                 => TKN_TAG(Lexeme);
-    .|"\n"                  => TKN_ANYCHAR(Lexeme);
-    // on_failure              => TKN_TERMINATION(Lexeme);
+    <<EOF>>                             => TKN_TERMINATION;
+    // tag utáni sörtörés a formázáshoz tartozik, nem kell kezelni:
+    <[^>]*>"\n"?                        => TKN_TAG(Lexeme);
+    [:alnum:]+                          => TKN_TOKEN(Lexeme);
+    // a többi sortörést jelöljük:
+    "\n"                                => TKN_NEWLINE;
+    // \n kivételével a spáciumok:
+    [: difference([:space:], [\n]) :]   => TKN_WSPACE(Lexeme); 
+    [:punct:]+                          => TKN_PUNCT(Lexeme);
+    .                                   => TKN_ANYCHAR(Lexeme);
+    // on_failure                          => TKN_TERMINATION(Lexeme);
 }
 
 

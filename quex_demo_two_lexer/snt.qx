@@ -7,7 +7,7 @@ header {
 define
 {
     SNT_BEGIN       [:alnum:]
-    SNT_CHAR        [:alnum:]|[ ,;:\-]
+    SNT_CHAR        [:alnum:]|[ ,;:\-\n] // sortörés is lehet mondatban
     SNT_BOUNDARY    [.!?]
 }
 
