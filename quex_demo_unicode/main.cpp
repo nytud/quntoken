@@ -25,11 +25,6 @@ int main(int argc, char** argv)
         std::cout << token_p->pretty_char_text();
         // záró tag
         std::cout << "</" << token_p->type_id_name() << ">" << std::endl;
-
-        /* std::cout << "full: " << std::string(*token_p) << std::endl; */
-        /* std::cout << "id:   " << token_p->type_id() << std::endl; */
-        /* std::cout << "type: " << token_p->type_id_name() << std::endl; */
-        /* std::cout << "text: '" << token_p->pretty_char_text() << "'\n\n"; */
     }
 
     return 0;

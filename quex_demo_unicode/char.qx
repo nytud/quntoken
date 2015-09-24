@@ -1,7 +1,4 @@
-header {
-#include <cstdlib> // for atoi()
-#include <iostream>
-}
+header { }
 
 
 token
