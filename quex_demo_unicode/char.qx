@@ -1,0 +1,49 @@
+header {
+#include <cstdlib> // for atoi()
+#include <iostream>
+}
+
+
+token
+{
+    LETTER;
+    NUMBER;
+    PUNCT;
+    SYMBOL;
+    WSPACE;
+    NEWLINE;
+    ANYCHAR;
+}
+
+define
+{
+    LETTER      \P{Script=Latin}
+    NUMBER      \P{General_Category=Number}
+    PUNCT       \P{General_Category=Punctuation}
+    SYMBOL      \P{General_Category=Symbol}
+    WSPACE      [: union(\P{General_Category=Space_Separator},
+                        \P{General_Category=Paragraph_Separator}) :]
+    // vagy:
+    // WSPACE      [: difference(\P{General_Category=Separator},
+    //                          \P{General_Category=Line_Separator}) :]
+
+}
+
+
+mode CHAR
+{
+    <<EOF>>                                 => CHR_TERMINATION;
+
+    {LETTER}+                               => CHR_LETTER(Lexeme);
+    {NUMBER}+                               => CHR_NUMBER(Lexeme);
+    {PUNCT}+                                => CHR_PUNCT(Lexeme);
+    {SYMBOL}+                               => CHR_SYMBOL(Lexeme);
+    {WSPACE}+                               => CHR_WSPACE(Lexeme);
+    "\n"                                    => CHR_NEWLINE;
+    .                                       => CHR_ANYCHAR(Lexeme);
+    // on_failure                              => CHR_TERMINATION;
+}
+
+
+// vim: set syntax=cpp:
+
