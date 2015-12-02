@@ -1,0 +1,148 @@
+// Mondatrabontó alap modul.
+
+header {
+    // Az xml tag-ek cserélhetők spec. karakterekre a későbbi feldolgozást
+    // megkönnyítendő.
+    // Mondat: <s> és </s>
+    // Mondat szintű whitespace: <w> és </w>
+    // Megj.: A nem mondatszintű whitespace-ek is ugyanilyenek lesznek, de az
+    // egy későbbi modul feladata.
+    const std::wstring SNT_OPEN = L"<s>";
+    const std::wstring SNT_CLOSE = L"</s>";
+    const std::wstring WS_OPEN = L"<w>";
+    const std::wstring WS_CLOSE = L"</w>";
+}
+
+
+token {
+    // A main számára visszaadott token típusok.
+    // MONDAT: mondat-jelölt, a rövidítések kezelése még felülírhatja a
+    // tényleges mondathatárokat.
+    // WS: (mondat szintű) whitespace
+    // ANYCHAR: ismeretlen karkter
+    // TODO: ismeretlen karkaterek kezelését kitalálni!
+    MONDAT;
+    WS;
+    ANYCHAR;
+}
+
+define {
+    // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // WSPACE: ~
+    // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
+    //           eredetileg html entitásokat is tartalmazott, de ki lettek véve
+    //           TODO: html entitások kezelését kitalálni (előfeldolgozás, és
+    //                 utf8-ra alakítás?)
+    // WORDCHAR2: szóban szerepelhető karakterek, pont nélkül
+    // LOWER: kisbetűk + néhány szimbólum Csaba kódja alapján
+    // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is
+    //            mondathatároló karakterek (zárójel, idézőjel, szóköz, stb.)
+    // BOUNDARY: egyszerű mondathatároló karakterek (pont, felkiáltójel,
+    //           kérdőjel)
+    //           Megj.: a szón belüli pont máshogy van kezelve.
+    // SNTCHAR: nem mondathatároló karakter ami nem is sortörés
+
+    WSPACE      ([ \n\t])
+
+    WORDCHAR    ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+
+    WORDCHAR2   ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+
+    LOWER       ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
+
+    CHARINSNT   ([\(\)\-[\],; "])*
+
+    BOUNDARY    ([.?!])
+
+    SNTCHAR     [^.?!\n]
+
+    // Szabályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // CHARINSNTN: két CHARINSNT (mondaton belüli egyéb karkater), köztük egy
+    //             opcionális sortöréssel (a mondatrész-szabályok használják)
+    // SNTBEGIN: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
+    //           neten."), esetleges sortöréssel
+    // SIMPLESNT: egyszerű mondat, nem tapadó írásjellel ("Szép az idő !" is jó)
+    //            Megj.: mondaton belül egyszeres sortörések megengedettek,
+    //                   \n\n már paragrafus törésnek számít, a mondat végét
+    //                   is jelenti. A mondathatároló (.?!) csak opcionális a
+    //                   mondat végén.
+    // ENDQUOPAR: mondathatár után jöhető záró záró- és idézőjelek
+
+    CHARINSNTN  {CHARINSNT}"\n"?{CHARINSNT}
+
+    SNTBEGIN    [^?!\n ]"\n"?
+
+    SIMPLESNT   ({SNTCHAR}"\n"?)*{BOUNDARY}*
+
+    ENDQUOPAR   ("\""|"''"|"'"|")"|"]"){BOUNDARY}*
+
+    // Mondatrészek szabályai: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Az alap mondat: {SNTBEGIN}{SIMPLESNT}{ENDQUOPAR}*
+    // Minden összetettebb esetben az SNTBEGIN után következhet valamilyen
+    // részmondat szerűség. Ezek lesznek itt definiálva:
+
+    // 1. Mondathatár túllépés: mondatzáró után kis betű
+    // BE: N. kormányzósági székhely.
+    // KI: <s>N. kormányzósági székhely.</s>
+    // BE: A www.akármi.hu.
+    // KI: <s>A www.akármi.hu.</s>
+    // BE: - Nézd a! - mondta az egyik.
+    // KI: <s>- Nézd a! - mondta az egyik.</s>
+    // BE: A 4. javítócsomagot.
+    // KI: <s>A 4. javítócsomagot.</s>
+    // BE: 3434/1992. évi elszámolás.
+    // KI: <s>3434/1992. évi elszámolás.</s>
+    // BE: "Jót s jól! Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.
+    // KI: <s>"Jót s jól!</s> <s>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</s>
+    // BE: - Szia Péterkém! Holnap találkozunk - mondta Gizi.
+    // KI: <s>- Szia Péterkém!</s> <s>Holnap találkozunk - mondta Gizi.</s>
+    LOWERCASE_PART       ({SIMPLESNT}{BOUNDARY}{ENDQUOPAR}*{CHARINSNTN}{LOWER})
+
+    // 2. Mondatzáró után idéző- vagy kötő jel.
+    // BE: A "Ne már!"-ral az a baj.
+    // KI: <s>A "Ne már!"-ral az a baj.</s>
+    // TODO: megnézni, nem felesleges-e ez? ELsőre úgy tűnik, metszetet alkot az 1)-vel bár ha azt egészítjük ki, akkor meg több mindent fog megengedni...
+    QUOTATIONMARK_PART     ({SIMPLESNT}{BOUNDARY}{ENDQUOPAR}"-"{WORDCHAR})
+
+    // 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva.
+    // BE: A WWW.AKARMI.HU.
+    // KI: <s>A WWW.AKARMI.HU.</s>
+    WORDCHAR_PART   ({SIMPLESNT}[.]{WORDCHAR2})
+
+    // 4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű
+    // BE: Azt mondta, hogy "Na!", "Csináld!" és így tovább.
+    // KI: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
+    COMMA_PART        ({SIMPLESNT}{BOUNDARY}{ENDQUOPAR}*([,;:]|{CHARINSNTN}{LOWER}))
+
+    // 5. Mondatban lévő zárójeles rész kezelése.
+    // BE: A macska (családjában a 25.) Katinak nyávogott.
+    // KI: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
+    BRACKET_PART      ({SIMPLESNT}"("[^.!?)]+[.?!][^.!?)]*")")
+}
+
+mode SNT {
+
+    // mondatokat leíró teljes, kombinált szabály
+    {SNTBEGIN}({LOWERCASE_PART}
+              |{QUOTATIONMARK_PART}
+              |{WORDCHAR_PART}
+              |{COMMA_PART}
+              |{BRACKET_PART}
+              )*{SIMPLESNT}{ENDQUOPAR}* 
+    {
+        std::wstring LEX(Lexeme);
+        LEX = SNT_OPEN + LEX + SNT_CLOSE;
+        self_send1(SNT_MONDAT, LEX.c_str());
+    }
+
+    // mondatközi whitespace-eket leíró szabály
+    {WSPACE}+   {
+        std::wstring LEX(Lexeme);
+        LEX = WS_OPEN + LEX + WS_CLOSE;
+        self_send1(SNT_WS, LEX.c_str());
+    }
+    /* .           => SNT_ANYCHAR(Lexeme); */
+    on_failure  => SNT_TERMINATION;
+    <<EOF>>     => SNT_TERMINATION;
+}
+
