@@ -17,8 +17,8 @@ int main(int argc, char** argv)
     {
         // csak a token szövegét használjuk fel, a típus nem érdekes (a szöveg
         // már a quex-ben dekorálva lett)
-        /* std::cout << token_p->pretty_char_text() << std::endl; */
-        std::cout << token_p->type_id_name() << "\t" << token_p->pretty_char_text() << std::endl;
+        // std::cout << token_p->type_id_name() << "\t" << token_p->pretty_char_text() << std::endl;
+        std::cout << token_p->pretty_char_text() << std::endl;
     }
 
     return 0;

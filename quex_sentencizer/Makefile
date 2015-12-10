@@ -1,6 +1,7 @@
 COMPILER = g++
 COMPILER_FLAG = -Wall -Werror -Wconversion\
-			     -c \
+				-std=c++11 \
+			    -c \
 			    -I$(QUEX_PATH) \
 			    -DQUEX_OPTION_ASSERTS_DISABLED \
 			    -DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
@@ -8,6 +9,8 @@ COMPILER_FLAG = -Wall -Werror -Wconversion\
 				-DPRINT_TOKEN \
 			    # -DQUEX_OPTION_MULTI \
 
+# tester:					snt.o main.o tests.cpp
+# 	$(COMPILER) $(COMPILER_FLAG) -l pthread tests.cpp -o tester
 
 lexer:					snt.o main.o
 	$(COMPILER) snt.o main.o -o lexer `icu-config --ldflags`

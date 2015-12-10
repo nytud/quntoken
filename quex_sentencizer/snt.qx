@@ -28,39 +28,79 @@ token {
 
 define {
     // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // WSPACE: ~
+    // BASE_CLASS: alap karakterosztály, minden más ennek részhalmaza kell
+    //      legyen
+    // NEWLINE: újsor karakterek, egyelőre nem használjuk, minden wspace
+    //      Ha kelleni fog, akkor lehet ilyen:
+    //      [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
+    // WSPACE: minden wspace-t tartalmaz a base_class-ból.
+    //      Ha lesz külön new_line, akkor lehet ilyen:
+    //      [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
+    //      Ez a régi: ([ \n\t])
     // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
-    //           eredetileg html entitásokat is tartalmazott, de ki lettek véve
-    //           TODO: html entitások kezelését kitalálni (előfeldolgozás, és
-    //                 utf8-ra alakítás?)
+    //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
+    //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+    //      TODO: html entitások kezelését kitalálni (előfeldolgozás, és
+    //          utf8-ra alakítás?)
     // WORDCHAR2: szóban szerepelhető karakterek, pont nélkül
     // LOWER: kisbetűk + néhány szimbólum Csaba kódja alapján
-    // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is
-    //            mondathatároló karakterek (zárójel, idézőjel, szóköz, stb.)
+    //      Ez a régi: ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
+    //      Megj.: union(\P{Lowercase}, \P{Other_Lowercase} is lehet hogy jó
+    //          \G{Lowercase_Letter} helyett -- vajon van különbség?
+    // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is mondathatároló
+    //      karakterek (zárójel, idézőjel, szóköz, stb.)
     // BOUNDARY: egyszerű mondathatároló karakterek (pont, felkiáltójel,
-    //           kérdőjel)
-    //           Megj.: a szón belüli pont máshogy van kezelve.
+    //      kérdőjel)
+    //      Megj.: a szón belüli pont máshogy van kezelve.
     // SNTCHAR: nem mondathatároló karakter ami nem is sortörés
+    // SNTBEGIN: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
+    //           neten.")
+    
+    BASE_CLASS  [: union( \P{Block=Basic_Latin},
+                          \P{Block=Latin-1_Supplement},
+                          \P{Block=Latin_Extended-A},
+                          \P{Block=Latin_Extended-B},
+                          \P{Block=Latin_Extended-C},
+                          \P{Block=Latin_Extended-D},
+                          \P{Block=Cyrillic},
+                          \P{Block=Cyrillic_Supplement},
+                          \P{Block=Greek_and_Coptic},
+                          \P{Block=Greek_Extended},
+                          \P{Block=Ancient_Greek_Numbers},
+                          \P{Block=Combining_Diacritical_Marks},
+                          \P{Block=Combining_Diacritical_Marks_Supplement},
+                          \P{Block=General_Punctuation},
+                          \P{Block=Supplemental_Punctuation},
+                          \P{Block=Currency_Symbols},
+                          \P{Block=Letterlike_Symbols},
+                          \P{Block=Mathematical_Alphanumeric_Symbols},
+                          \P{Block=Miscellaneous_Mathematical_Symbols-A},
+                          \P{Block=Miscellaneous_Mathematical_Symbols-B},
+                          \P{Block=Miscellaneous_Symbols_and_Arrows},
+                          \P{Block=Miscellaneous_Technical},
+                          \P{Block=Musical_Symbols},
+                          \P{Block=Miscellaneous_Symbols}) :]
 
-    WSPACE      ([ \n\t])
+    WSPACE      [: intersection( {BASE_CLASS}, \P{White_Space} ) :]
 
-    WORDCHAR    ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
+ 
 
-    WORDCHAR2   ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+    WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
 
-    LOWER       ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
+    LOWER       [: intersection( {BASE_CLASS}, \G{Lowercase_Letter} ) :]
 
-    CHARINSNT   ([\(\)\-[\],; "])*
+    CHARINSNT   [: intersection( {BASE_CLASS}, [\(\)\-[\],; "] ) :]
 
-    BOUNDARY    ([.?!])
+    BOUNDARY    [: intersection( {BASE_CLASS}, [.?!] ) :]
 
-    SNTCHAR     [^.?!\n]
+    SNTCHAR     [: intersection( {BASE_CLASS}, [^.?!\n] ) :]
+
+    SNTBEGINCHR [: intersection( {BASE_CLASS}, [^?!\n ] ) :]
 
     // Szabályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // CHARINSNTN: két CHARINSNT (mondaton belüli egyéb karkater), köztük egy
     //             opcionális sortöréssel (a mondatrész-szabályok használják)
-    // SNTBEGIN: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
-    //           neten."), esetleges sortöréssel
     // SIMPLESNT: egyszerű mondat, nem tapadó írásjellel ("Szép az idő !" is jó)
     //            Megj.: mondaton belül egyszeres sortörések megengedettek,
     //                   \n\n már paragrafus törésnek számít, a mondat végét
@@ -68,9 +108,9 @@ define {
     //                   mondat végén.
     // ENDQUOPAR: mondathatár után jöhető záró záró- és idézőjelek
 
-    CHARINSNTN  {CHARINSNT}"\n"?{CHARINSNT}
+    CHARINSNTN  {CHARINSNT}*"\n"?{CHARINSNT}*
 
-    SNTBEGIN    [^?!\n ]"\n"?
+    SNTBEGIN    {SNTBEGINCHR}"\n"?
 
     SIMPLESNT   ({SNTCHAR}"\n"?)*{BOUNDARY}*
 
@@ -124,11 +164,11 @@ mode SNT {
 
     // mondatokat leíró teljes, kombinált szabály
     {SNTBEGIN}({LOWERCASE_PART}
-              |{QUOTATIONMARK_PART}
-              |{WORDCHAR_PART}
-              |{COMMA_PART}
-              |{BRACKET_PART}
-              )*{SIMPLESNT}{ENDQUOPAR}* 
+                   |{QUOTATIONMARK_PART}
+                   |{WORDCHAR_PART}
+                   |{COMMA_PART}
+                   |{BRACKET_PART}
+                   )*{SIMPLESNT}{ENDQUOPAR}* 
     {
         std::wstring LEX(Lexeme);
         LEX = SNT_OPEN + LEX + SNT_CLOSE;
