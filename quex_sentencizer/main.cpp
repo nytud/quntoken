@@ -1,12 +1,13 @@
-#include<fstream>
-#include<iostream>
-#include<string>
-#include<sstream>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <sstream>
 
 #include "snt_snt_lexer"
 
 
-int main(int argc, char** argv)
+/* int main(int argc, char** argv) */
+int main()
 {
 
     snt::Token*       token_p = 0x0;
