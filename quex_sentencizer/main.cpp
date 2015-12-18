@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-
-#include "snt_snt_lexer"
+#include "snt_snt_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
+#include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
 
 /* int main(int argc, char** argv) */
@@ -16,10 +16,12 @@ int main()
 
     for (lexer.receive(&token_p); token_p->type_id() != SNT_TERMINATION; lexer.receive(&token_p))
     {
-        // csak a token szövegét használjuk fel, a típus nem érdekes (a szöveg
-        // már a quex-ben dekorálva lett)
-        // std::cout << token_p->type_id_name() << "\t" << token_p->pretty_char_text() << std::endl;
-        std::cout << token_p->pretty_char_text() << std::endl;
+        // típus + token (pretty-zve)
+        /* std::cout << token_p->get_string() << std::endl; */
+        // csak token, de a pretty iszképeli a \n-, \r-, \t-ket
+        /* std::cout << token_p->pretty_char_text() << std::endl; */
+        // csak token, nyersen
+        std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text()) << std::endl;
     }
 
     return 0;

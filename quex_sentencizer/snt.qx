@@ -117,7 +117,19 @@ define {
     ENDQUOPAR   ("\""|"''"|"'"|")"|"]"){BOUNDARY}*
 
     // Mondatrészek szabályai: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Az alap mondat: {SNTBEGIN}{SIMPLESNT}{ENDQUOPAR}*
+    // 0. Egyszerű mondat: megenged egyszeres sortöréseket a mondaton belül, de
+    // több sortörés egymás után új paragrafust, és ezzel új mondatot is jelent
+	// BE: A kutya ugat. Jó
+    // BE: lenne, ha abbahagyná!
+	// KI: <s>A kutya ugat.</s> <s>Jó
+	// KI: lenne, ha abbahagyná!</s>
+	// BE: Ez itt már
+	// BE: 
+	// BE: külön bekezdés!
+	// KI: <s>Ez itt már
+	// KI: </s>
+	// KI: <s>külön bekezdés!</s>
+    // Az egyszerű mondat ilyen szerkezetű: {SNTBEGIN}{SIMPLESNT}{ENDQUOPAR}*
     // Minden összetettebb esetben az SNTBEGIN után következhet valamilyen
     // részmondat szerűség. Ezek lesznek itt definiálva:
 
@@ -160,7 +172,8 @@ define {
     BRACKET_PART      ({SIMPLESNT}"("[^.!?)]+[.?!][^.!?)]*")")
 }
 
-mode SNT {
+mode SNT
+{
 
     // mondatokat leíró teljes, kombinált szabály
     {SNTBEGIN}({LOWERCASE_PART}

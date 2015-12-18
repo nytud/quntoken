@@ -1,6 +1,5 @@
-# google test-et le kell tölteni valahova
-# (buildel-ni nem kell)
-# GTEST_DIR-t át kell írni a megfelelő környvtárra
+# download gtest: https://github.com/google/googletest/tree/master/googletest
+# GTEST_DIR-t esetleg át kell írni a megfelelő környvtárra
 GTEST_DIR = $(HOME)/src/googletest/googletest
 
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
@@ -23,7 +22,7 @@ CXXFLAGS_QUEX = $(CXXFLAGS) \
 			-DPRINT_TOKEN \
 		    # -DQUEX_OPTION_MULTI \
 
-CXXFLAGS_TEST = $(CXXFLAGS) \
+CXXFLAGS_GTEST = $(CXXFLAGS) \
 			-pthread \
 
 
@@ -34,7 +33,7 @@ lexer:	snt.o main.o
 	$(CXX) snt.o main.o -o lexer `icu-config --ldflags`
 
 tester:	tester.o snt.o gtest.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS_TEST) -lpthread $^ -o $@ `icu-config --ldflags`
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 clean:
 	rm -rf snt_snt*
@@ -57,7 +56,7 @@ main.o:	main.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c main.cpp -o main.o
 
 
-### generated files by quex
+### quex
 snt_snt_lexer.cpp:	snt.qx
 	quex -i snt.qx \
 		 -o snt::snt_lexer \
@@ -75,16 +74,15 @@ snt_snt_lexer.cpp:	snt.qx
 # használó szabálynál pampog a quex, hogy 2 bájtba nem fér minden bele
 
 
-### aux for gtest
-# ehhöz nem kell nyúlni, generálja a gtest szükséges dolgait
+### gtest
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
 gtest-all.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS_TEST) -c \
+	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS_GTEST) -c \
             $(GTEST_DIR)/src/gtest-all.cc
 
 gtest_main.o : $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS_TEST) -c \
+	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS_GTEST) -c \
             $(GTEST_DIR)/src/gtest_main.cc
 
 gtest.a : gtest-all.o
