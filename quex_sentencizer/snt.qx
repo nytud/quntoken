@@ -30,13 +30,9 @@ define {
     // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // BASE_CLASS: alap karakterosztály, minden más ennek részhalmaza kell
     //      legyen
-    // NEWLINE: újsor karakterek, egyelőre nem használjuk, minden wspace
-    //      Ha kelleni fog, akkor lehet ilyen:
-    //      [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
-    // WSPACE: minden wspace-t tartalmaz a base_class-ból.
-    //      Ha lesz külön new_line, akkor lehet ilyen:
-    //      [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
-    //      Ez a régi: ([ \n\t])
+    // NEWLINE: újsor karakterek
+    // SPACE: minden wspace a base_class-ból, az újsor karakterek kivételével
+    //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
     // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
     //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
     //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
@@ -53,8 +49,12 @@ define {
     //      kérdőjel)
     //      Megj.: a szón belüli pont máshogy van kezelve.
     // SNTCHAR: nem mondathatároló karakter ami nem is sortörés
-    // SNTBEGIN: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
+    // SNTBEGINCHR: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
     //           neten.")
+    // ENDQUOPAR: záró záró- és idézőjelek
+    //      Ez a régi: ("\""|"''"|"'"|")"|"]")
+    //      Megj.: mondathatár (BOUNDARY) után is következhetnek (l. SNTEND)
+    //      TODO: unicode-osítani
     
     BASE_CLASS  [: union( \P{Block=Basic_Latin},
                           \P{Block=Latin-1_Supplement},
@@ -81,11 +81,12 @@ define {
                           \P{Block=Musical_Symbols},
                           \P{Block=Miscellaneous_Symbols}) :]
 
-    WSPACE      [: intersection( {BASE_CLASS}, \P{White_Space} ) :]
+    NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
+
+    SPACE      [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
 
     WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
  
-
     WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
 
     LOWER       [: intersection( {BASE_CLASS}, \G{Lowercase_Letter} ) :]
@@ -98,23 +99,28 @@ define {
 
     SNTBEGINCHR [: intersection( {BASE_CLASS}, [^?!\n ] ) :]
 
+    ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :]
+
     // Szabályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // CHARINSNTN: két CHARINSNT (mondaton belüli egyéb karkater), köztük egy
     //             opcionális sortöréssel (a mondatrész-szabályok használják)
+    // SNTBEGIN: mondatkazdő karakter, utána esetleges sortörés
     // SIMPLESNT: egyszerű mondat, nem tapadó írásjellel ("Szép az idő !" is jó)
+    //            Eredeti: ({SNTCHAR}{NEWLINE}?)*{BOUNDARY}*
     //            Megj.: mondaton belül egyszeres sortörések megengedettek,
     //                   \n\n már paragrafus törésnek számít, a mondat végét
     //                   is jelenti. A mondathatároló (.?!) csak opcionális a
     //                   mondat végén.
-    // ENDQUOPAR: mondathatár után jöhető záró záró- és idézőjelek
+    // SNTEND: mondat végződés
 
-    CHARINSNTN  {CHARINSNT}*"\n"?{CHARINSNT}*
+    CHARINSNTN  {CHARINSNT}*{NEWLINE}?{CHARINSNT}*
 
-    SNTBEGIN    {SNTBEGINCHR}"\n"?
+    SNTBEGIN    {SNTBEGINCHR}{NEWLINE}?
 
-    SIMPLESNT   ({SNTCHAR}"\n"?)*{BOUNDARY}*
+    SIMPLESNT   ({SNTCHAR}{NEWLINE}?)*
 
-    ENDQUOPAR   ("\""|"''"|"'"|")"|"]"){BOUNDARY}*
+    SNTEND      ({SPACE}*({ENDQUOPAR}|{BOUNDARY}))*
+
 
     // Mondatrészek szabályai: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 0. Egyszerű mondat: megenged egyszeres sortöréseket a mondaton belül, de
@@ -129,9 +135,11 @@ define {
 	// KI: <s>Ez itt már
 	// KI: </s>
 	// KI: <s>külön bekezdés!</s>
-    // Az egyszerű mondat ilyen szerkezetű: {SNTBEGIN}{SIMPLESNT}{ENDQUOPAR}*
+    // Az egyszerű mondat ilyen szerkezetű: {SNTBEGIN}{SIMPLESNT}{SNTEND}
     // Minden összetettebb esetben az SNTBEGIN után következhet valamilyen
     // részmondat szerűség. Ezek lesznek itt definiálva:
+    //      Megj.: a definíciók utáni kommentes definíciók az eredeti, BOUDARY-t
+    //      tartalmazó SIMPLESNT hatását állítják helyre
 
     // 1. Mondathatár túllépés: mondatzáró után kis betű
     // BE: N. kormányzósági székhely.
@@ -148,40 +156,48 @@ define {
     // KI: <s>"Jót s jól!</s> <s>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</s>
     // BE: - Szia Péterkém! Holnap találkozunk - mondta Gizi.
     // KI: <s>- Szia Péterkém!</s> <s>Holnap találkozunk - mondta Gizi.</s>
-    LOWERCASE_PART       ({SIMPLESNT}{BOUNDARY}{ENDQUOPAR}*{CHARINSNTN}{LOWER})
+    LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}{SNTEND}{CHARINSNTN}{LOWER})
+    // LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}+{SNTEND}*{CHARINSNTN}{LOWER})
 
     // 2. Mondatzáró után idéző- vagy kötő jel.
     // BE: A "Ne már!"-ral az a baj.
     // KI: <s>A "Ne már!"-ral az a baj.</s>
     // TODO: megnézni, nem felesleges-e ez? ELsőre úgy tűnik, metszetet alkot az 1)-vel bár ha azt egészítjük ki, akkor meg több mindent fog megengedni...
-    QUOTATIONMARK_PART     ({SIMPLESNT}{BOUNDARY}{ENDQUOPAR}"-"{WORDCHAR})
+    QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}{SNTEND}"-"{WORDCHAR})
+    // QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}+{SNTEND}"-"{WORDCHAR})
 
     // 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva.
     // BE: A WWW.AKARMI.HU.
     // KI: <s>A WWW.AKARMI.HU.</s>
-    WORDCHAR_PART   ({SIMPLESNT}[.]{WORDCHAR2})
+    // Megj.: url-ben kérdőjel is lehet
+    WORDCHAR_PART       ({SIMPLESNT}[.?]{WORDCHAR2})
+    // WORDCHAR_PART       ({SIMPLESNT}{BOUNDARY}*[.?]{WORDCHAR2})
 
     // 4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű
     // BE: Azt mondta, hogy "Na!", "Csináld!" és így tovább.
     // KI: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
-    COMMA_PART        ({SIMPLESNT}{BOUNDARY}{ENDQUOPAR}*([,;:]|{CHARINSNTN}{LOWER}))
+    COMMA_PART          ({SIMPLESNT}{BOUNDARY}{SNTEND}([,;:]|{CHARINSNTN}{LOWER}))
+    // COMMA_PART          ({SIMPLESNT}{BOUNDARY}+{SNTEND}*([,;:]|{CHARINSNTN}{LOWER}))
 
     // 5. Mondatban lévő zárójeles rész kezelése.
     // BE: A macska (családjában a 25.) Katinak nyávogott.
     // KI: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
-    BRACKET_PART      ({SIMPLESNT}"("[^.!?)]+[.?!][^.!?)]*")")
+    BRACKET_PART        ({SIMPLESNT}"("[^.!?)]+[.?!][^.!?)]*")")
+    // BRACKET_PART        ({SIMPLESNT}{BOUNDARY}*"("[^.!?)]+[.?!][^.!?)]*")")
 }
 
 mode SNT
 {
 
     // mondatokat leíró teljes, kombinált szabály
-    {SNTBEGIN}({LOWERCASE_PART}
-                   |{QUOTATIONMARK_PART}
-                   |{WORDCHAR_PART}
-                   |{COMMA_PART}
-                   |{BRACKET_PART}
-                   )*{SIMPLESNT}{ENDQUOPAR}* 
+    // Megj.: A mondatrészek szabályainak végén nem lehet sortörés, az itt van
+    // egységesen kezelve
+    {SNTBEGIN}(({LOWERCASE_PART}
+               |{QUOTATIONMARK_PART}
+               |{WORDCHAR_PART}
+               |{COMMA_PART}
+               |{BRACKET_PART}
+               )"\n"?)*{SIMPLESNT}{SNTEND} 
     {
         std::wstring LEX(Lexeme);
         LEX = SNT_OPEN + LEX + SNT_CLOSE;
@@ -189,7 +205,7 @@ mode SNT
     }
 
     // mondatközi whitespace-eket leíró szabály
-    {WSPACE}+   {
+    ({SPACE}|{NEWLINE})+   {
         std::wstring LEX(Lexeme);
         LEX = WS_OPEN + LEX + WS_CLOSE;
         self_send1(SNT_WS, LEX.c_str());
