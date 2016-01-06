@@ -33,7 +33,7 @@ TEST(process_text, PositiveNos) {
             "<s>A kutya ugat.</s><w> </w><s>Jó\nlenne, ha abbahagyná!</s>",
             process_text("A kutya ugat. Jó\nlenne, ha abbahagyná!").c_str());
     ASSERT_STREQ(
-            "<s>Ez itt már\n</s><w>\n</w><s>külön bekezdés!</s>",
+            "<s>Ez itt már</s><w>\n\n</w><s>külön bekezdés!</s>",
             process_text("Ez itt már\n\nkülön bekezdés!").c_str());
     // ASSERT_STREQ("", process_text("").c_str());
     // 1. Mondathatár túllépés: mondatzáró után kis betű

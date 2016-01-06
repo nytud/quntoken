@@ -55,6 +55,9 @@ define {
     //      Ez a régi: ("\""|"''"|"'"|")"|"]")
     //      Megj.: mondathatár (BOUNDARY) után is következhetnek (l. SNTEND)
     //      TODO: unicode-osítani
+    // INPARENTCHR: BRACKET_PART szabályban zárójelen belül alapból megengedett
+    //      karakterek osztálya
+    // COMMACHR: COMMA_PART szabályban szerepelhető vessző-szerű karakterek
     
     BASE_CLASS  [: union( \P{Block=Basic_Latin},
                           \P{Block=Latin-1_Supplement},
@@ -83,7 +86,7 @@ define {
 
     NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
 
-    SPACE      [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
+    SPACE       [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
 
     WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
  
@@ -101,25 +104,36 @@ define {
 
     ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :]
 
+    INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINE}) ) :]
+
+    COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
+
     // Szabályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // CHARINSNTN: két CHARINSNT (mondaton belüli egyéb karkater), köztük egy
     //             opcionális sortöréssel (a mondatrész-szabályok használják)
-    // SNTBEGIN: mondatkazdő karakter, utána esetleges sortörés
+    // SNTBEGIN: mondatkazdő karakter, eredetiben utána esetleges sortörés
+    //      Eredeti: {SNTBEGINCHR}{NEWLINE}?
     // SIMPLESNT: egyszerű mondat, nem tapadó írásjellel ("Szép az idő !" is jó)
-    //            Eredeti: ({SNTCHAR}{NEWLINE}?)*{BOUNDARY}*
-    //            Megj.: mondaton belül egyszeres sortörések megengedettek,
-    //                   \n\n már paragrafus törésnek számít, a mondat végét
-    //                   is jelenti. A mondathatároló (.?!) csak opcionális a
-    //                   mondat végén.
+    //       Eredeti: ({SNTCHAR}{NEWLINE}?)*{BOUNDARY}*
+    //       Csonkított: ({SNTCHAR}{NEWLINE}?)*
+    //       Megj.: mondaton belül egyszeres sortörések megengedettek,
+    //          \n\n már paragrafus törésnek számít, a mondat végét
+    //          is jelenti. A mondathatároló (.?!) csak opcionális a
+    //          mondat végén.
     // SNTEND: mondat végződés
+    // INPARENT: BRACKET_PART szabályhoz a zárójelen belüli karakterek között
+    //      megengedhető sortörések kezelése
 
     CHARINSNTN  {CHARINSNT}*{NEWLINE}?{CHARINSNT}*
 
-    SNTBEGIN    {SNTBEGINCHR}{NEWLINE}?
+    SNTBEGIN    {SNTBEGINCHR}
 
-    SIMPLESNT   ({SNTCHAR}{NEWLINE}?)*
+    SIMPLESNT   ({NEWLINE}?{SNTCHAR})*
 
     SNTEND      ({SPACE}*({ENDQUOPAR}|{BOUNDARY}))*
+    // SNTEND      (NEWLINE}?{SPACE}*({ENDQUOPAR}|{BOUNDARY}))*
+
+    INPARENT    ({INPARENTCHR}{NEWLINE}?)*
 
 
     // Mondatrészek szabályai: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -162,7 +176,6 @@ define {
     // 2. Mondatzáró után idéző- vagy kötő jel.
     // BE: A "Ne már!"-ral az a baj.
     // KI: <s>A "Ne már!"-ral az a baj.</s>
-    // TODO: megnézni, nem felesleges-e ez? ELsőre úgy tűnik, metszetet alkot az 1)-vel bár ha azt egészítjük ki, akkor meg több mindent fog megengedni...
     QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}{SNTEND}"-"{WORDCHAR})
     // QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}+{SNTEND}"-"{WORDCHAR})
 
@@ -176,14 +189,14 @@ define {
     // 4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű
     // BE: Azt mondta, hogy "Na!", "Csináld!" és így tovább.
     // KI: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
-    COMMA_PART          ({SIMPLESNT}{BOUNDARY}{SNTEND}([,;:]|{CHARINSNTN}{LOWER}))
-    // COMMA_PART          ({SIMPLESNT}{BOUNDARY}+{SNTEND}*([,;:]|{CHARINSNTN}{LOWER}))
+    COMMA_PART          ({SIMPLESNT}{BOUNDARY}{SNTEND}({COMMACHR}|{CHARINSNTN}{LOWER}))
+    // COMMA_PART          ({SIMPLESNT}{BOUNDARY}+{SNTEND}({COMMACHR}|{CHARINSNTN}{LOWER}))
 
     // 5. Mondatban lévő zárójeles rész kezelése.
     // BE: A macska (családjában a 25.) Katinak nyávogott.
     // KI: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
-    BRACKET_PART        ({SIMPLESNT}"("[^.!?)]+[.?!][^.!?)]*")")
-    // BRACKET_PART        ({SIMPLESNT}{BOUNDARY}*"("[^.!?)]+[.?!][^.!?)]*")")
+    BRACKET_PART        ({SIMPLESNT}"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
+    // BRACKET_PART        ({SIMPLESNT}{BOUNDARY}*"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
 }
 
 mode SNT
@@ -197,7 +210,7 @@ mode SNT
                |{WORDCHAR_PART}
                |{COMMA_PART}
                |{BRACKET_PART}
-               )"\n"?)*{SIMPLESNT}{SNTEND} 
+               ){NEWLINE}?)*{SIMPLESNT}{SNTEND} 
     {
         std::wstring LEX(Lexeme);
         LEX = SNT_OPEN + LEX + SNT_CLOSE;
