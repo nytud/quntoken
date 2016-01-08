@@ -6,25 +6,25 @@ GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h \
 				  $(GTEST_DIR)/include/gtest/internal/*.h
 
-CPPFLAGS += -isystem $(GTEST_DIR)/include
+CPPFLAGS +=	-isystem $(GTEST_DIR)/include
 
-CXXFLAGS += -Wall \
+CXXFLAGS +=	-Wall \
 			-Wextra \
 			-Wconversion \
 			-Werror \
 			-std=c++11 \
-		    # -g \
+			# -g \
 
-CXXFLAGS_QUEX = $(CXXFLAGS) \
-		    -I$(QUEX_PATH) \
-		    -DQUEX_OPTION_ASSERTS_DISABLED \
-		    -DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
-			-DENCODING_NAME='"UTF8"' \
-			-DPRINT_TOKEN \
-		    # -DQUEX_OPTION_MULTI \
+CXXFLAGS_QUEX =	$(CXXFLAGS) \
+				-I$(QUEX_PATH) \
+				-DQUEX_OPTION_ASSERTS_DISABLED \
+				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
+				-DENCODING_NAME='"UTF8"' \
+				-DPRINT_TOKEN \
+				# -DQUEX_OPTION_MULTI \
 
-CXXFLAGS_GTEST = $(CXXFLAGS) \
-			-pthread \
+CXXFLAGS_GTEST =	$(CXXFLAGS) \
+					-pthread \
 
 
 #####  M A I N   T A R G E T S  ###############################################
