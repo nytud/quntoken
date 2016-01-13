@@ -11,6 +11,8 @@ header {
     const std::wstring SNT_CLOSE = L"</s>";
     const std::wstring WS_OPEN = L"<w>";
     const std::wstring WS_CLOSE = L"</w>";
+    /* const std::wstring TEST_OPEN = L"<T>"; */
+    /* const std::wstring TEST_CLOSE = L"</T>"; */
 }
 
 
@@ -28,6 +30,8 @@ token {
 
 define {
     // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // EMOTICONS: ~. A quex nem ismeri ezt a unicode blokkot, kézzel kell
+    //      megadni
     // BASE_CLASS: alap karakterosztály, minden más ennek részhalmaza kell
     //      legyen
     // NEWLINE: újsor karakterek
@@ -59,6 +63,8 @@ define {
     //      karakterek osztálya
     // COMMACHR: COMMA_PART szabályban szerepelhető vessző-szerű karakterek
     
+    EMOTICONS   [\U1F600-\U1F915]
+
     BASE_CLASS  [: union( \P{Block=Basic_Latin},
                           \P{Block=Latin-1_Supplement},
                           \P{Block=Latin_Extended-A},
@@ -74,6 +80,20 @@ define {
                           \P{Block=Combining_Diacritical_Marks_Supplement},
                           \P{Block=General_Punctuation},
                           \P{Block=Supplemental_Punctuation},
+                          \P{Block=Specials},
+                          \P{Block=Mathematical_Operators},
+                          \P{Block=Supplemental_Mathematical_Operators},
+                          \P{Block=Geometric_Shapes},
+                          \P{Block=Arrows},
+                          \P{Block=Supplemental_Arrows-A},
+                          \P{Block=Supplemental_Arrows-B},
+                          \P{Block=Private_Use_Area},
+                          \P{Block=Supplementary_Private_Use_Area-A},
+                          \P{Block=Supplementary_Private_Use_Area-B},
+                          \P{Block=Spacing_Modifier_Letters},
+                          \P{Block=Alphabetic_Presentation_Forms},
+                          \P{Block=Phonetic_Extensions},
+                          \P{Block=Phonetic_Extensions_Supplement},
                           \P{Block=Currency_Symbols},
                           \P{Block=Letterlike_Symbols},
                           \P{Block=Mathematical_Alphanumeric_Symbols},
@@ -82,7 +102,8 @@ define {
                           \P{Block=Miscellaneous_Symbols_and_Arrows},
                           \P{Block=Miscellaneous_Technical},
                           \P{Block=Musical_Symbols},
-                          \P{Block=Miscellaneous_Symbols}) :]
+                          \P{Block=Miscellaneous_Symbols},
+                          {EMOTICONS}) :]
 
     NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
 
@@ -170,33 +191,33 @@ define {
     // KI: <s>"Jót s jól!</s> <s>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</s>
     // BE: - Szia Péterkém! Holnap találkozunk - mondta Gizi.
     // KI: <s>- Szia Péterkém!</s> <s>Holnap találkozunk - mondta Gizi.</s>
-    LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}{SNTEND}{CHARINSNTN}{LOWER})
-    // LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}+{SNTEND}*{CHARINSNTN}{LOWER})
+    // LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}{SNTEND}{CHARINSNTN}{LOWER})
+    LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}+{SNTEND}*{CHARINSNTN}{LOWER})
 
     // 2. Mondatzáró után idéző- vagy kötő jel.
     // BE: A "Ne már!"-ral az a baj.
     // KI: <s>A "Ne már!"-ral az a baj.</s>
-    QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}{SNTEND}"-"{WORDCHAR})
-    // QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}+{SNTEND}"-"{WORDCHAR})
+    // QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}{SNTEND}"-"{WORDCHAR})
+    QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}+{SNTEND}"-"{WORDCHAR})
 
     // 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva.
     // BE: A WWW.AKARMI.HU.
     // KI: <s>A WWW.AKARMI.HU.</s>
     // Megj.: url-ben kérdőjel is lehet
-    WORDCHAR_PART       ({SIMPLESNT}[.?]{WORDCHAR2})
-    // WORDCHAR_PART       ({SIMPLESNT}{BOUNDARY}*[.?]{WORDCHAR2})
+    // WORDCHAR_PART       ({SIMPLESNT}[.?]{WORDCHAR2})
+    WORDCHAR_PART       ({SIMPLESNT}{BOUNDARY}*[.?]{WORDCHAR2})
 
     // 4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű
     // BE: Azt mondta, hogy "Na!", "Csináld!" és így tovább.
     // KI: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
-    COMMA_PART          ({SIMPLESNT}{BOUNDARY}{SNTEND}({COMMACHR}|{CHARINSNTN}{LOWER}))
-    // COMMA_PART          ({SIMPLESNT}{BOUNDARY}+{SNTEND}({COMMACHR}|{CHARINSNTN}{LOWER}))
+    // COMMA_PART          ({SIMPLESNT}{BOUNDARY}{SNTEND}({COMMACHR}|{CHARINSNTN}{LOWER}))
+    COMMA_PART          ({SIMPLESNT}{BOUNDARY}+{SNTEND}({COMMACHR}|{CHARINSNTN}{LOWER}))
 
     // 5. Mondatban lévő zárójeles rész kezelése.
     // BE: A macska (családjában a 25.) Katinak nyávogott.
     // KI: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
-    BRACKET_PART        ({SIMPLESNT}"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
-    // BRACKET_PART        ({SIMPLESNT}{BOUNDARY}*"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
+    // BRACKET_PART        ({SIMPLESNT}"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
+    BRACKET_PART        ({SIMPLESNT}{BOUNDARY}*"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
 }
 
 mode SNT
@@ -217,14 +238,37 @@ mode SNT
         self_send1(SNT_MONDAT, LEX.c_str());
     }
 
+    /* // unicode teszt-szabály */
+    /* {BASE_CLASS} */
+    /* { */
+    /*     std::wstring LEX(Lexeme); */
+    /*     LEX = TEST_OPEN + LEX + TEST_CLOSE; */
+    /*     std::wcout << LEX << std::endl; */
+    /* } */
+
     // mondatközi whitespace-eket leíró szabály
     ({SPACE}|{NEWLINE})+   {
         std::wstring LEX(Lexeme);
         LEX = WS_OPEN + LEX + WS_CLOSE;
         self_send1(SNT_WS, LEX.c_str());
+        /* std::wcout << LEX << std::endl; */
     }
-    /* .           => SNT_ANYCHAR(Lexeme); */
+    /* /1* .           => SNT_ANYCHAR(Lexeme); *1/ */
     on_failure  => SNT_TERMINATION;
+    /* . */
+    /* { */
+    /*     std::wstring LEX(Lexeme); */
+    /*     LEX = WS_OPEN + LEX + WS_CLOSE; */
+    /*     self_send1(SNT_WS, LEX.c_str()); */
+    /* } */
+    /* /1* .           => SNT_ANYCHAR(Lexeme); *1/ */
+    /* on_failure  => SNT_TERMINATION; */
+    /* on_failure */
+    /* { */
+    /*     std::wcout << "gebasz!: " << Lexeme << std::endl; */
+    /* } */
     <<EOF>>     => SNT_TERMINATION;
 }
+
+// vim:set syntax=cpp:
 
