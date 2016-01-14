@@ -17,11 +17,12 @@ CXXFLAGS +=	-Wall \
 
 CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-I$(QUEX_PATH) \
+				-I$(TMP_DIR) \
 				-DQUEX_OPTION_ASSERTS_DISABLED \
 				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
 				-DENCODING_NAME='"UTF8"' \
 				-DPRINT_TOKEN \
-				# -DQUEX_OPTION_MULTI \
+				# -DQUEX_OPTION_MULTI
 
 CXXFLAGS_GTEST =	$(CXXFLAGS) \
 					-pthread \
@@ -73,13 +74,13 @@ $(TMP_DIR)/snt.o: $(TMP_DIR)/snt_snt_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 
-$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp
+$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/snt_snt_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 
 ### quex
-$(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/snt.qx
-	cd $(TMP_DIR) ; quex -i ../$< \
+$(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/character_classes.qx $(QTOKEN_DIR)/snt.qx
+	cd $(TMP_DIR) ; quex -i ../$(QTOKEN_DIR)/character_classes.qx ../$(QTOKEN_DIR)/snt.qx \
 		 -o snt::snt_lexer \
 		 --token-id-prefix SNT_ \
 		 -b 4 \

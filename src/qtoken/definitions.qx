@@ -1,0 +1,104 @@
+define {
+    // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // EMOTICONS: ~. A quex nem ismeri ezt a unicode blokkot, kézzel kell
+    //      megadni
+    // BASE_CLASS: alap karakterosztály, minden más ennek részhalmaza kell
+    //      legyen
+    // NEWLINE: újsor karakterek
+    // SPACE: minden wspace a base_class-ból, az újsor karakterek kivételével
+    //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
+    // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
+    //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
+    //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+    //      TODO: html entitások kezelését kitalálni (előfeldolgozás, és
+    //          utf8-ra alakítás?)
+    // WORDCHAR2: szóban szerepelhető karakterek, pont nélkül
+    // LOWER: kisbetűk + néhány szimbólum Csaba kódja alapján
+    //      Ez a régi: ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
+    //      Megj.: union(\P{Lowercase}, \P{Other_Lowercase} is lehet hogy jó
+    //          \G{Lowercase_Letter} helyett -- vajon van különbség?
+    // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is mondathatároló
+    //      karakterek (zárójel, idézőjel, szóköz, stb.)
+    // BOUNDARY: egyszerű mondathatároló karakterek (pont, felkiáltójel,
+    //      kérdőjel)
+    //      Megj.: a szón belüli pont máshogy van kezelve.
+    // SNTCHAR: nem mondathatároló karakter ami nem is sortörés
+    // SNTBEGINCHR: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
+    //           neten.")
+    // ENDQUOPAR: záró záró- és idézőjelek
+    //      Ez a régi: ("\""|"''"|"'"|")"|"]")
+    //      Megj.: mondathatár (BOUNDARY) után is következhetnek (l. SNTEND)
+    //      TODO: unicode-osítani
+    // INPARENTCHR: BRACKET_PART szabályban zárójelen belül alapból megengedett
+    //      karakterek osztálya
+    // COMMACHR: COMMA_PART szabályban szerepelhető vessző-szerű karakterek
+    
+    EMOTICONS   [\U1F600-\U1F915]
+
+    BASE_CLASS  [: union( \P{Block=Basic_Latin},
+                          \P{Block=Latin-1_Supplement},
+                          \P{Block=Latin_Extended-A},
+                          \P{Block=Latin_Extended-B},
+                          \P{Block=Latin_Extended-C},
+                          \P{Block=Latin_Extended-D},
+                          \P{Block=Cyrillic},
+                          \P{Block=Cyrillic_Supplement},
+                          \P{Block=Greek_and_Coptic},
+                          \P{Block=Greek_Extended},
+                          \P{Block=Ancient_Greek_Numbers},
+                          \P{Block=Combining_Diacritical_Marks},
+                          \P{Block=Combining_Diacritical_Marks_Supplement},
+                          \P{Block=General_Punctuation},
+                          \P{Block=Supplemental_Punctuation},
+                          \P{Block=Specials},
+                          \P{Block=Mathematical_Operators},
+                          \P{Block=Supplemental_Mathematical_Operators},
+                          \P{Block=Geometric_Shapes},
+                          \P{Block=Arrows},
+                          \P{Block=Supplemental_Arrows-A},
+                          \P{Block=Supplemental_Arrows-B},
+                          \P{Block=Private_Use_Area},
+                          \P{Block=Supplementary_Private_Use_Area-A},
+                          \P{Block=Supplementary_Private_Use_Area-B},
+                          \P{Block=Spacing_Modifier_Letters},
+                          \P{Block=Alphabetic_Presentation_Forms},
+                          \P{Block=Phonetic_Extensions},
+                          \P{Block=Phonetic_Extensions_Supplement},
+                          \P{Block=Currency_Symbols},
+                          \P{Block=Letterlike_Symbols},
+                          \P{Block=Mathematical_Alphanumeric_Symbols},
+                          \P{Block=Miscellaneous_Mathematical_Symbols-A},
+                          \P{Block=Miscellaneous_Mathematical_Symbols-B},
+                          \P{Block=Miscellaneous_Symbols_and_Arrows},
+                          \P{Block=Miscellaneous_Technical},
+                          \P{Block=Musical_Symbols},
+                          \P{Block=Miscellaneous_Symbols},
+                          {EMOTICONS}) :]
+
+    NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
+
+    SPACE       [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
+
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
+ 
+    WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿])) :]
+
+    LOWER       [: intersection( {BASE_CLASS}, \G{Lowercase_Letter} ) :]
+
+    CHARINSNT   [: intersection( {BASE_CLASS}, [\(\)\-[\],; "] ) :]
+
+    BOUNDARY    [: intersection( {BASE_CLASS}, [.?!] ) :]
+
+    SNTCHAR     [: intersection( {BASE_CLASS}, [^.?!\n] ) :]
+
+    SNTBEGINCHR [: intersection( {BASE_CLASS}, [^?!\n ] ) :]
+
+    ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :]
+
+    INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINE}) ) :]
+
+    COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
+}
+
+// vim:set syntax=cpp:
+

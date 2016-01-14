@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 #include <gtest/gtest.h>
-#include "../../tmp/snt_snt_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
+#include "snt_snt_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
 #include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
 
