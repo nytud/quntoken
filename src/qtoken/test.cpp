@@ -2,22 +2,33 @@
 #include <string>
 #include <sstream>
 #include <gtest/gtest.h>
+#include "prep_prep_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
 #include "snt_snt_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
+#include <quex/code_base/multi.i> // a több quex modulhoz
 #include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
 
 std::string process_text(std::string text)
 {
-    std::string res;
-    snt::Token*       token_p = 0x0;
-    std::stringstream tmp(text);
-    snt::snt_lexer lexer(&tmp, "UTF8");
-
-    for (lexer.receive(&token_p);
-         token_p->type_id() != SNT_TERMINATION;
-         lexer.receive(&token_p))
+    prep::Token* token_prep_p = 0x0;
+    std::stringstream ss_to_prep(text); // input of prep
+    std::stringstream ss_to_snt; // output of prep, input of snt
+    prep::prep_lexer lexer_prep(&ss_to_prep, "UTF8");
+    for (lexer_prep.receive(&token_prep_p);
+         token_prep_p->type_id() != PREP_TERMINATION;
+         lexer_prep.receive(&token_prep_p))
     {
-        res += QUEX_CONVERTER_STRING(unicode, char)(token_p->get_text());
+        ss_to_snt << QUEX_CONVERTER_STRING(unicode, char)(token_prep_p->get_text());
+    }
+
+    std::string res; // output of snt
+    snt::Token* token_snt_p = 0x0;
+    snt::snt_lexer lexer_snt(&ss_to_snt, "UTF8");
+    for (lexer_snt.receive(&token_snt_p);
+         token_snt_p->type_id() != SNT_TERMINATION;
+         lexer_snt.receive(&token_snt_p))
+    {
+        res += QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text());
     }
 
     return res;

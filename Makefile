@@ -22,10 +22,23 @@ CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
 				-DENCODING_NAME='"UTF8"' \
 				-DPRINT_TOKEN \
-				# -DQUEX_OPTION_MULTI
+				-DQUEX_OPTION_MULTI
 
 CXXFLAGS_GTEST =	$(CXXFLAGS) \
 					-pthread \
+
+QUEXFLAGS =	-b 4 \
+		 	--bet wchar_t \
+		 	--icu
+# Megj1: icu konverter használata:
+#   - telepíteni kell a libicu52-t és a libicu-dev-et
+#   - quex-nek kell az --icu kapcsoló
+#   - g++-nak linkelésnél kell a `icu-config --ldflags`, ami visszaadja a
+#     linkernek szánt paramétereket
+#   - példa: ../quex/Demo/Cpp/003/-ban
+# Megj2: -b 2 is lehetne, de ekkor egyes unicode char. propert.-eket
+# használó szabálynál pampog a quex, hogy 2 bájtba nem fér minden bele
+
 
 
 #####  M A I N   T A R G E T S  ###############################################
@@ -34,25 +47,26 @@ all: $(TARGET_DIR)/qtoken $(TARGET_DIR)/test
 .PHONY: all
 
 
-$(TARGET_DIR)/qtoken: $(TMP_DIR)/snt.o $(TMP_DIR)/main.o
+$(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/main.o
 	$(CXX) $^ -o $@ `icu-config --ldflags`
 
 
-$(TARGET_DIR)/test: $(TMP_DIR)/test.o $(TMP_DIR)/snt.o $(TMP_DIR)/gtest.a
+# $(TARGET_DIR)/test: $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
+$(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 
 CMD_INSTALL_GTEST = cd $(SOURCE_DIR) ; git clone https://github.com/google/googletest.git
-preparation:
+install_gtest:
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(TMP_DIR)
 	if ! [ -d $(GTEST_DIR) ] ; then $(CMD_INSTALL_GTEST) ; fi
 
-.PHONY: preparation
+.PHONY: install_gtest
 
 
 CMD_UPDATE_GTEST = cd $(GTEST_DIR) ; git pull
-update:
+update_gtest:
 	$(CMD_UPDATE_GTEST)
 
 .PHONY: update
@@ -67,34 +81,34 @@ clean:
 
 ######  A U X I L I A R Y   T A R G E T S  ####################################
 ### object files
-$(TMP_DIR)/test.o: $(QTOKEN_DIR)/test.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
+# $(TMP_DIR)/test.o: $(QTOKEN_DIR)/test.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
+$(TMP_DIR)/test.o: $(QTOKEN_DIR)/test.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
+
+$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp
+	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+
+$(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
+	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/snt.o: $(TMP_DIR)/snt_snt_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 
-$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/snt_snt_lexer.cpp
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
-
-
 ### quex
-$(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/character_classes.qx $(QTOKEN_DIR)/snt.qx
-	cd $(TMP_DIR) ; quex -i ../$(QTOKEN_DIR)/character_classes.qx ../$(QTOKEN_DIR)/snt.qx \
-		 -o snt::snt_lexer \
-		 --token-id-prefix SNT_ \
-		 -b 4 \
-		 --bet wchar_t \
-		 --icu
-# Megj1: icu konverter használata:
-#   - telepíteni kell a libicu52-t és a libicu-dev-et
-#   - quex-nek kell az --icu kapcsoló
-#   - g++-nak linkelésnél kell a `icu-config --ldflags`, ami visszaadja a
-#     linkernek szánt paramétereket
-#   - példa: ../quex/Demo/Cpp/003/-ban
-# Megj2: -b 2 is lehetne, de ekkor egyes unicode char. propert.-eket
-# használó szabálynál pampog a quex, hogy 2 bájtba nem fér minden bele
+$(TMP_DIR)/prep_prep_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/preproc.qx
+	cd $(TMP_DIR) ; \
+	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/preproc.qx \
+			-o prep::prep_lexer \
+			--token-id-prefix PREP_ \
+			$(QUEXFLAGS)
 
+$(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/snt.qx
+	cd $(TMP_DIR) ; \
+	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/snt.qx \
+			-o snt::snt_lexer \
+			--token-id-prefix SNT_ \
+			$(QUEXFLAGS)
 
 ### gtest
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)

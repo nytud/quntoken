@@ -1,0 +1,19 @@
+token
+{
+    BASECHAR;
+    REPLACEMENTCHAR;
+}
+
+mode PREPROC
+{
+    {BASE_CLASS}    => PREP_BASECHAR(Lexeme);
+    .               {
+        std::cerr << "invalid character: " << Lexeme << std::endl;
+        self_send1(PREP_REPLACEMENTCHAR, L"�");
+    }
+    on_failure      => PREP_TERMINATION;
+    <<EOF>>         => PREP_TERMINATION;
+}
+
+// vim:set syntax=cpp:
+
