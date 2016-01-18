@@ -1,0 +1,81 @@
+0. Egyszerű mondat. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IN : Egy mondat.
+OUT: <s>Egy mondat.</s>
+
+Egyszeres sortörés bárhol lehet a modatban.
+IN : A kutya ugat. Jo
+IN : lenne, ha abbahagyna!
+OUT: <s>A kutya ugat.</s>
+OUT: <w> </w>
+OUT: <s>Jo
+OUT: lenne, ha abbahagyna!</s>
+
+Egyszeres sortörés bárhol lehet a modatban, többször is.
+IN : A
+IN : kutya
+IN : ugat
+IN : .
+IN : .
+IN : .
+OUT: <s>A
+OUT: kutya
+OUT: ugat
+OUT: .
+OUT: .
+OUT: .</s>
+
+Többszörös sortörés új bekezdést hoz létre. Az előtte lévő mondat lezárul, akár
+írásjel nélkül is (hasznos lehet pl. cím esetén).
+IN : Ez itt mar
+IN :
+IN : kulon bekezdes!
+OUT: <s>Ez itt mar</s>
+OUT: <w>
+OUT:
+OUT: </w>
+OUT: <s>kulon bekezdes!</s>
+
+
+1. Mondathatár túllépés: mondatzáró után kis betű. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IN : N. kormányzósági székhely.
+OUT: <s>N. kormányzósági székhely.</s>
+
+IN : A www.akármi.hu.
+OUT: <s>A www.akármi.hu.</s>
+
+IN : - Nézd a! - mondta az egyik.
+OUT: <s>- Nézd a! - mondta az egyik.</s>
+
+IN : A 4. javítócsomagot.
+OUT: <s>A 4. javítócsomagot.</s>
+
+IN : 3434/1992. évi elszámolás.
+OUT: <s>3434/1992. évi elszámolás.</s>
+
+IN : "Jót s jól! Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.
+OUT: <s>"Jót s jól!</s>\n<w> </w>\n<s>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</s>
+
+IN : - Szia Péterkém! Holnap találkozunk - mondta Gizi.
+OUT: <s>- Szia Péterkém!</s>\n<w> </w>\n<s>Holnap találkozunk - mondta Gizi.</s>
+
+
+2. Mondatzáró után idéző- vagy kötő jel. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IN : A "Ne már!"-ral az a baj.
+OUT: <s>A "Ne már!"-ral az a baj.</s>
+
+
+3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva. ~~~~~~~~
+IN : A WWW.AKARMI.HU.
+OUT: <s>A WWW.AKARMI.HU.</s>
+
+
+4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű ~~~~~~~~~~~~~~~~~~~~~~~~~~
+IN : Azt mondta, hogy "Na!", "Csináld!" és így tovább.
+OUT: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
+
+
+5. Mondatban lévő zárójeles rész kezelése. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IN : A macska (családjában a 25.) Katinak nyávogott.
+OUT: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
+
+
