@@ -8,7 +8,11 @@ mode PREPROC
 {
     {BASE_CLASS}    => PREP_BASECHAR(Lexeme);
     .               {
-        std::cerr << "invalid character: " << Lexeme << std::endl;
+        /* std::wstring err(Lexeme); */
+        std::cerr << "invalid character ("
+                  << self.line_number() << ","
+                  << self.column_number() << "): "
+                  << QUEX_CONVERTER_STRING(unicode, char)(Lexeme) << std::endl;
         self_send1(PREP_REPLACEMENTCHAR, L"�");
     }
     on_failure      => PREP_TERMINATION;

@@ -10,6 +10,7 @@ Példa:
 IN : Nana. # megjegyzés
 OUT: Nono.
 """
+# TODO: jelen formában nem alkalmas a sorvégek tesztelésére (csak "\n" lehet)
 
 import sys
 import glob
