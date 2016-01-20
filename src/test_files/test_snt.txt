@@ -10,7 +10,24 @@ OUT: <w> </w>
 OUT: <s>Jo
 OUT: lenne, ha abbahagyna!</s>
 
-Egyszeres sortörés bárhol lehet a modatban, többször is.
+Egyszeres sortörés bárhol lehet a modatban, többször is, kivéve a mondatzáró
+írásjel sorozatban.
+IN : A
+IN : kutya
+IN : ugat
+IN : .
+OUT: <s>A
+OUT: kutya
+OUT: ugat
+OUT: .</s>
+IN : A
+IN : kutya
+IN : ugat
+IN : ...
+OUT: <s>A
+OUT: kutya
+OUT: ugat
+OUT: ...</s>
 IN : A
 IN : kutya
 IN : ugat
@@ -20,8 +37,10 @@ IN : .
 OUT: <s>A
 OUT: kutya
 OUT: ugat
-OUT: .
-OUT: .
+OUT: .</s>
+OUT: <w>
+OUT: </w>
+OUT: <s>.
 OUT: .</s>
 
 Többszörös sortörés új bekezdést hoz létre. Az előtte lévő mondat lezárul, akár
@@ -34,6 +53,8 @@ OUT: <w>
 OUT:
 OUT: </w>
 OUT: <s>kulon bekezdes!</s>
+IN : 1. fejezet
+OUT: <s>1. fejezet</s>
 
 
 1. Mondathatár túllépés: mondatzáró után kis betű. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
