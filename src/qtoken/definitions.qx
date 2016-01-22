@@ -79,6 +79,8 @@ define {
 
     SPACE       [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
 
+    WSPACE      ({NEWLINE}|{SPACE})
+
     WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/])) :]
  
     WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/])) :]
