@@ -35,7 +35,8 @@ QUEXFLAGS =	-b 4 \
 #   - telepíteni kell a libicu52-t és a libicu-dev-et
 #   - quex-nek kell az --icu kapcsoló
 #   - g++-nak linkelésnél kell a `icu-config --ldflags`, ami visszaadja a
-#     linkernek szánt paramétereket
+#     linkernek szánt paramétereket (valami érthetetlen oknál fogva nem mindegy
+#     az `icu-config --ldflags` helye a kapcsolók között!)
 #   - példa: ../quex/Demo/Cpp/003/-ban
 # Megj2: -b 2 is lehetne, de ekkor egyes unicode char. propert.-eket
 # használó szabálynál pampog a quex, hogy 2 bájtba nem fér minden bele
@@ -74,24 +75,27 @@ clean:
 
 ######  A U X I L I A R Y   T A R G E T S  ####################################
 ### binaries
-$(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/main.o
-	$(CXX) $^ -o $@ `icu-config --ldflags`
-
+$(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/abbrev.o $(TMP_DIR)/main.o
+	$(CXX) $^ `icu-config --ldflags` -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
+
 
 ### object files
 $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp
+$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/abbrev_abbrev_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/snt.o: $(TMP_DIR)/snt_snt_lexer.cpp
+	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+
+$(TMP_DIR)/abbrev.o: $(TMP_DIR)/abbrev_abbrev_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 
@@ -108,6 +112,13 @@ $(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/snt.qx
 	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/snt.qx \
 			-o snt::snt_lexer \
 			--token-id-prefix SNT_ \
+			$(QUEXFLAGS)
+
+$(TMP_DIR)/abbrev_abbrev_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/abbrev.qx
+	cd $(TMP_DIR) ; \
+	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/abbrev.qx \
+			-o abbrev::abbrev_lexer \
+			--token-id-prefix ABBREV_ \
 			$(QUEXFLAGS)
 
 

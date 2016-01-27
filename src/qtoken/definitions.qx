@@ -1,3 +1,6 @@
+// a modulok kozos definicioi
+
+
 define {
     // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // EMOTICONS: ~. A quex nem ismeri ezt a unicode blokkot, kézzel kell
@@ -7,16 +10,25 @@ define {
     // NEWLINE: újsor karakterek
     // SPACE: minden wspace a base_class-ból, az újsor karakterek kivételével
     //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
+    // WSPACE: minden white space a base class-bol
     // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
     //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
     //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
     //      TODO: html entitások kezelését kitalálni (előfeldolgozás, és
     //          utf8-ra alakítás?)
+    //      Figyelni: az eredeti a '_'-t nem tartalmazza (hun_token-nel lehet
+    //          fontos)!
     // WORDCHAR2: szóban szerepelhető karakterek, pont nélkül
+    // NONWORDCHAR: nem-szoalkoto kakaktrerek (pont nincs benne, tehat a sima
+    //      WORDCHAR komplementere)
+    //      Ez a regi: [^a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ]
+    //      Figyelni: a hun_token is hasznalja, de az a '_'-t is tartalmazza!
     // LOWER: kisbetűk + néhány szimbólum Csaba kódja alapján
     //      Ez a régi: ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
     //      Megj.: union(\P{Lowercase}, \P{Other_Lowercase} is lehet hogy jó
     //          \G{Lowercase_Letter} helyett -- vajon van különbség?
+    // UPPER: nagybetűk + néhány szimbólum Csaba kódja alapján
+    //      Ez a régi: ([A-ZÁÉÍÓÖÕÚÜÛ§¡£¥¦©ª«¬®¯ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞ])
     // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is mondathatároló
     //      karakterek (zárójel, idézőjel, szóköz, stb.)
     // BOUNDARY: egyszerű mondathatároló karakterek (pont, felkiáltójel,
@@ -85,7 +97,11 @@ define {
  
     WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/])) :]
 
-    LOWER       [: intersection( {BASE_CLASS}, \G{Lowercase_Letter} ) :]
+    NONWORDCHAR [: difference( {BASE_CLASS}, {WORDCHAR}) :]
+
+    LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿»¶±¼¾¹³øº])) :]
+
+    UPPER       [: intersection( {BASE_CLASS}, union(\G{Uppercase_Letter}, [§¡£¥¦©ª«¬®¯]) ) :]
 
     CHARINSNT   [: intersection( {BASE_CLASS}, [\(\)\-[\],; "] ) :]
 
@@ -100,6 +116,14 @@ define {
     INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINE}) ) :]
 
     COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
+
+
+    // A szovegben a feldolgozas soran hasznalt tag-ek:
+    SNT_OPEN_TAG    "<s>"
+    SNT_CLOSE_TAG   "</s>"
+    WS_OPEN_TAG     "<w>"
+    WS_CLOSE_TAG    "</w>"
+
 }
 
 // vim:set syntax=cpp:

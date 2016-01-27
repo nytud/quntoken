@@ -1,0 +1,245 @@
+// Mondatrabontast korrigalo es roviditeseket kezelo modul.
+
+header {
+    #include <iostream>
+
+    // Az xml tag-ek cserélhetők spec. karakterekre a későbbi feldolgozást
+    // megkönnyítendő.
+    // Mondat: <s> és </s>
+    // Whitespace: <w> és </w>
+    // Megj.: A header vegso soron a main.cpp-be masolodik be -> ha uazon a
+    //      neven tobb modulban is van header-es deklaracio, akkor utkozes
+    //      miatt elszall a forditas. Ezert van a modul neve vegzodeskent a
+    //      deklaralandok neveben.
+    // TODO: esetleg ezt is lehetne temlate-esiteni, igy csak egy cfg fajlban
+    //      kellene egyszer megadni az ertekeket.
+    const std::wstring SNT_OPEN_ABBREV  = L"<s>";
+    const std::wstring SNT_CLOSE_ABBREV = L"</s>";
+    const std::wstring WS_OPEN_ABBREV   = L"<w>";
+    const std::wstring WS_CLOSE_ABBREV  = L"</w>";
+}
+
+body {
+    // felesleges mondathatar-tag-ek ("</s> <s>"-szeru dolgok) torlese a
+    // kapott szovegbol, javitott szoveg visszaadasa
+    // TODO: C++-ositani!
+    std::wstring snt_boundary_correction(const wchar_t* lexi) {
+        std::wstring buff;
+        // buff.reserve(8192);
+        for (size_t i=0; i<wcslen(lexi); ++i) {
+            if (wcsncmp(lexi+i, SNT_OPEN_ABBREV.c_str(), SNT_OPEN_ABBREV.length()) == 0) {
+                i += SNT_OPEN_ABBREV.length()-1;
+            }
+            else if (wcsncmp(lexi+i, SNT_CLOSE_ABBREV.c_str(), SNT_CLOSE_ABBREV.length()) == 0) {
+                i += SNT_CLOSE_ABBREV.length()-1;
+            }
+            else {
+                buff += lexi[i];
+            }
+        }
+        return buff;
+    }
+}
+
+
+token {
+    ANYCHAR;
+}
+
+define {
+    // ws szekvencia benne legfeljebb 1 db sortoressel
+    WS_SEQ              (({SPACE}+{NEWLINE}?{SPACE}*)|({NEWLINE}{SPACE}*))
+    // megtag-gelt ws_seq
+    TAGGED_WS_SEQ       ({WS_OPEN_TAG}{WS_SEQ}{WS_CLOSE_TAG})
+    // "." utani mondatzaro-tag, ws, mondatnyito-tag kombinacio:
+    DOT_SENTENCE_BOUNDARY   ("."{SNT_CLOSE_TAG}{TAGGED_WS_SEQ}{SNT_OPEN_TAG})
+    // ugyan ez pont nelkul
+    SENTENCE_BOUNDARY       ({SNT_CLOSE_TAG}{TAGGED_WS_SEQ}{SNT_OPEN_TAG})
+    // honap romai szammal (XIII is lehet, kulonben rendben van)
+    ROMAN_MONTH         ([VX]?"I"{1,3}|"I"?[VX])
+    //
+    MONTH_CAP (J[aA][nN]|F[eE][bB]|M[áÁ][rR][cC]|Á[pP][rR]|M[áÁ][jJ]|J[Úú][nNlL]|A[uU][gG]|S[zZ][eE][pP]|O[kK][tT]|N[oO][vV]|D[eE][cC])
+    //
+    MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
+
+}
+
+
+// M O D E S
+start = PROGRAM;
+
+mode COMMON : <inheritable: only> {
+    {NEWLINE}   => ABBREV_ANYCHAR(Lexeme);
+    <<EOF>>     => ABBREV_TERMINATION;
+    on_failure  => ABBREV_TERMINATION;
+}
+
+mode PROGRAM : COMMON {
+    // 1. Mondatkezdo sorszamok:
+    // BE: <s>25.</s> <s>Magyarország
+    // KI: <s>25. Magyarország
+    // BE: <s>25.</s> <s>§
+    // KI: <s>25. §
+    {SNT_OPEN_TAG}[0-9]+    {
+        self_send1(ABBREV_ANYCHAR, Lexeme);
+        self << NUMBEGIN;
+    }
+
+    // 2.1. zárójelezett dátum
+    // BE : A 2002. (IV. 25.)
+    // SNT: <s>A 2002.</s><w> </w><s>(IV.</s><w> </w><s>25.)</s>
+    // KI : <s>A 2002. (IV. 25.)</s>
+    // eredeti: [0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")</s>"{SPACE}"<s>"
+    // eredeti atirata: [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({SPACE}[0-9]+".")?")"{SNT_CLOSE_TAG} {
+    // ez meg mukodik is:
+    [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}(("."{SPACE})|({DOT_SENTENCE_BOUNDARY})[0-9]+".")?")"{SENTENCE_BOUNDARY} {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(ABBREV_ANYCHAR, LEX.c_str());
+    }
+
+    // 2.2. zárójelezett dátum (de utana nincs mondatveg)
+    // BE: <s>A 2002.</s> <s>(IV. 25.) van.
+    // KI: <s>A 2002. (IV. 25.) van.
+    // eredeti: [0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")"
+    [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}(("."{SPACE})|({DOT_SENTENCE_BOUNDARY})[0-9]+".")?")" {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(ABBREV_ANYCHAR, LEX.c_str());
+    }
+
+    // 3. rövidített hónap + nap
+    // jobb egy specifikus szabály, mint a lenti általános ABBREV-es
+    // BE: Szep.</s> <s>11-rõl
+    // KI: Szep. 11-rõl
+    // eredeti: ([0-9]+{BOUNDARY})?{MONTH_ABBR}{BOUNDARY}[0123]?[0-9]
+    ([0-9]+{DOT_SENTENCE_BOUNDARY})?{MONTH_ABBR}{DOT_SENTENCE_BOUNDARY}[0123]?[0-9] {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(ABBREV_ANYCHAR, LEX.c_str());
+    }
+
+    // 4. év + nagybetus hónap, ha az elozo nem oldja meg
+    // BE: 2012.</s> <s>MÁJUS
+    // KI: 2012. MÁJUS
+    // BE: 2012.</s> <s>Júl.
+    // KI: 2012. Júl.
+    // eredeti: [0-9]+{BOUNDARY}{MONTH_CAP}
+
+    // 5.1.1. ügyiratszám + dátum I.
+    // BE: <s>A 25/2002.</s> <s>(IV.</s> <s>25.)</s> <s>
+    // KI: <s>A 25/2002. (IV. 25.) 
+    // BE: <s>A 25/2002.</s> <s>(IV. 25.)</s> <s>
+    // KI: <s>A 25/2002. (IV. 25.) 
+    // eredeti: {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])".</s>"({SPACE}"<s>"[0-9]+".")?")</s>"{SPACE}"<s>"
+
+    // 5.1.2. ???
+    // eredeti> {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")</s>"{SPACE}"<s>"
+
+    // 5.2 ügyiratszám + dátum II.
+    // BE: <s>A 25/2002.</s> <s>(IV.</s> <s>25.)
+    // KI: <s>A 25/2002. (IV. 25.)
+    // eredeti: {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])".</s>"{SPACE}"<s>" {
+
+    // 5.3. ügyiratszám + dátum III.
+    // BE: <s>A 25/2002.</s> <s>(IV.25.)
+    // KI: <s>A 25/2002. (IV.25.)
+    // eredeti: {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."([0-9]+".")?")"
+
+    // 6. paragrafusjel, és sorszámot követo szám, vagy dátum római számmal
+    // BE: <s>A 25.</s> <s>§ szerint 2002.</s> <s>IV. havában.
+    // KI: <s>A 25. § szerint 2002. IV. havában.
+    // eredeti: [0-9]+{BOUNDARY}([§0-9]|[VX]?"I"{1,3}"."|"I"?[VX]".")
+
+    // 7. ???
+    // eredeti: [0-9]+{BOUNDARY}([VX]?"I"{1,3}|"I"?[VX]){BOUNDARY}[0-9]
+
+
+    // 8. Monogramok (B. Jenõ)  meg a roviditesek is
+    // a roviditesekekn meg dolgozni kene
+    // BE: B.</s> <s>Jenõ.
+    // KI: B. Jenõ.
+    // BE: A.</s> <s>E.</s> <s>X.</s> <s>Wilson.
+    // KI: A. E. X. Wilson.
+    // a stb. utan nem szabad kivenni a hatart...
+    // eredeti: {NONWORDCHAR}({ABBREV}{BOUNDARY}|{UPPER}{BOUNDARY})+
+
+    // 9. huje sztirng
+    // eredeti: {ALL_ABBREV}"."")"?"</s><s>:"
+
+    // 10. Római számok (VI. Lajos), kivéve CD.
+    // BE: XIV.</s> <s>Lajos.
+    // KI: XIV. Lajos.
+    // BE: Ott a CD.</s> <s>Hallod?
+    // KI: Ott a CD.</s> <s>Hallod?
+    // eredeti: {NONWORDCHAR}"CD"{BOUNDARY} { ECHO; }  /* robusztus */
+    // eredeti: {NONWORDCHAR}[IVXLCMD]+{BOUNDARY} { print_abbrev(yytext); }  /* robusztus */
+
+
+    // 10. Pl. esetében mindig megszüntetjük a mondathatárt.
+    // BE: Pl.</s> <s>Péter és Marcsa pl.</s> <s>25 fánkot is ehetne.
+    // KI: Pl. Péter és Marcsa pl. 25 fánkot is ehetne.
+    // eredeti: {NONWORDCHAR}?[Pp]"l"{BOUNDARY} { print_abbrev(yytext); }  /* l., L. */
+
+    // 11. Gyakori rövidítések
+    // BE: Pl.</s> <s>Jani szerint ápr.</s> <s>Kati kedvenc hónapja.
+    // KI: Pl. Jani szerint ápr. Kati kedvenc hónapja.
+    // ez a szabaly a fentiben mar lefut
+    // /* {NONWORDCHAR}{ABBREV}{BOUNDARY} { print_abbrev(yytext); } */
+
+    // 12. ??? -- ,,stb.'' esetében nem vonunk egybe. (A macska, kutya stb. Az elsõ...
+
+    // -----------------------------------------------
+    // tokenizálás után mondatvégirövidítés-javítás
+    // nem mukodnek az uj kimenetformatum miatt, at kell oket
+    // alakitani, ha kellenek egyaltalan
+    // -----------------------------------------------
+
+    // 13. ez nem csinal semmit szerintem (O.Cs.?)
+    // eredeti: "<w>CD\n</w>\n<c>.</c>" { ECHO; }
+
+    // 14. ez teszi vissza a pontot a megadott elemek vegere
+    // eredeti:
+    // ^{ALL_ABBREV}"\tTOK\n.\tWPUNCT\n" {
+    //     char c[10];
+    //     int l  = yyleng - 14;
+    //     strncpy(c, yytext, l);
+    //     c[l] = '.';
+    //     c[l + 1] = '\0';
+    //     printf("%s\t%s[:Oyo-sn:]", c, c);
+    //     yyless(yyleng - 1);
+    // }
+
+    // 15. ???
+    // eredeti:
+    // ^([A-Z]|[IVXLCMD]+)"\tTOK\n.\tWPUNCT" {
+    //     strcpy(yytext + (yyleng - 13), ".\tTOK");
+    //     printf("%s", yytext);
+    // }
+
+    // 16. ???
+    // eredeti:
+    // "WPUNCT"[\n]+"</s>" {
+    //     printf("SPUNCT\n</s>");
+    // }
+
+    // 17. hun_sentclean kiegészítése
+    // eredeti:
+    // [\n]+"</s>" {
+    //     printf("\n</s>");
+    // }
+
+    .           => ABBREV_ANYCHAR(Lexeme);
+}
+    
+
+mode NUMBEGIN : COMMON {
+    {DOT_SENTENCE_BOUNDARY}{UPPER} {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(ABBREV_ANYCHAR, LEX.c_str());
+    }
+    . {
+        self_send1(ABBREV_ANYCHAR, Lexeme);
+        self << PROGRAM;
+    }
+}
+
+// vim:set syntax=cpp:
+

@@ -8,7 +8,6 @@ mode PREPROC
 {
     {BASE_CLASS}    => PREP_BASECHAR(Lexeme);
     .               {
-        /* std::wstring err(Lexeme); */
         std::cerr << "invalid character ("
                   << self.line_number() << ","
                   << self.column_number() << "): "
