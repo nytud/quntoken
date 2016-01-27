@@ -90,9 +90,9 @@ mode PROGRAM : COMMON {
     // SNT: <s>A 2002.</s><w> </w><s>(IV.</s><w> </w><s>25.)</s>
     // KI : <s>A 2002. (IV. 25.)</s>
     // eredeti: [0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")</s>"{SPACE}"<s>"
-    // eredeti atirata: [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({SPACE}[0-9]+".")?")"{SNT_CLOSE_TAG} {
-    // ez meg mukodik is:
-    [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}(("."{SPACE})|({DOT_SENTENCE_BOUNDARY})[0-9]+".")?")"{SENTENCE_BOUNDARY} {
+    // eredeti atirata: [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({WSPACE}[0-9]+".")?")"{SENTENCE_BOUNDARY} {
+    // ez meg mukodik:
+    [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}(("."{WSPACE})|({DOT_SENTENCE_BOUNDARY})[0-9]+".")?")"{SENTENCE_BOUNDARY} {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(ABBREV_ANYCHAR, LEX.c_str());
     }
@@ -101,7 +101,7 @@ mode PROGRAM : COMMON {
     // BE: <s>A 2002.</s> <s>(IV. 25.) van.
     // KI: <s>A 2002. (IV. 25.) van.
     // eredeti: [0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")"
-    [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}(("."{SPACE})|({DOT_SENTENCE_BOUNDARY})[0-9]+".")?")" {
+    [0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}(("."{WSPACE})|({DOT_SENTENCE_BOUNDARY})[0-9]+".")?")" {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(ABBREV_ANYCHAR, LEX.c_str());
     }
@@ -122,6 +122,11 @@ mode PROGRAM : COMMON {
     // BE: 2012.</s> <s>Júl.
     // KI: 2012. Júl.
     // eredeti: [0-9]+{BOUNDARY}{MONTH_CAP}
+    // Megoldja mar az 1. is, nem kell.
+    /* [0-9]+{DOT_SENTENCE_BOUNDARY}{MONTH_CAP} { */
+    /*     std::wstring LEX(self.snt_boundary_correction(Lexeme)); */
+    /*     self_send1(ABBREV_ANYCHAR, LEX.c_str()); */
+    /* } */
 
     // 5.1.1. ügyiratszám + dátum I.
     // BE: <s>A 25/2002.</s> <s>(IV.</s> <s>25.)</s> <s>
@@ -129,6 +134,10 @@ mode PROGRAM : COMMON {
     // BE: <s>A 25/2002.</s> <s>(IV. 25.)</s> <s>
     // KI: <s>A 25/2002. (IV. 25.) 
     // eredeti: {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])".</s>"({SPACE}"<s>"[0-9]+".")?")</s>"{SPACE}"<s>"
+    {WSPACE}[0-9]+"/"[0-9]+{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."{SNT_CLOSE_TAG}({WSPACE}{SNT_OPEN_TAG}[0-9]+".")?")"{SNT_CLOSE_TAG}{WSPACE}{SNT_OPEN_TAG} {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(ABBREV_ANYCHAR, LEX.c_str());
+    }
 
     // 5.1.2. ???
     // eredeti> {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")</s>"{SPACE}"<s>"
