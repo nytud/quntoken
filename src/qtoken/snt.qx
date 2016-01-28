@@ -1,19 +1,5 @@
 // Mondatrabontó modul.
 
-header {
-    // Az xml tag-ek cserélhetők spec. karakterekre a későbbi feldolgozást
-    // megkönnyítendő.
-    // Mondat: <s> és </s>
-    // Mondat szintű whitespace: <w> és </w>
-    // Megj.: A nem mondatszintű whitespace-ek is ugyanilyenek lesznek, de az
-    // egy későbbi modul feladata.
-    const std::wstring SNT_OPEN_SNT     = L"<s>";
-    const std::wstring SNT_CLOSE_SNT    = L"</s>";
-    const std::wstring WS_OPEN_SNT      = L"<w>";
-    const std::wstring WS_CLOSE_SNT     = L"</w>";
-}
-
-
 token {
     // A main számára visszaadott token típusok.
     // SENTENCE: mondat-jelölt, a rövidítések kezelése még felülírhatja a
@@ -117,9 +103,7 @@ define {
     BRACKET_PART        ({SIMPLESNT}{BOUNDARY}*"("{INPARENT}{BOUNDARY}{NEWLINE}?{INPARENT}")")
 }
 
-mode SNT
-{
-
+mode PROGRAM {
     // mondatokat leíró teljes, kombinált szabály
     // Megj.: A mondatrészek szabályainak végén nem lehet sortörés, az itt van
     // egységesen kezelve
@@ -131,14 +115,14 @@ mode SNT
                ){NEWLINE}?)*{SIMPLESNT}{SNTEND} 
     {
         std::wstring LEX(Lexeme);
-        LEX = SNT_OPEN_SNT + LEX + SNT_CLOSE_SNT;
+        LEX = self.SNT_OPEN_CPP + LEX + self.SNT_CLOSE_CPP;
         self_send1(SNT_SENTENCE, LEX.c_str());
     }
 
     // mondatközi whitespace-eket leíró szabály
     {WSPACE}+   {
         std::wstring LEX(Lexeme);
-        LEX = WS_OPEN_SNT + LEX + WS_CLOSE_SNT;
+        LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
         self_send1(SNT_WHITESPACE, LEX.c_str());
     }
     on_failure  => SNT_TERMINATION;

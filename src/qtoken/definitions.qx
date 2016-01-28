@@ -1,5 +1,44 @@
 // a modulok kozos definicioi
 
+body {
+    // A szovegben a feldolgozas soran hasznalt tag-ek C++-os (wstring)
+    // definicioja.
+    // Az xml tag-ek cserélhetők spec. karakterekre a későbbi feldolgozást
+    // megkönnyítendő. Ekkor a define szekcio _QX vegzodesu definicioit is
+    // cserelni kell.
+    const std::wstring SNT_OPEN_CPP     = L"<s>";
+    const std::wstring SNT_CLOSE_CPP    = L"</s>";
+    const std::wstring WS_OPEN_CPP      = L"<w>";
+    const std::wstring WS_CLOSE_CPP     = L"</w>";
+
+    //
+    const std::wstring REPLACEMENTCHAR_CPP = L"�";
+
+    // mondathatar-tag-ek ("</s> <s>"-szeru dolgok) torlese kapott stringbol,
+    // javitott szoveg visszaadasa
+    // TODO: C++-ositani!
+    // Megj.: Az sntcorr.qx-ben lenne a helye, de ha abban van 'body' szekcio,
+    //      akkor az felulirja az ittenit, igy az sntcorr.qx-ben nem lenne
+    //      hasznalhato a tobbi, itt deklaralt dolog sem. Szoval itt van, a
+    //      tobbi modul meg nem hasznalja es kesz.
+    std::wstring snt_boundary_correction(const wchar_t* lexi) {
+        std::wstring buff;
+        // buff.reserve(8192);
+        for (size_t i=0; i<wcslen(lexi); ++i) {
+            if (wcsncmp(lexi+i, SNT_OPEN_CPP.c_str(), SNT_OPEN_CPP.length()) == 0) {
+                i += SNT_OPEN_CPP.length()-1;
+            }
+            else if (wcsncmp(lexi+i, SNT_CLOSE_CPP.c_str(), SNT_CLOSE_CPP.length()) == 0) {
+                i += SNT_CLOSE_CPP.length()-1;
+            }
+            else {
+                buff += lexi[i];
+            }
+        }
+        return buff;
+    }
+}
+
 
 define {
     // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,13 +157,18 @@ define {
     COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
 
 
-    // A szovegben a feldolgozas soran hasznalt tag-ek:
-    SNT_OPEN_TAG    "<s>"
-    SNT_CLOSE_TAG   "</s>"
-    WS_OPEN_TAG     "<w>"
-    WS_CLOSE_TAG    "</w>"
+    // A szovegben a feldolgozas soran hasznalt tag-ek quex-es (pattern)
+    // definicioja:
+    SNT_OPEN_QX    "<s>"
+    SNT_CLOSE_QX   "</s>"
+    WS_OPEN_QX     "<w>"
+    WS_CLOSE_QX    "</w>"
+
+    // egyebek:
+    /* REPLACEMENTCHAR_QX "�" */
 
 }
+
 
 // vim:set syntax=cpp:
 

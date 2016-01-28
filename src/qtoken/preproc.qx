@@ -1,18 +1,22 @@
-token
-{
-    BASECHAR;
+token {
+    // alap karakterosztalyba tartozo karakterek nem ures sorozata
+    BASECHARS;
+    // egy db ismeretlen karakter helyettesitoje
     REPLACEMENTCHAR;
 }
 
-mode PREPROC
-{
-    {BASE_CLASS}    => PREP_BASECHAR(Lexeme);
+mode PREPROC {
+    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
+    {BASE_CLASS}+   => PREP_BASECHARS(Lexeme);
+
+    // A nem abba tartozokat lecsereljuk es hibauzenetet adunk.
     .               {
         std::cerr << "invalid character ("
                   << self.line_number() << ","
                   << self.column_number() << "): "
                   << QUEX_CONVERTER_STRING(unicode, char)(Lexeme) << std::endl;
-        self_send1(PREP_REPLACEMENTCHAR, L"�");
+        /* self_send1(PREP_REPLACEMENTCHAR, L"�"); */
+        self_send1(PREP_REPLACEMENTCHAR, self.REPLACEMENTCHAR_CPP.c_str());
     }
     on_failure      => PREP_TERMINATION;
     <<EOF>>         => PREP_TERMINATION;
