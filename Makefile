@@ -75,7 +75,7 @@ clean:
 
 ######  A U X I L I A R Y   T A R G E T S  ####################################
 ### binaries
-$(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/abbrev.o $(TMP_DIR)/main.o
+$(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/main.o
 	$(CXX) $^ `icu-config --ldflags` -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
@@ -86,7 +86,7 @@ $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/test.o $(TMP_D
 $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/abbrev_abbrev_lexer.cpp
+$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
@@ -95,7 +95,7 @@ $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
 $(TMP_DIR)/snt.o: $(TMP_DIR)/snt_snt_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/abbrev.o: $(TMP_DIR)/abbrev_abbrev_lexer.cpp
+$(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 
@@ -114,11 +114,11 @@ $(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/snt.qx
 			--token-id-prefix SNT_ \
 			$(QUEXFLAGS)
 
-$(TMP_DIR)/abbrev_abbrev_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/abbrev.qx
+$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/sntcorr.qx
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/abbrev.qx \
-			-o abbrev::abbrev_lexer \
-			--token-id-prefix ABBREV_ \
+	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/sntcorr.qx \
+			-o sntcorr::sntcorr_lexer \
+			--token-id-prefix SNTCORR_ \
 			$(QUEXFLAGS)
 
 

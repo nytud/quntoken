@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "prep_prep_lexer" // a *_lexer-eknek elobb kell lenniuk, mint a tobbi quex-esnek
 #include "snt_snt_lexer"
-#include "abbrev_abbrev_lexer"
+#include "sntcorr_sntcorr_lexer"
 #include <quex/code_base/multi.i> // több quex modulhoz osszekapcsolasahoz
 #include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
@@ -40,25 +40,25 @@ int main(int argc, char** argv)
     // sentences
     snt::Token* token_snt_p = 0x0;
     snt::snt_lexer lexer_snt(&to_snt, "UTF8");
-    std::stringstream to_abbrev; // output of snt modul, input of abbrev modul
+    std::stringstream to_sntcorr; // output of snt modul, input of sntcorr modul
     for(lexer_snt.receive(&token_snt_p);
         token_snt_p->type_id() != SNT_TERMINATION;
         lexer_snt.receive(&token_snt_p))
     {
         /* std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text()) << std::endl; */
-        to_abbrev << QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text());
+        to_sntcorr << QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text());
     }
 
-    // abbreviations
-    abbrev::Token* token_abbrev_p = 0x0;
-    abbrev::abbrev_lexer lexer_abbrev(&to_abbrev, "UTF8");
-    // std::stringstream to_token; // output of abbrev modul, input of token modul
-    for(lexer_abbrev.receive(&token_abbrev_p);
-        token_abbrev_p->type_id() != ABBREV_TERMINATION;
-        lexer_abbrev.receive(&token_abbrev_p))
+    // sentence corrections
+    sntcorr::Token* token_sntcorr_p = 0x0;
+    sntcorr::sntcorr_lexer lexer_sntcorr(&to_sntcorr, "UTF8");
+    // std::stringstream to_token; // output of sntcorr modul, input of token modul
+    for(lexer_sntcorr.receive(&token_sntcorr_p);
+        token_sntcorr_p->type_id() != SNTCORR_TERMINATION;
+        lexer_sntcorr.receive(&token_sntcorr_p))
     {
-        std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_abbrev_p->get_text());
-        /* to_token << QUEX_CONVERTER_STRING(unicode, char)(token_abbrev_p->get_text()); */
+        std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr_p->get_text());
+        /* to_token << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr_p->get_text()); */
     }
 
     std::cout << std::endl;
