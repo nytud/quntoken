@@ -126,8 +126,8 @@ $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_
 
 
 ### test.cpp
-$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/text2test.py $(MYTEST_DIR)/test_*
-	./$(SCRIPTS_DIR)/text2test.py
+$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(MYTEST_DIR)/test_*
+	./$(SCRIPTS_DIR)/test.tmpl2cpp.py
 
 
 ### gtest
