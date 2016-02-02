@@ -33,3 +33,7 @@ tmp/
 others/
 googletest/
 
+# files
+test/example_*
+
+

@@ -58,14 +58,12 @@ def generate_qx(tmpl, data):
 
 def main():
     args = args_handling()
-
     TMPL_FILE = args['template_file'][0]
     DATA_FILE = args['data_file'][0]
     OUT_FILE  = args['object_file'][0]
 
     with open(TMPL_FILE, 'r') as tmpl, open(DATA_FILE, 'r') as data:
         qx = generate_qx(tmpl, data)
-    # print(qx)
     with open(OUT_FILE, 'w') as out:
         out.write(qx)
 

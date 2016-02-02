@@ -14,7 +14,7 @@ define {
     DOT_SENTENCE_BOUNDARY   ("."{SNT_CLOSE_QX}{TAGGED_WS_SEQ}{SNT_OPEN_QX})
     // ugyan ez pont nelkul
     SENTENCE_BOUNDARY       ({SNT_CLOSE_QX}{TAGGED_WS_SEQ}{SNT_OPEN_QX})
-    // honap romai szammal (XIII is lehet, kulonben rendben van)
+    // honap romai szammal
     //eredeti: ([VX]?"I"{1,3}|"I"?[VX]) - ez a XIII-at is megengedi
     ROMAN_MONTH         ("V"?"I"{1,3}|"I"?[VX]|"X""I"{1,2})
     // nagybetuvel kezdodo honapnev-roviditesek:
@@ -130,12 +130,11 @@ mode PROGRAM : COMMON {
     // 7. teljes datum romai honappal
     // BE: <s>A 2001.</s> <s>XII.</s> <s>10-en tortentek megraztak a vilagot.</s>
     // KI: <s>A 2001. XII. 10-en tortentek megraztak a vilagot.</s>
-    // Megj.: kiegeszitettem a veget, hogy az ilyet is kezelje:
-    //      BE: Nana, 2001. XII. 11. Bori szuletesnapja, nem Gazsie.
-    //      Viszont a huntoken tobbszori futtatassal jol kezeli (legalabbis a
-    //      nytud-os).
+    // Megj.: a kovetkezo peldat csak tobbszori futtatassal kezeli jol a
+    //      huntoken: "Nana, 2001. XII. 11. Bori szuletesnapja, nem Gazsie."
     // eredeti: [0-9]+{BOUNDARY}([VX]?"I"{1,3}|"I"?[VX]){BOUNDARY}[0-9]
-    {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}({DOT_SENTENCE_BOUNDARY}{UPPER})? {
+    // egyszeri futtatassal: {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}({DOT_SENTENCE_BOUNDARY}{UPPER})?
+    {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT} {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
@@ -151,6 +150,10 @@ mode PROGRAM : COMMON {
     // KI: Pl. Jani szerint ápr. Kati kedvenc hónapja.
     // a stb. utan nem szabad kivenni a hatart...
     // eredeti: {NONWORDCHAR}({ABBREV}{BOUNDARY}|{UPPER}{BOUNDARY})+
+    {NONWORDCHAR}(({ABBREV}|{UPPER}){DOT_SENTENCE_BOUNDARY})+ {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
 
     // 9. huje sztirng
     // eredeti: {ALL_ABBREV}"."")"?"</s><s>:"
