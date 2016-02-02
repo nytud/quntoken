@@ -40,26 +40,41 @@ int main(int argc, char** argv)
     // sentences
     snt::Token* token_snt_p = 0x0;
     snt::snt_lexer lexer_snt(&to_snt, "UTF8");
-    std::stringstream to_sntcorr; // output of snt modul, input of sntcorr modul
+    std::stringstream to_sntcorr1; // output of snt modul, input of sntcorr modul
     for(lexer_snt.receive(&token_snt_p);
         token_snt_p->type_id() != SNT_TERMINATION;
         lexer_snt.receive(&token_snt_p))
     {
         /* std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text()) << std::endl; */
-        to_sntcorr << QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text());
+        to_sntcorr1 << QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text());
     }
 
-    // sentence corrections
-    sntcorr::Token* token_sntcorr_p = 0x0;
-    sntcorr::sntcorr_lexer lexer_sntcorr(&to_sntcorr, "UTF8");
-    // std::stringstream to_token; // output of sntcorr modul, input of token modul
-    for(lexer_sntcorr.receive(&token_sntcorr_p);
-        token_sntcorr_p->type_id() != SNTCORR_TERMINATION;
-        lexer_sntcorr.receive(&token_sntcorr_p))
+    // sentence corrections 1.
+    // Megj.: ketszer futtatjuk, mert az eredeti huntoken is ketszer futtatta,
+    //      gondolom hogy az atfedo szabalyok mindegyike lefusson.
+    sntcorr::Token* token_sntcorr1_p = 0x0;
+    sntcorr::sntcorr_lexer lexer_sntcorr1(&to_sntcorr1, "UTF8");
+    std::stringstream to_sntcorr2; // output of sntcorr1, input of sntcorr2
+    for(lexer_sntcorr1.receive(&token_sntcorr1_p);
+        token_sntcorr1_p->type_id() != SNTCORR_TERMINATION;
+        lexer_sntcorr1.receive(&token_sntcorr1_p))
     {
-        std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr_p->get_text());
-        /* to_token << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr_p->get_text()); */
+        /* std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr1_p->get_text()); */
+        to_sntcorr2 << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr1_p->get_text());
     }
+
+    // sentence corrections 2.
+    sntcorr::Token* token_sntcorr2_p = 0x0;
+    sntcorr::sntcorr_lexer lexer_sntcorr2(&to_sntcorr2, "UTF8");
+    std::stringstream to_token; // output of sntcorr modul, input of token modul
+    for(lexer_sntcorr2.receive(&token_sntcorr2_p);
+        token_sntcorr2_p->type_id() != SNTCORR_TERMINATION;
+        lexer_sntcorr2.receive(&token_sntcorr2_p))
+    {
+        std::cout << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr2_p->get_text());
+        /* to_token << QUEX_CONVERTER_STRING(unicode, char)(token_sntcorr2_p->get_text()); */
+    }
+
 
     std::cout << std::endl;
 
