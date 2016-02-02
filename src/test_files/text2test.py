@@ -69,8 +69,8 @@ if __name__ == "__main__":
     # A output végén mindig lesz egy sortörés, azt pedig itt is meg kell adni.
     ASSERT_TEMPLATE = Template("""
     ASSERT_STREQ(
-        "$OUT_\\n",
-        process_text("$IN_").c_str());
+        "${OUT_}\\n",
+        process_text("${IN_}").c_str());
     """)
     FILE_TEMPLATE = Template("""
 #include <iostream>
@@ -110,7 +110,7 @@ std::string process_text(std::string text)
 }
 
 TEST(process_text, PositiveNos) { 
-    $assertions_
+    ${assertions_}
 }
  
  
