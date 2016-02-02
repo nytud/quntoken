@@ -117,17 +117,21 @@ $(TMP_DIR)/snt_snt_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/snt
 			--token-id-prefix SNT_ \
 			$(QUEXFLAGS)
 
-$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/sntcorr.qx
+$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(TMP_DIR)/sntcorr.qx
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QMODULES_DIR)/definitions.qx ../$(QMODULES_DIR)/sntcorr.qx \
+	quex 	-i ../$(QMODULES_DIR)/definitions.qx sntcorr.qx \
 			-o sntcorr::sntcorr_lexer \
 			--token-id-prefix SNTCORR_ \
 			$(QUEXFLAGS)
 
+# generalas template-bol
+$(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(QMODULES_DIR)/sntcorr.qx.tmpl $(DATA_DIR)/abbreviations-utf8.txt
+# $(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(QMODULES_DIR)/pro.tmpl $(DATA_DIR)/abbrev.txt
+	./$< -t $(word 2, $^) -d $(word 3, $^) -o $@
 
 ### test.cpp
 $(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(MYTEST_DIR)/test_*
-	./$(SCRIPTS_DIR)/test.tmpl2cpp.py
+	./$<
 
 
 ### gtest
