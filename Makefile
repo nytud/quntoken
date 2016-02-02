@@ -1,8 +1,11 @@
 TARGET_DIR		= bin
 TMP_DIR			= tmp
+MYTEST_DIR		= test
+DATA_DIR		= data
 SOURCE_DIR		= src
-QTOKEN_DIR		= $(SOURCE_DIR)/qtoken
-MYTEST_DIR		= $(SOURCE_DIR)/test_files
+CPP_DIR			= $(SOURCE_DIR)/cpp
+QMODULES_DIR	= $(SOURCE_DIR)/quex_modules
+SCRIPTS_DIR		= $(SOURCE_DIR)/scripts
 GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h \
 				  $(GTEST_DIR)/include/gtest/internal/*.h
@@ -86,7 +89,7 @@ $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/test.o $(TMP_D
 $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/main.o: $(QTOKEN_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
+$(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
@@ -100,31 +103,31 @@ $(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 
 
 ### quex
-$(TMP_DIR)/prep_prep_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/preproc.qx
+$(TMP_DIR)/prep_prep_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/preproc.qx
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/preproc.qx \
+	quex 	-i ../$(QMODULES_DIR)/definitions.qx ../$(QMODULES_DIR)/preproc.qx \
 			-o prep::prep_lexer \
 			--token-id-prefix PREP_ \
 			$(QUEXFLAGS)
 
-$(TMP_DIR)/snt_snt_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/snt.qx
+$(TMP_DIR)/snt_snt_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/snt.qx
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/snt.qx \
+	quex 	-i ../$(QMODULES_DIR)/definitions.qx ../$(QMODULES_DIR)/snt.qx \
 			-o snt::snt_lexer \
 			--token-id-prefix SNT_ \
 			$(QUEXFLAGS)
 
-$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QTOKEN_DIR)/definitions.qx $(QTOKEN_DIR)/sntcorr.qx
+$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/sntcorr.qx
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QTOKEN_DIR)/definitions.qx ../$(QTOKEN_DIR)/sntcorr.qx \
+	quex 	-i ../$(QMODULES_DIR)/definitions.qx ../$(QMODULES_DIR)/sntcorr.qx \
 			-o sntcorr::sntcorr_lexer \
 			--token-id-prefix SNTCORR_ \
 			$(QUEXFLAGS)
 
 
 ### test.cpp
-$(TMP_DIR)/test.cpp: $(MYTEST_DIR)/text2test.py $(MYTEST_DIR)/test_*
-	./$(MYTEST_DIR)/text2test.py
+$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/text2test.py $(MYTEST_DIR)/test_*
+	./$(SCRIPTS_DIR)/text2test.py
 
 
 ### gtest

@@ -62,7 +62,7 @@ def main():
 
 
 if __name__ == "__main__":
-    INPUT_DIR = "src/test_files/"
+    INPUT_DIR = "test/"
     OUTPUT_DIR = "tmp/"
     IN_PREFIX = "IN : "
     OUT_PREFIX = "OUT: "
