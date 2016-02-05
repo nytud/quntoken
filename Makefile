@@ -17,7 +17,8 @@ CXXFLAGS +=	-Wall \
 			-Wconversion \
 			-Werror \
 			-std=c++11 \
-			# -g \
+			-I$(CPP_DIR) \
+			# -g
 
 CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-I$(QUEX_PATH) \
@@ -86,11 +87,11 @@ $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/test.o $(TMP_D
 
 
 ### object files
-$(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
-
-$(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
+$(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+
+$(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
@@ -126,12 +127,11 @@ $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(TMP_DIR)/
 
 # generalas template-bol
 $(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(QMODULES_DIR)/sntcorr.qx.tmpl $(DATA_DIR)/abbreviations-utf8.txt
-# $(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(QMODULES_DIR)/pro.tmpl $(DATA_DIR)/abbrev.txt
 	./$< -t $(word 2, $^) -d $(word 3, $^) -o $@
 
 ### test.cpp
-$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(MYTEST_DIR)/test_*
-	./$<
+$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(CPP_DIR)/test.cpp.tmpl  $(MYTEST_DIR)/test_snt.txt
+	./$< -t $(word 2, $^) -d $(word 3, $^) -o $@
 
 
 ### gtest

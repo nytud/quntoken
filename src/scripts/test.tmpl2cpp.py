@@ -1,123 +1,119 @@
 #! /usr/bin/env python3
 # coding=utf8
-"""Szöveges fájlokból googletest forrásfájlok generálása
+"""Googletest forrasfajl generalasa (tmp/test.cpp).
 
-A szöveges fájlok jellemzői:
-    - komment: "#"
-    - bemeneti blokk: "IN : "
-    - kimeneti blokk: "OUT: "
-Példa:
-IN : Nana. # megjegyzés
-OUT: Nono.
+A generalashoz meg kell adni a sablon fajlt es a teszteseteket
+tartalmazo fajlokat.
 """
 # TODO: jelen formában nem alkalmas a sorvégek tesztelésére (csak "\n" lehet)
 
 import sys
 import glob
+import argparse
 from string import Template
 
 
-def process_file(file_, assertions):
-    IN = ''
-    OUT = ''
+def args_handling():
+    """ Parancssori argumentumok kezelése.
+    """
+    # TODO: golb-ot kivaltani majd argumentumban megadott fajlok sorozataval!
+    descr_tmpl = 'A templatumot tartalmazo forrasfajlok.'
+    descr_data = 'A testeseteket tartalmazo forrasfajlok'
+    descr_out  = 'Cel fájl neve (eleresi uttal egyutt).'
+    pars = argparse.ArgumentParser(description=__doc__)
+    pars.add_argument(
+            '-t',
+            '--template-file',
+            help=descr_tmpl,
+            required=True,
+            nargs=1)
+    pars.add_argument(
+            '-d',
+            '--data-files',
+            help=descr_data,
+            required=True,
+            nargs='+')
+    pars.add_argument(
+            '-o',
+            '--object-file',
+            help=descr_out,
+            required=True,
+            nargs=1)
+    return vars(pars.parse_args())
+
+def process_file(file_):
+    res = []
+    inp = ''
+    out = ''
     flipflop = False
     for line in file_:
         line = line.rstrip()
-        in_line = line.startswith(IN_PREFIX) or line == IN_PREFIX[:-1]
+        inp_line = line.startswith(INP_PREFIX) or line == INP_PREFIX[:-1]
         out_line = line.startswith(OUT_PREFIX) or line == OUT_PREFIX[:-1]
-        if not in_line and not out_line:
+        if not inp_line and not out_line:
             continue
-        line = line[len(IN_PREFIX):] # feltesszük a két prefix hossza megegyezik
+        line = line[len(INP_PREFIX):] # feltesszük, hogy a két prefix hossza
+                                      # megegyezik
         line = line.replace('"', '\\"')
-        if in_line:
+        if inp_line:
             if not flipflop:
-                if IN or OUT: # előző kör kiírása
-                    assertions.append(ASSERT_TEMPLATE.substitute(IN_=IN, OUT_=OUT))
+                if inp or out: # előző kör kiírása
+                    res.append(ASSERT_TEMPLATE.substitute(INP=inp, OUT=out))
                 flipflop = True
-                IN = line
+                inp = line
             else:
-                IN += '\\n' + line
+                inp += '\\n' + line
         elif out_line:
             if flipflop:
                 flipflop = False
-                # OUT = line + '\\n'
-                OUT = line
+                out = line
             else:
-                # OUT += line + '\\n'
-                OUT += '\\n' + line
-    if IN or OUT: # utolsó kör kiírása
-        assertions.append(ASSERT_TEMPLATE.substitute(IN_=IN, OUT_=OUT))
+                out += '\\n' + line
+    if inp or out: # utolsó kör kiírása
+        res.append(ASSERT_TEMPLATE.substitute(INP=inp, OUT=out))
+    return '\n    '.join(res)
+
+
+def generate_assertion(test_file):
+    """Visszater a kapott fajlbol kinyerheto testesthez tartozo koddal.
+    """
+    with open(test_file) as file_:
+        return process_file(file_)
+
+
+def generate_cpp(tmpl, assertions):
+    """Behelyettesiti a template-be az osszegyujtott testeseteket.
+    """
+    tmpl = Template(tmpl.read())
+    return tmpl.substitute(ASSERTIONS=assertions)
 
 
 def main():
-    assertions = []
-    for file_name in glob.glob(INPUT_DIR+'test_*'):
-        with open(file_name) as file_:
-            process_file(file_, assertions)
+    args = args_handling()
+    TMPL_FILE = args['template_file'][0]
+    DATA_FILES = args['data_files'] # lista!
+    OUT_FILE  = args['object_file'][0]
+    
+    assertions = [ generate_assertion(x) for x in DATA_FILES ]
     assertions = '\n    '.join(assertions)
-    res = FILE_TEMPLATE.substitute(assertions_=assertions)
-    with open(OUTPUT_DIR+'test.cpp', 'w') as test:
-        test.write(res)
-    # print(res)
+
+    with open(TMPL_FILE, 'r') as tmpl:
+        cpp = generate_cpp(tmpl, assertions)
+
+    with open(OUT_FILE, 'w') as out:
+        out.write(cpp)
 
 
 if __name__ == "__main__":
     INPUT_DIR = "test/"
     OUTPUT_DIR = "tmp/"
-    IN_PREFIX = "IN : "
+    INP_PREFIX = "IN : "
     OUT_PREFIX = "OUT: "
     # A output végén mindig lesz egy sortörés, azt pedig itt is meg kell adni.
     ASSERT_TEMPLATE = Template("""
     ASSERT_STREQ(
-        "${OUT_}\\n",
-        process_text("${IN_}").c_str());
-    """)
-    FILE_TEMPLATE = Template("""
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <gtest/gtest.h>
-#include "prep_prep_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
-#include "snt_snt_lexer" // ennek előbb kell lennie, mint a többi quex-esnek
-#include <quex/code_base/multi.i> // a több quex modulhoz
-#include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
-
-
-std::string process_text(std::string text)
-{
-    prep::Token* token_prep_p = 0x0;
-    std::stringstream ss_to_prep(text); // input of prep
-    std::stringstream ss_to_snt; // output of prep, input of snt
-    prep::prep_lexer lexer_prep(&ss_to_prep, "UTF8");
-    for (lexer_prep.receive(&token_prep_p);
-         token_prep_p->type_id() != PREP_TERMINATION;
-         lexer_prep.receive(&token_prep_p))
-    {
-        ss_to_snt << QUEX_CONVERTER_STRING(unicode, char)(token_prep_p->get_text());
-    }
-
-    std::string res; // output of snt
-    snt::Token* token_snt_p = 0x0;
-    snt::snt_lexer lexer_snt(&ss_to_snt, "UTF8");
-    for (lexer_snt.receive(&token_snt_p);
-         token_snt_p->type_id() != SNT_TERMINATION;
-         lexer_snt.receive(&token_snt_p))
-    {
-        res += QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text()) + "\\n";
-    }
-
-    return res;
-}
-
-TEST(process_text, PositiveNos) { 
-    ${assertions_}
-}
- 
- 
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+        "${OUT}\\n",
+        process_text("${INP}").c_str());
     """)
     main()
 

@@ -2,6 +2,8 @@
 
 
 token {
+    SENTENCE;
+    WHITESPACE;
     ANYCHAR;
 }
 
@@ -23,6 +25,14 @@ define {
     MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
     // roviditesek (kulso fajlbol generalodik):
     ABBREV  (${ABBREV})
+    // Megtaggelt mondat. Mivel a tag-ek baseclass-on kivuliek, ezert nem kell
+    // tulbonyolitani
+    TAGGED_SENTENCE {SNT_OPEN_QX}{BASE_CLASS}+{SNT_CLOSE_QX}
+    // megteggelt ws szekvencia
+    // nem keverendo a fenti tagged_ws_seq-kel: az a mondatokon beluli
+    // szabalyokhoz kell es csak egy sortores lehet benne, ebben meg barmennyi
+    // lehet, egymas utan is, mert mondatok kozotti  ws-ekre akar illeszkedni
+    TAGGED_WS ({WS_OPEN_QX}{WSPACE}+{WS_CLOSE_QX})
 
 }
 
@@ -30,38 +40,39 @@ define {
 // M O D E S
 start = PROGRAM;
 
-mode COMMON : <inheritable: only> {
-    {NEWLINE}   => SNTCORR_ANYCHAR(Lexeme);
-    <<EOF>>     => SNTCORR_TERMINATION;
-    on_failure  => SNTCORR_TERMINATION;
-}
-
-mode PROGRAM : COMMON {
+mode PROGRAM {
     // 1. Mondatkezdo sorszamok:
     // BE: <s>25.</s> <s>Magyarország
     // KI: <s>25. Magyarország
     // BE: <s>25.</s> <s>§
     // KI: <s>25. §
-    {SNT_OPEN_QX}{INT}    {
-        self_send1(SNTCORR_ANYCHAR, Lexeme);
-        self << NUMBEGIN;
+    // Megj.: Eredetileg kulon mode volt ra irva, feleslegesnek tunik.
+    {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{UPPER} {
+        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
 
     // 2. zárójelezett dátum (mondatveg is lehet utana)
-    // BE : A 2002. (IV. 25.)
-    // SNT: <s>A 2002.</s><w> </w><s>(IV.</s><w> </w><s>25.)</s>
-    // KI : <s>A 2002. (IV. 25.)</s>
-    // BE : A 2002. (IV. 25.) van.
-    // SNT: <s>A 2002.</s> <s>(IV. 25.) van.
-    // KI : <s>A 2002. (IV. 25.) van.
-    // SNT: <s>A 2002.</s> <s>(IV.25.) van.
-    // KI : <s>A 2002. (IV.25.) van.
-    // SNT: <s>A 2002.</s> <s>(IV.) van.
-    // KI : <s>A 2002. (IV.) van.
+    // BE: <s>A 2002.</s><w> </w><s>(IV.</s><w> </w><s>25.)</s>
+    // KI: <s>A 2002. (IV. 25.)</s>
+    // BE: <s>A 2002.</s> <s>(IV. 25.) van.
+    // KI: <s>A 2002. (IV. 25.) van.
+    // BE: <s>A 2002.</s> <s>(IV.25.) van.
+    // KI: <s>A 2002. (IV.25.) van.
+    // BE: <s>A 2002.</s> <s>(IV.) van.
+    // KI: <s>A 2002. (IV.) van.
     // eredeti: [0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])"."({SPACE}[0-9]+".")?")</s>"{SPACE}"<s>"
-    // Megj.: a WSPACE-ag nem biztos, hogy kell, de egyelore marad.
+    // Megj1.: a WSPACE-es ag nem biztos, hogy kell, de egyelore marad.
+    // Megj2.: Mondatkezdo verzio nelkul mondat elejen nem futna le 1. miatt,
+    //      mert 1. mar a mondatnyito tag-tol illeszkedik => kell mondatkezdo
+    //      verzio.
     {INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."(({WSPACE}|{SENTENCE_BOUNDARY})?{INT}".")?")"{SENTENCE_BOUNDARY}? {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
+    // Mondatkezdo verzio:
+    {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."(({WSPACE}|{SENTENCE_BOUNDARY})?{INT}".")?")"{SENTENCE_BOUNDARY}? {
+        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
 
@@ -74,20 +85,27 @@ mode PROGRAM : COMMON {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
+    // Mondatkezdo verzio:
+    {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{MONTH_ABBR}{DOT_SENTENCE_BOUNDARY}[0123]?[0-9] {
+        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
 
     // 4. év + nagybetus hónap, ha az elozo nem oldja meg
     // BE: 2012.</s> <s>MÁJUS
     // KI: 2012. MÁJUS
     // BE: 2012.</s> <s>Júl.
     // KI: 2012. Júl.
-    // Megj.: nem kell, megoldja mar az 1. is
+    // Megj.: Mondat elejen nem fog lefutni 1. miatt, mert 1. mar a mondatnyito
+    //      tag-tol illeszkedik, de 1. megfeleloen mukodik ekkor => nem kell
+    //      mondatkezdo verzio.
     // eredeti: [0-9]+{BOUNDARY}{MONTH_CAP}
-    /* {INT}{DOT_SENTENCE_BOUNDARY}{MONTH_CAP} { */
-    /*     std::wstring LEX(self.snt_boundary_correction(Lexeme)); */
-    /*     self_send1(SNTCORR_ANYCHAR, LEX.c_str()); */
-    /* } */
+    {INT}{DOT_SENTENCE_BOUNDARY}{MONTH_CAP} {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
 
-    // 5.1. ügyiratszám + dátum I. (mondat kozben)
+    // 5. ügyiratszám + dátum
     // BE: <s>A 25/2002.</s> <s>(IV.</s> <s>25.)</s> <s>
     // KI: <s>A 25/2002. (IV. 25.)
     // BE: <s>A 25/2002.</s> <s>(IV. 25.)</s> <s>
@@ -98,20 +116,14 @@ mode PROGRAM : COMMON {
     // KI: <s>A 25/2002. (IV.25.)
     // BE: <s>A 25/2002.</s> <s>(IV.)
     // KI: <s>A 25/2002. (IV.)
-    // Megj.: nem kell, megoldja mar a 2. is
+    // Megj.: Nem kell, megoldja mar a 2. is. Amugy kell belole mondatkezdo is.
     // eredeti: {SPACE}[0-9]+"/"[0-9]+{BOUNDARY}"("([VX]?"I"{1,3}|"I"?[VX])".</s>"({SPACE}"<s>"[0-9]+".")?")</s>"{SPACE}"<s>"
     // Az eredetibol es a peldakbol kikovetkeztetheto intencionak megfelelo atirat:
     /* {WSPACE}{INT}"/"{INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."(({SENTENCE_BOUNDARY}|{WS_SEQ})?{INT}".")?")"({SENTENCE_BOUNDARY})? { */
     /*     std::wstring LEX(self.snt_boundary_correction(Lexeme)); */
     /*     self_send1(SNTCORR_ANYCHAR, LEX.c_str()); */
     /* } */
-
-    // 5.2. ügyiratszám + dátum II. (mint a fenti, csak mondat elejen)
-    // BE: <s>25/2002.</s> <s>(IV.</s> <s>25.)</s> <s>
-    // KI: <s>25/2002. (IV. 25.)
-    // stb.
-    // Megj.: nem kell, megoldja mar a 2. is
-    // eredeti: nincs
+    // Mondatkezdo verzio:
     /* {SNT_OPEN_QX}{INT}"/"{INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."(({SENTENCE_BOUNDARY}|{WS_SEQ})?{INT}".")?")"({SENTENCE_BOUNDARY})? { */
     /*     self_send1(SNTCORR_ANYCHAR, self.SNT_OPEN_CPP.c_str()); */
     /*     std::wstring LEX(self.snt_boundary_correction(Lexeme)); */
@@ -121,21 +133,40 @@ mode PROGRAM : COMMON {
     // 6. sorszámot követo szám, paragrafusjel vagy romai honap
     // BE: <s>A 25.</s> <s>§ szerint 2002.</s> <s>IV. havában.
     // KI: <s>A 25. § szerint 2002. IV. havában.
+    // Megj.: Mondatkezdo verzio nelkul mondat elejen nem futna le 1. miatt,
+    //      mert 1. mar a mondatnyito tag-tol illeszkedik. 1. megfeleloen
+    //      mukodik ekkor, kiveve az INT esetet => kell mondatkezdo verzio.
+    //      (Ill. a '§' sem mukodne, ha nem lenne beledefinialva az UPPER-be.)
     // eredeti: [0-9]+{BOUNDARY}([§0-9]|[VX]?"I"{1,3}"."|"I"?[VX]".")
     {INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{INT}|"§") {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
+    // Mondatkezdo verzio:
+    {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{INT}|"§") {
+        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
 
     // 7. teljes datum romai honappal
     // BE: <s>A 2001.</s> <s>XII.</s> <s>10-en tortentek megraztak a vilagot.</s>
     // KI: <s>A 2001. XII. 10-en tortentek megraztak a vilagot.</s>
-    // Megj.: a kovetkezo peldat csak tobbszori futtatassal kezeli jol a
-    //      huntoken: "Nana, 2001. XII. 11. Bori szuletesnapja, nem Gazsie."
+    // Megj.: Mondatkezdo verzio nelkul az 1-es futna le ketszer es kivenne az
+    //      elso es harmadik mondathatart, de benthagyna a masodikat => kell a
+    //      mondatkezdo verzio.
+    // problemas eset: "2001. XII. 11. Bori szuletesnapja, nem Gazsie."
     // eredeti: [0-9]+{BOUNDARY}([VX]?"I"{1,3}|"I"?[VX]){BOUNDARY}[0-9]
-    // egyszeri futtatassal: {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}({DOT_SENTENCE_BOUNDARY}{UPPER})?
+    // esetleg:
+    /* {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}({DOT_SENTENCE_BOUNDARY}{UPPER})? { */
     {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT} {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
+    // Mondatkezdo verzio:
+    // esetleg:
+    /* {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}({DOT_SENTENCE_BOUNDARY}{UPPER})? { */
+    {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT} {
+        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
 
@@ -150,25 +181,31 @@ mode PROGRAM : COMMON {
     // KI: Pl. Jani szerint ápr. Kati kedvenc hónapja.
     // a stb. utan nem szabad kivenni a hatart...
     // eredeti: {NONWORDCHAR}({ABBREV}{BOUNDARY}|{UPPER}{BOUNDARY})+
-    {NONWORDCHAR}(({ABBREV}|{UPPER}){DOT_SENTENCE_BOUNDARY})+ {
+    ({NONWORDCHAR}|{SNT_OPEN_QX})(({ABBREV}|{UPPER}){DOT_SENTENCE_BOUNDARY})+ {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
 
-    // 9. huje sztirng
+    // 9. rovidites es kettospont kozti mondathatar
     // eredeti: {ALL_ABBREV}"."")"?"</s><s>:"
+    // TODO: definialni ALL_ABBREV-et (csak 'etc.'-t es 'stb.'-t tartalmazza)
+    //      es arra is kiterjeszteni a szabalyt.
+    {ABBREV}"."")"?{SENTENCE_BOUNDARY}":" {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
+    }
 
     // 10. Római számok (VI. Lajos), kivéve CD.
     // BE: XIV.</s> <s>Lajos.
     // KI: XIV. Lajos.
     // BE: Ott a CD.</s> <s>Hallod?
     // KI: Ott a CD.</s> <s>Hallod?
-    // eredeti: {NONWORDCHAR}"CD"{BOUNDARY} { ECHO; }  /* robusztus */
-    // eredeti: {NONWORDCHAR}[IVXLCMD]+{BOUNDARY} { print_abbrev(yytext); }  /* robusztus */
-    {NONWORDCHAR}"CD"{DOT_SENTENCE_BOUNDARY} {
+    // eredeti: {NONWORDCHAR}"CD"{BOUNDARY} - ez csak ECHO-zva van!
+    // eredeti: {NONWORDCHAR}[IVXLCMD]+{BOUNDARY}
+    ({NONWORDCHAR}|{SNT_OPEN_QX})"CD"{DOT_SENTENCE_BOUNDARY} {
         self_send1(SNTCORR_ANYCHAR, Lexeme);
     }
-    {NONWORDCHAR}{ROMAN_NUM}{DOT_SENTENCE_BOUNDARY} {
+    ({NONWORDCHAR}|{SNT_OPEN_QX}){ROMAN_NUM}{DOT_SENTENCE_BOUNDARY} {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
@@ -176,8 +213,8 @@ mode PROGRAM : COMMON {
     // 11. Pl. esetében mindig megszüntetjük a mondathatárt.
     // BE: Pl.</s> <s>Péter és Marcsa pl.</s> <s>25 fánkot is ehetne.
     // KI: Pl. Péter és Marcsa pl. 25 fánkot is ehetne.
-    // eredeti: {NONWORDCHAR}?[Pp]"l"{BOUNDARY} { print_abbrev(yytext); }  /* l., L. */
-    {NONWORDCHAR}?[Pp]"l"{DOT_SENTENCE_BOUNDARY} {
+    // eredeti: {NONWORDCHAR}?[Pp]"l"{BOUNDARY}
+    ({NONWORDCHAR}|{SNT_OPEN_QX})?[Pp]"l"{DOT_SENTENCE_BOUNDARY} {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
@@ -185,12 +222,15 @@ mode PROGRAM : COMMON {
     // 12. ??? -- ,,stb.'' esetében nem vonunk egybe. (A macska, kutya stb. Az elsõ...
     // ???
 
+    ///////////////////////////////////////////////////////////////////////////
+    // TODO: Az alabbiakat a posttokenizalashoz felhasznalni! Ha megvan,
+    //      torolhetok.
     // -----------------------------------------------
     // tokenizálás után mondatvégirövidítés-javítás
     // nem mukodnek az uj kimenetformatum miatt, at kell oket
     // alakitani, ha kellenek egyaltalan
     // -----------------------------------------------
-
+    //
     // 13. pont visszaragasztasa a roviditesre, romai szamra, monogramra,
     //      kiveve a CD-t
     // Megj.: tokenizalas utan kell jojjon
@@ -200,8 +240,9 @@ mode PROGRAM : COMMON {
     // 	strcpy(yytext + (yyleng - 14), ".\n</w>");
     // 	printf("%s", yytext);
     // }
-
+    //
     // 14. ez teszi vissza a pontot a megadott elemek vegere (O.Cs. ???)
+    // Megj.: tokenizalas utan kell jojjon
     // eredeti:
     // ^{ALL_ABBREV}"\tTOK\n.\tWPUNCT\n" {
     //     char c[10];
@@ -212,39 +253,39 @@ mode PROGRAM : COMMON {
     //     printf("%s\t%s[:Oyo-sn:]", c, c);
     //     yyless(yyleng - 1);
     // }
-
+    //
     // 15. ??? (O.Cs.)
+    // Megj.: tokenizalas utan kell jojjon
     // eredeti:
     // ^([A-Z]|[IVXLCMD]+)"\tTOK\n.\tWPUNCT" {
     //     strcpy(yytext + (yyleng - 13), ".\tTOK");
     //     printf("%s", yytext);
     // }
-
+    //
     // 16. ???
+    // Megj.: tokenizalas utan kell jojjon
     // eredeti:
     // "WPUNCT"[\n]+"</s>" {
     //     printf("SPUNCT\n</s>");
     // }
-
+    //
     // 17. hun_sentclean kiegészítése
+    // Megj.: tokenizalas utan kell jojjon
     // eredeti:
     // [\n]+"</s>" {
     //     printf("\n</s>");
     // }
+    ///////////////////////////////////////////////////////////////////////////
 
-    .           => SNTCORR_ANYCHAR(Lexeme);
-}
-
-
-mode NUMBEGIN : COMMON {
-    {DOT_SENTENCE_BOUNDARY}{UPPER} {
-        std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
-    }
-    . {
-        self_send1(SNTCORR_ANYCHAR, Lexeme);
-        self << PROGRAM;
-    }
+    // normal mondatok kiirasa
+    {TAGGED_SENTENCE}   => SNTCORR_SENTENCE(Lexeme);
+    // mondatkozi whitespace-ek kiirasa
+    {TAGGED_WS}     => SNTCORR_WHITESPACE(Lexeme);
+    // barmi mas kiirasa (elvileg nem kene szukseg legyen ra):
+    /* .               => SNTCORR_ANYCHAR(Lexeme); */
+    {NEWLINE}       => SNTCORR_ANYCHAR(Lexeme);
+    <<EOF>>         => SNTCORR_TERMINATION;
+    on_failure      => SNTCORR_TERMINATION;
 }
 
 // vim:set syntax=cpp:

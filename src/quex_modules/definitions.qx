@@ -1,21 +1,30 @@
 // a modulok kozos definicioi
 
 body {
-    // A szovegben a feldolgozas soran hasznalt tag-ek C++-os (wstring)
-    // definicioja.
-    // Az xml tag-ek cserélhetők spec. karakterekre a későbbi feldolgozást
-    // megkönnyítendő. Ekkor a define szekcio _QX vegzodesu definicioit is
-    // cserelni kell.
-    const std::wstring SNT_OPEN_CPP     = L"<s>";
-    const std::wstring SNT_CLOSE_CPP    = L"</s>";
-    const std::wstring WS_OPEN_CPP      = L"<w>";
-    const std::wstring WS_CLOSE_CPP     = L"</w>";
+    //TAG DEFINICIOK
 
-    //
+    // A szovegben a feldolgozas soran hasznalt tag-ek C++-os (wstring)
+    // definicioja. Ezeket a C++ kodok hasznaljak, ezt jeloli a _CPP vegzodes.
+    // A veluk parhuzamos, a quex altal pattern-kent hasznalt definiciokat a
+    // 'define' szekcio tartalmazza. Modositasnal es uj tag/karkter
+    // felvetelenel a megfelelo _QX vegzodesu definiciokat is cserelni vagy 
+    // felvenni kell.
+
+    // Az xml tag-ek helyett spec. karakterek vannak a későbbi feldolgozást
+    // megkönnyítendő.
+    const std::wstring SNT_OPEN_CPP     = L"🀰";
+    const std::wstring SNT_CLOSE_CPP    = L"🀱";
+    const std::wstring WS_OPEN_CPP      = L"🀲";
+    const std::wstring WS_CLOSE_CPP     = L"🀳";
+
+    // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
     const std::wstring REPLACEMENTCHAR_CPP = L"�";
 
-    // SNT es WS tag-ek osszes elofordulasanak torlese a kapott lexeme-bol,
-    // javitott szoveg visszaadasa wstring-kent
+
+    // FUGGVENYEK
+
+    // Az SNT es WS tag-ek osszes elofordulasanak torlese a kapott lexeme-bol,
+    // javitott szoveg visszaadasa wstring-kent.
     // Megj.: Az sntcorr.qx-ben lenne a helye, de ha abban van 'body' szekcio,
     //      akkor az felulirja az ittenit, igy az sntcorr.qx-ben nem lenne
     //      hasznalhato a tobbi, itt deklaralt dolog sem. Szoval itt van, a
@@ -33,7 +42,7 @@ body {
     void delete_str(std::wstring &text, const std::wstring &str) {
         for(size_t pos = text.find(str);
             pos != std::wstring::npos;
-            pos = text.find(str, pos+str.length())) {
+            pos = text.find(str, pos)) {
 
             text.erase(pos, str.length());
         }
@@ -45,13 +54,15 @@ body {
 define {
     // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // EMOTICONS: ~. A quex nem ismeri ezt a unicode blokkot, kézzel kell
-    //      megadni
-    // BASE_CLASS: alap karakterosztály, minden más ennek részhalmaza kell
-    //      legyen
-    // NEWLINE: újsor karakterek
-    // SPACE: minden wspace a base_class-ból, az újsor karakterek kivételével
+    //      megadni.
+    // BASE_CLASS: Alap karakterosztály, minden más ennek részhalmaza kell
+    //      legyen.
+    // NEWLINE: Újsor karakterek.
+    //      TODO: Legyen NEWLINE_CHAR es NEWLINE kulon, hogy az osszetettek is
+    //          egynek szamitsanak.
+    // SPACE: Minden wspace a base_class-ból, az újsor karakterek kivételével.
     //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
-    // WSPACE: minden white space a base class-bol
+    // WSPACE: Minden white space a base class-bol.
     // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
     //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
     //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
@@ -161,10 +172,10 @@ define {
 
     // A szovegben a feldolgozas soran hasznalt tag-ek quex-es (pattern)
     // definicioja:
-    SNT_OPEN_QX     "<s>"
-    SNT_CLOSE_QX    "</s>"
-    WS_OPEN_QX      "<w>"
-    WS_CLOSE_QX     "</w>"
+    SNT_OPEN_QX     \U01F030 // 🀰
+    SNT_CLOSE_QX    \U01F031 // 🀱
+    WS_OPEN_QX      \U01F032 // 🀲
+    WS_CLOSE_QX     \U01F033 // 🀳
 
     // egyebek:
     // tetszoleges egesz szam:

@@ -7,7 +7,8 @@ token {
 
 mode PREPROC {
     // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
-    {BASE_CLASS}+   => PREP_BASECHARS(Lexeme);
+    [: difference({BASE_CLASS}, {NEWLINE}) :]+ => PREP_BASECHARS(Lexeme);
+    {NEWLINE}+      => PREP_BASECHARS(Lexeme);
 
     // A nem abba tartozokat lecsereljuk es hibauzenetet adunk.
     .               {
@@ -15,7 +16,6 @@ mode PREPROC {
                   << self.line_number() << ","
                   << self.column_number() << "): "
                   << QUEX_CONVERTER_STRING(unicode, char)(Lexeme) << std::endl;
-        /* self_send1(PREP_REPLACEMENTCHAR, L"�"); */
         self_send1(PREP_REPLACEMENTCHAR, self.REPLACEMENTCHAR_CPP.c_str());
     }
     on_failure      => PREP_TERMINATION;
