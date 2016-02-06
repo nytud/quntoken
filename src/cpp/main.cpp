@@ -3,8 +3,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
-#include <typeinfo>
-#include "output_conversions.h"
+#include "printer.h"
 #include "prep_prep_lexer" // a *_lexer-eknek elobb kell lenniuk, mint a tobbi quex-esnek
 #include "snt_snt_lexer"
 #include "sntcorr_sntcorr_lexer"

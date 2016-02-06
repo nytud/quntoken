@@ -1,5 +1,5 @@
-#ifndef OUTPUT_CONVERSIONS_H
-#define OUTPUT_CONVERSIONS_H
+#ifndef PRINTER_H
+#define PRINTER_H
 
 // quex modulok belso formatumanak atalakitasa a vegso kimeneti formatumra
 // TODO:
@@ -26,5 +26,5 @@ std::string& convert_to_xml(std::string &text) {
     return text;
 }
 
-#endif // OUTPUT_CONVERSIONS_H
+#endif // PRINTER_H
 
