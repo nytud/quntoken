@@ -282,7 +282,8 @@ mode PROGRAM {
     // mondatkozi whitespace-ek kiirasa
     {TAGGED_WS}     => SNTCORR_WHITESPACE(Lexeme);
     // barmi mas kiirasa (elvileg nem kene szukseg legyen ra):
-    /* .               => SNTCORR_ANYCHAR(Lexeme); */
+    // TODO: egyelore megis kell!!! SURGOS!!!
+    .               => SNTCORR_ANYCHAR(Lexeme);
     {NEWLINE}       => SNTCORR_ANYCHAR(Lexeme);
     <<EOF>>         => SNTCORR_TERMINATION;
     on_failure      => SNTCORR_TERMINATION;
