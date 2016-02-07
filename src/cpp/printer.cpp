@@ -1,5 +1,11 @@
 #include "printer.h"
 
+// konstansok
+const std::string SNT_OPEN_CPP("🀰");
+const std::string SNT_CLOSE_CPP("🀱");
+const std::string SNT_OPEN_WS("🀲");
+const std::string SNT_CLOSE_WS("🀳");
+
 // konstruktor
 Printer::Printer(OUTPUT_TYPE type) {
     switch(type) {
@@ -49,10 +55,10 @@ std::string& Printer::convert_tags(std::string &text) {
 // xml:
 Printer::ConversionMap Printer::createXmlMap() {
     ConversionMap xml_map;
-    xml_map["🀰"] = "<s>";   // SNT_OPEN_CPP
-    xml_map["🀱"] = "</s>";  // SNT_CLOSE_CPP
-    xml_map["🀲"] = "<w>";   // SNT_OPEN_WS
-    xml_map["🀳"] = "</w>";  // SNT_CLOSE_WS
+    xml_map[SNT_OPEN_CPP] = "<s>";
+    xml_map[SNT_CLOSE_CPP] = "</s>";
+    xml_map[SNT_OPEN_WS] = "<w>";
+    xml_map[SNT_CLOSE_WS] = "</w>";
     return xml_map;
 }
 

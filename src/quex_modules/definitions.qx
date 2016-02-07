@@ -8,7 +8,9 @@ body {
     // A veluk parhuzamos, a quex altal pattern-kent hasznalt definiciokat a
     // 'define' szekcio tartalmazza. Modositasnal es uj tag/karkter
     // felvetelenel a megfelelo _QX vegzodesu definiciokat is cserelni vagy 
-    // felvenni kell.
+    // felvenni kell. Ezeket a definiciokat hasznalja tovabba a printer.cpp
+    // fajl is, csak wstring helyett sima string-kent. Modositasnal vagy
+    // kiegeszitesnel azt a fajlt is modositani vagy kiegesziteni kell.
 
     // Az xml tag-ek helyett spec. karakterek vannak a későbbi feldolgozást
     // megkönnyítendő.
