@@ -32,6 +32,7 @@ int main(int argc, char** argv)
         exit(0);
     }
     FILE* fh = fopen(argv[1], "rb");
+    Printer xml_printer(XML);
 
     std::stringstream to_snt; // output of prepocessing, input of snt processing
     using_module<FILE*, std::stringstream, prep::prep_lexer, prep::Token>(fh, to_snt, PREP_TERMINATION);
@@ -40,7 +41,9 @@ int main(int argc, char** argv)
     std::stringstream to_sntcorr2; // output of sntcorr1, input of sntcorr2
     using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&to_sntcorr1, to_sntcorr2, SNTCORR_TERMINATION);
     /* std::stringstream to_token; // output of sntcorr modul, input of token modul */
-    using_module<std::stringstream*, std::ostream, sntcorr::sntcorr_lexer, sntcorr::Token>(&to_sntcorr2, std::cout, SNTCORR_TERMINATION);
+    using_module<std::stringstream*, Printer, sntcorr::sntcorr_lexer, sntcorr::Token>(&to_sntcorr2, xml_printer, SNTCORR_TERMINATION);
+
+    std::cout << std::endl;
 
     return 0;
 }

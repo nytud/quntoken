@@ -32,7 +32,8 @@ std::string process_text(std::string text)
         res += QUEX_CONVERTER_STRING(unicode, char)(token_snt_p->get_text()) + "\n";
     }
 
-    return convert_to_xml(res);
+    Printer xml_printer(XML);
+    return xml_printer.convert_tags(res);
 }
 
 TEST(process_text, PositiveNos) { 
