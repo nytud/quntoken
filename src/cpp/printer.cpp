@@ -1,5 +1,4 @@
 #include "printer.h"
-#include <iostream>
 
 // konstruktor
 Printer::Printer(OUTPUT_TYPE type) {
@@ -66,7 +65,7 @@ Printer::ConversionMap Printer::createJsonMap() {
 // tsv:
 Printer::ConversionMap Printer::createTsvMap() {
     ConversionMap tsv_map;
-    tsv_map["n"] = "X";
+    /* tsv_map["n"] = "X"; */
     return tsv_map;
 }
 

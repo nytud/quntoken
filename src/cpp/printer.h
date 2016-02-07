@@ -25,6 +25,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 
 enum OUTPUT_TYPE {
     XML = 0,
