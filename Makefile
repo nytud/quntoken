@@ -82,7 +82,7 @@ clean:
 $(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/printer.o $(TMP_DIR)/main.o
 	$(CXX) $^ `icu-config --ldflags` -o $@
 
-$(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/printer.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
+$(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/printer.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 
@@ -93,7 +93,7 @@ $(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer
 $(TMP_DIR)/printer.o: $(CPP_DIR)/printer.cpp $(CPP_DIR)/printer.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(GTEST_HEADERS)
+$(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp

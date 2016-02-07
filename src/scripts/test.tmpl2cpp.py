@@ -8,7 +8,6 @@ tartalmazo fajlokat.
 # TODO: jelen formában nem alkalmas a sorvégek tesztelésére (csak "\n" lehet)
 
 import sys
-import glob
 import argparse
 from string import Template
 
@@ -16,7 +15,6 @@ from string import Template
 def args_handling():
     """ Parancssori argumentumok kezelése.
     """
-    # TODO: golb-ot kivaltani majd argumentumban megadott fajlok sorozataval!
     descr_tmpl = 'A templatumot tartalmazo forrasfajlok.'
     descr_data = 'A testeseteket tartalmazo forrasfajlok'
     descr_out  = 'Cel fájl neve (eleresi uttal egyutt).'
@@ -112,7 +110,7 @@ if __name__ == "__main__":
     # A output végén mindig lesz egy sortörés, azt pedig itt is meg kell adni.
     ASSERT_TEMPLATE = Template("""
     ASSERT_STREQ(
-        "${OUT}\\n",
+        "${OUT}",
         process_text("${INP}").c_str());
     """)
     main()
