@@ -40,6 +40,12 @@ def args_handling():
     return vars(pars.parse_args())
 
 def process_file(file_):
+    """Vegig megy egy fajlon, kigyujti a be/ki parokat es assertio-kat csinal.
+
+    Az assertio-k egy fuggvenyhez tartoznak (egy modult tesztelnek), ezert egy
+    string-kent kerulnek visszaadasra.
+    """
+    # TODO: a for ciklus eleg olvashatatlan, at kene dolgozni!
     res = []
     inp = ''
     out = ''
