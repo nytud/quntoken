@@ -4,24 +4,20 @@
 // quex modulok belso formatumanak atalakitasa a vegso kimeneti formatumra
 // API:
 //      convert_tags(string& text);
-//          a kapott textben lecsereli a quex modulokban hasznalt belso
+//          Kapott szovegben lecsereli a quex modulokban hasznalt belso
 //          tag-eket a Printer tipusanak megfelelo stringekre (xml. json, tsv)
 //      operator<<();
-//          TODO: kitalalni! a lenyeg, hogy a kapott dolgokra meghivja a
-//          sajat convert_tags metodusat es az eredmenyt kitolja a cout-ra
+//          Kapott stringre meghivja a sajat convert_tags metodusat es az
+//          eredmenyt kitolja a cout-ra.
 // TODO:
 //  - kitalalni, mi legyen a json es a tsv kimenettel, nem biztos, hogy a
-//      szotaras modszer jo lesz azokhoz is!
-//  - legyen egy enum tipus, ami parameterkent kap a konstruktor es a neki
-//      megfelelo Printert inicializalja: enum OUTPUT_TYPE {XML, JSON, TSV};
-//      lehet, hogy ehhez valami tombbe kell tenni a szotarakat es a konstruktor
-//      parameterevel beleindexelni (mar ha meg lehet szotar alapon csinalni a
-//      tobbi kimeneti formazast is!)
+//    szotaras modszer jo lesz azokhoz is!
 //  - legyen kapcsolo a main-hez, amivel megadhato a kivant kimeneti formatum
 //  - C++11-esiteni a statikus ertekadast (http://stackoverflow.com/a/6219450)
-//  - megoldani, hogy eleve csak a Printer obj. sajat szotara jojjon letre, a
-//      tobbi inicializalo fv ne fusson le! ezt ertelmesen valoszinuleg csak
-//      template-elessel es functor-ral lehet jol megcsinalni
+//  - Megoldani, hogy eleve csak a Printer obj. sajat szotara jojjon letre, a
+//    tobbi inicializalo fv ne fusson le! ezt ertelmesen valoszinuleg csak
+//    template-elessel (es functor-ral) lehet megcsinalni. (Nem biztos, hogy
+//    kell!)
 
 #include <map>
 #include <string>
