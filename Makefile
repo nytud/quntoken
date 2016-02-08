@@ -57,6 +57,7 @@ qtoken: $(TARGET_DIR)/qtoken
 .PHONY: qtoken
 
 test: $(TARGET_DIR)/test
+	./$(TARGET_DIR)/test
 
 .PHONY: test
 
