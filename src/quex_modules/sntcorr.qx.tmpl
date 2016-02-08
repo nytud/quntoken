@@ -25,28 +25,28 @@ define {
     MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
     // roviditesek (kulso fajlbol generalodik):
     ABBREV  (${ABBREV})
-    // Megtaggelt mondat. Mivel a tag-ek baseclass-on kivuliek, ezert nem kell
-    // tulbonyolitani
-    TAGGED_SENTENCE {SNT_OPEN_QX}{BASE_CLASS}+{SNT_CLOSE_QX}
-    // megteggelt ws szekvencia
-    // nem keverendo a fenti tagged_ws_seq-kel: az a mondatokon beluli
-    // szabalyokhoz kell es csak egy sortores lehet benne, ebben meg barmennyi
-    // lehet, egymas utan is, mert mondatok kozotti  ws-ekre akar illeszkedni
-    TAGGED_WS ({WS_OPEN_QX}{WSPACE}+{WS_CLOSE_QX})
+    // Megtaggelt mondat.
+    TAGGED_SENTENCE {SNT_OPEN_QX}{NOT_SNT_CLOSE_QX}+{SNT_CLOSE_QX}
+    // Mondatresz + zaro tag; nyito tag-et es a mondat elejet lenyelte mar az
+    // egyik szabaly mondatkezdo verzioja.
+    SENTENCE_FRAGMENT {NOT_SNT_CLOSE_QX}*{SNT_CLOSE_QX}
+    // Megtaggelt ws szekvencia. Nem keverendo a fenti tagged_ws_seq-kel: az a
+    // mondatokon beluli szabalyokhoz kell es csak egy sortores lehet benne,
+    // ebben meg barmennyi lehet, egymas utan is, mert mondatok kozotti
+    // ws-ekre akar illeszkedni.
+    TAGGED_WS ({WS_OPEN_QX}{NOT_WS_CLOSE_QX}+{WS_CLOSE_QX})
 
 }
 
 
 // M O D E S
-start = PROGRAM;
-
 mode PROGRAM {
     // 1. Mondatkezdo sorszamok:
     // BE: <s>25.</s> <s>Magyarország
     // KI: <s>25. Magyarország
     // BE: <s>25.</s> <s>§
     // KI: <s>25. §
-    // Megj.: Eredetileg kulon mode volt ra irva, feleslegesnek tunik.
+    // Megj.: Eredetileg kulon mode volt ra, de igy egyszerubb.
     {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{UPPER} {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
@@ -279,11 +279,12 @@ mode PROGRAM {
 
     // normal mondatok kiirasa
     {TAGGED_SENTENCE}   => SNTCORR_SENTENCE(Lexeme);
+    // toredek mondat (a mondatkezdo verziok lefutasa utan kell)
+    {SENTENCE_FRAGMENT} => SNTCORR_ANYCHAR(Lexeme);
     // mondatkozi whitespace-ek kiirasa
     {TAGGED_WS}     => SNTCORR_WHITESPACE(Lexeme);
     // barmi mas kiirasa (elvileg nem kene szukseg legyen ra):
-    // TODO: egyelore megis kell!!! SURGOS!!!
-    .               => SNTCORR_ANYCHAR(Lexeme);
+    /* .               => SNTCORR_ANYCHAR(Lexeme); */
     {NEWLINE}       => SNTCORR_ANYCHAR(Lexeme);
     <<EOF>>         => SNTCORR_TERMINATION;
     on_failure      => SNTCORR_TERMINATION;

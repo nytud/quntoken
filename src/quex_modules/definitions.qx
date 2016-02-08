@@ -178,6 +178,8 @@ define {
     SNT_CLOSE_QX    \U01F031 // 🀱
     WS_OPEN_QX      \U01F032 // 🀲
     WS_CLOSE_QX     \U01F033 // 🀳
+    NOT_SNT_CLOSE_QX [: difference( {BASE_CLASS}, {SNT_OPEN_QX} ) :]
+    NOT_WS_CLOSE_QX  [: difference( {BASE_CLASS},  {WS_OPEN_QX} ) :]
 
     // egyebek:
     // tetszoleges egesz szam:

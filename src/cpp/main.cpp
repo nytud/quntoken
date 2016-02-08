@@ -31,6 +31,7 @@ int main(int argc, char** argv)
     using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&to_sntcorr1, to_sntcorr2, SNTCORR_TERMINATION);
     /* std::stringstream to_token; // output of sntcorr modul, input of token modul */
     using_module<std::stringstream*, Printer, sntcorr::sntcorr_lexer, sntcorr::Token>(&to_sntcorr2, xml_printer, SNTCORR_TERMINATION);
+    /* using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&to_sntcorr2, to_token, SNTCORR_TERMINATION); */
 
     std::cout << std::endl;
 
