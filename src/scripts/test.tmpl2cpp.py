@@ -115,9 +115,9 @@ if __name__ == "__main__":
     OUT_PREFIX = "OUT: "
     # A output végén mindig lesz egy sortörés, azt pedig itt is meg kell adni.
     ASSERT_TEMPLATE = Template("""
-    ASSERT_STREQ(
-        "${OUT}",
-        process_text("${INP}").c_str());
+    EXPECT_EQ(
+        std::string("${OUT}"),
+        process_text("${INP}"));
     """)
     main()
 
