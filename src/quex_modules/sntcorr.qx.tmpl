@@ -25,6 +25,11 @@ define {
     MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
     // roviditesek (kulso fajlbol generalodik):
     ABBREV  (${ABBREV})
+    // ABBREV kiegeszitese 'etc'-vel es 'stb'-vel. Ezek az alap roviditesekbol
+    // kimaradnak, hogy mert altalaban mondat vegen vannak, azaz nem kell
+    // kiszedni utanuk a mondathatart. A 9-es szabaly rovidites es ':' kozotti
+    // mondathatarokat tavolit el, ez esetben a 'etc' es a 'stb' is szamit.
+    ALLABBREV ({ABBREV}|"etc"|"Etc"|"stb"|"Stb")
     // Megtaggelt mondat.
     TAGGED_SENTENCE {SNT_OPEN_QX}{NOT_SNT_CLOSE_QX}+{SNT_CLOSE_QX}
     // Mondatresz + zaro tag; nyito tag-et es a mondat elejet lenyelte mar az
@@ -186,11 +191,9 @@ mode PROGRAM {
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
 
-    // 9. rovidites es kettospont kozti mondathatar
+    // 9. rovidites es kettospont kozti mondathatar (csaba fele 'huje string')
     // eredeti: {ALL_ABBREV}"."")"?"</s><s>:"
-    // TODO: definialni ALL_ABBREV-et (csak 'etc.'-t es 'stb.'-t tartalmazza)
-    //      es arra is kiterjeszteni a szabalyt.
-    {ABBREV}"."")"?{SENTENCE_BOUNDARY}":" {
+    {ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":" {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_ANYCHAR, LEX.c_str());
     }
