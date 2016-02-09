@@ -1,0 +1,29 @@
+# PREP invalid_chars
+
+héber:
+IN : בטו
+OUT: ���
+
+arab:
+IN : بـاب
+OUT: ����
+
+kínai:
+IN : 狼图腾
+OUT: ���
+
+vegyes:
+IN : egy kis بـاب sosem 狼图腾
+OUT: egy kis ���� sosem ���
+
+dominok (fontos, hogy ervenytelen karaktereknek szamitsanak, mert ezeket
+hasznaljak a tovabbi modulok tag-ek gyanant):
+IN : 🀰
+IN : 🀱
+IN : 🀲
+IN : 🀳
+OUT: �
+OUT: �
+OUT: �
+OUT: �
+
