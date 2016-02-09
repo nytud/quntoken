@@ -1,3 +1,5 @@
+# Ez a huntoken eredeti roviditeses fajlja, utf8-ban (M.I.)
+
 # Az sbdabbrev adatállománya, amely fordítás során kerül feldolgozásra
 # tartalma a gyakoribb rövidítések, amelyek pontra végzõdnek
 # (pont nélkül is megadhatunk ,,rövidítéseket'', pl. a ,,PhotoMaxGO!''

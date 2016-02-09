@@ -1,17 +1,24 @@
+# Fejlesztoi konfiguracio megadasa (milyen modulok es tesztek forduljanak).
+# Uj valtozat keszitesenel egy uj config fajlt kell kesziteni es azt
+# include-olni a default helyett.
+include default_config.mk
+
+# konyvatarak
 TARGET_DIR		= bin
 TMP_DIR			= tmp
-MYTEST_DIR		= test
-DATA_DIR		= data
 SOURCE_DIR		= src
 CPP_DIR			= $(SOURCE_DIR)/cpp
-QMODULES_DIR	= $(SOURCE_DIR)/quex_modules
 SCRIPTS_DIR		= $(SOURCE_DIR)/scripts
 GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h \
 				  $(GTEST_DIR)/include/gtest/internal/*.h
 
+### forditok kapcsoloi ########################################################
+
+# c preprocesszor
 CPPFLAGS +=	-isystem $(GTEST_DIR)/include
 
+# g++ kapcsoloi altalaban
 CXXFLAGS +=	-Wall \
 			-Wextra \
 			-Wconversion \
@@ -20,6 +27,7 @@ CXXFLAGS +=	-Wall \
 			-I$(CPP_DIR) \
 			# -g
 
+# g++ kapcsoloi quex-es fajlokhoz
 CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-I$(QUEX_PATH) \
 				-I$(TMP_DIR) \
@@ -29,9 +37,11 @@ CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-DPRINT_TOKEN \
 				-DQUEX_OPTION_MULTI
 
+# g++ kapcsoloi gtest-es fajlokhoz
 CXXFLAGS_GTEST =	$(CXXFLAGS) \
 					-pthread \
 
+# a quex kapcsoloi
 QUEXFLAGS =	-b 4 \
 		 	--bet wchar_t \
 		 	--icu
@@ -44,7 +54,6 @@ QUEXFLAGS =	-b 4 \
 #   - példa: ../quex/Demo/Cpp/003/-ban
 # Megj2: -b 2 is lehetne, de ekkor egyes unicode char. propert.-eket
 # használó szabálynál pampog a quex, hogy 2 bájtba nem fér minden bele
-
 
 
 #####  M A I N   T A R G E T S  ###############################################
@@ -84,7 +93,7 @@ $(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(
 	$(CXX) $^ `icu-config --ldflags` -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/printer.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
+	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 
 ### object files
@@ -108,35 +117,34 @@ $(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 
 
 ### quex
-$(TMP_DIR)/prep_prep_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/preproc.qx
+$(TMP_DIR)/prep_prep_lexer.cpp: $(DEFINITIONS) $(PREP_MODULE)
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QMODULES_DIR)/definitions.qx ../$(QMODULES_DIR)/preproc.qx \
+	quex 	-i ../$(DEFINITIONS) ../$(PREP_MODULE) \
 			-o prep::prep_lexer \
 			--token-id-prefix PREP_ \
 			$(QUEXFLAGS)
 
-$(TMP_DIR)/snt_snt_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(QMODULES_DIR)/snt.qx
+$(TMP_DIR)/snt_snt_lexer.cpp: $(DEFINITIONS) $(SNT_MODULE)
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QMODULES_DIR)/definitions.qx ../$(QMODULES_DIR)/snt.qx \
+	quex 	-i ../$(DEFINITIONS) ../$(SNT_MODULE) \
 			-o snt::snt_lexer \
 			--token-id-prefix SNT_ \
 			$(QUEXFLAGS)
 
-$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(QMODULES_DIR)/definitions.qx $(TMP_DIR)/sntcorr.qx
+$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(DEFINITIONS) $(TMP_DIR)/sntcorr.qx
 	cd $(TMP_DIR) ; \
-	quex 	-i ../$(QMODULES_DIR)/definitions.qx sntcorr.qx \
+	quex 	-i ../$(DEFINITIONS) sntcorr.qx \
 			-o sntcorr::sntcorr_lexer \
 			--token-id-prefix SNTCORR_ \
 			$(QUEXFLAGS)
 
 # generalas template-bol
-$(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(QMODULES_DIR)/sntcorr.qx.tmpl $(DATA_DIR)/abbreviations-utf8.txt
+$(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(SNTCORR_MODULE) $(ABBREVIATIONS)
 	./$< -t $(word 2, $^) -d $(word 3, $^) -o $@
 
 ### test.cpp
-$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(CPP_DIR)/test.cpp.tmpl  $(MYTEST_DIR)/test_snt.txt
-	./$< -t $(word 2, $^) -d $(word 3, $^) -o $@
-
+$(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(CPP_DIR)/test.cpp.tmpl $(TEST_FILES)
+	./$< -t $(word 2, $^) -d $(wordlist 3, $(words $^), $^) -o $@
 
 ### gtest
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)

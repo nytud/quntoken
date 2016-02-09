@@ -39,10 +39,10 @@ def args_handling():
             nargs=1)
     return vars(pars.parse_args())
 
-def process_file(file_):
-    """Vegig megy egy fajlon, kigyujti a be/ki parokat es assertio-kat csinal.
+def process_lines(lines):
+    """Vegig megy egy fajlon, kigyujti a be/ki parokat es expectaciokat csinal.
 
-    Az assertio-k egy fuggvenyhez tartoznak (egy modult tesztelnek), ezert egy
+    Az expectation-ok egy fuggvenyhez tartoznak (egy modult tesztelnek), egy
     string-kent kerulnek visszaadasra.
     """
     # TODO: a for ciklus eleg olvashatatlan, at kene dolgozni!
@@ -50,7 +50,7 @@ def process_file(file_):
     inp = ''
     out = ''
     flipflop = False
-    for line in file_:
+    for line in lines:
         line = line.rstrip()
         inp_line = line.startswith(INP_PREFIX) or line == INP_PREFIX[:-1]
         out_line = line.startswith(OUT_PREFIX) or line == OUT_PREFIX[:-1]
@@ -62,7 +62,7 @@ def process_file(file_):
         if inp_line:
             if not flipflop:
                 if inp or out: # előző kör kiírása
-                    res.append(ASSERT_TEMPLATE.substitute(INP=inp, OUT=out))
+                    res.append(EXPECT_TEMPLATE.safe_substitute(INP=inp, OUT=out))
                 flipflop = True
                 inp = line
             else:
@@ -74,50 +74,80 @@ def process_file(file_):
             else:
                 out += '\\n' + line
     if inp or out: # utolsó kör kiírása
-        res.append(ASSERT_TEMPLATE.substitute(INP=inp, OUT=out))
+        res.append(EXPECT_TEMPLATE.safe_substitute(INP=inp, OUT=out))
     return '\n    '.join(res)
 
 
-def generate_assertion(test_file):
+def generate_tests(test_file):
     """Visszater a kapott fajlbol kinyerheto testesthez tartozo koddal.
     """
+    # TODO: atirni try-al!
     with open(test_file) as file_:
-        return process_file(file_)
+        fst_line = file_.readline()
+        lines = file_.readlines()
+    fst_line = fst_line.lstrip('#')
+    fst_line = fst_line.strip()
+    fst_line = fst_line.split()
+    if len(fst_line) != 2 or fst_line[0] not in MODULES2FUNCTIONS.keys():
+        print(ERROR_MSG, file=sys.stderr)
+        sys.exit
+    testcase = fst_line[0]
+    testname = fst_line[1]
+    expectations = process_lines(lines)
+    expectations = Template(expectations)
+    expectations = expectations.substitute(FUNCTION=MODULES2FUNCTIONS[testcase])
+    res = TEST_TEMPLATE.substitute(TESTCASE=testcase+'_TEST',
+                                   TESTNAME=testname,
+                                   EXPECTATIONS=expectations)
+    return res
 
 
-def generate_cpp(tmpl, assertions):
+def generate_cpp(tmpl, tests):
     """Behelyettesiti a template-be az osszegyujtott testeseteket.
     """
     tmpl = Template(tmpl.read())
-    return tmpl.substitute(ASSERTIONS=assertions)
+    return tmpl.substitute(TESTS=tests)
 
 
 def main():
+    # parancssori argumentumok
     args = args_handling()
     TMPL_FILE = args['template_file'][0]
     DATA_FILES = args['data_files'] # lista!
     OUT_FILE  = args['object_file'][0]
-    
-    assertions = [ generate_assertion(x) for x in DATA_FILES ]
-    assertions = '\n    '.join(assertions)
-
+    # tesztek generalasa
+    tests = [ generate_tests(x) for x in DATA_FILES ]
+    tests = '\n'.join(tests)
+    # template feltoltese a tesztekkel
     with open(TMPL_FILE, 'r') as tmpl:
-        cpp = generate_cpp(tmpl, assertions)
-
+        cpp = generate_cpp(tmpl, tests)
+    # kiiras
     with open(OUT_FILE, 'w') as out:
         out.write(cpp)
 
 
 if __name__ == "__main__":
-    INPUT_DIR = "test/"
-    OUTPUT_DIR = "tmp/"
     INP_PREFIX = "IN : "
     OUT_PREFIX = "OUT: "
-    # A output végén mindig lesz egy sortörés, azt pedig itt is meg kell adni.
-    ASSERT_TEMPLATE = Template("""
+    MODULES2FUNCTIONS = {'PREP':'prepTest', 'SNT':'sntTest', 'SNTCORR':'sntcorrTest'}
+    TEST_TEMPLATE = Template("""TEST(${TESTCASE}, ${TESTNAME}){
+    ${EXPECTATIONS}\n}""")
+    EXPECT_TEMPLATE = Template("""
     EXPECT_EQ(
         std::string("${OUT}"),
-        process_text("${INP}"));
-    """)
+        ${FUNCTION}("${INP}"));""")
+    ERROR_MSG = '''
+    Rosszul formalt teszt fajl.
+
+    Elso sor '#'-al kezdodjek, tartalmazza a tesztelendo modul nevet es a
+    tesztelni kivant tulajdonsag nevet (sima ascii azonosito, '_' nelkul).
+    Jelenelg elerheto modulok:
+        - PREP: elofeldolgozas, ervenytelen  karakterek szurese, html entity-k,
+          xml tag-ek kezelese
+        - SNT: alap mondatra bontas
+        - SNTCORR: mondatrabontas hibainak korrigalasa (roviditesek, datumok)
+
+    Pelda: '# SNT sortores'
+    '''
     main()
 
