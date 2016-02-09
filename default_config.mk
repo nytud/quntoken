@@ -10,7 +10,8 @@ SNT_MODULE     	= $(QMODULES_DIR)/snt.qx
 SNTCORR_MODULE 	= $(QMODULES_DIR)/sntcorr.qx.tmpl
 
 # roviditeseket tartalmazo fajl az SNTCORR_MODULE-hoz
-ABBREVIATIONS	= data/abbreviations-orig.txt
+# ABBREVIATIONS	= data/abbreviations_orig-hu.txt
+ABBREVIATIONS	= data/abbreviations_nytud-hu.txt
 
 
 # tesztfajlok:
