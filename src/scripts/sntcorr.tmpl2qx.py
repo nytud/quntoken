@@ -42,7 +42,7 @@ def get_abbrevs(data):
     abbrevs = [ x for x in abbrevs if x ]
     abbrevs = [ x.rstrip('.') for x in abbrevs ]
     abbrevs = [ '"'+x.replace(' ', '"{SPACE}"')+'"' for x in abbrevs ]
-    capital_abbrevs = [ x[0].upper()+x[1:] for x in abbrevs ]
+    capital_abbrevs = [ x[0]+x[1].upper()+x[2:] for x in abbrevs ] # x[0]=='"'!
     upper_abbrevs = [ x.upper() for x in abbrevs ]
     abbrevs += capital_abbrevs + upper_abbrevs
     abbrevs = sorted(set(abbrevs))
