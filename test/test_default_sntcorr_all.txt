@@ -177,13 +177,13 @@ OUT: <s>A. E. X. Wilson van.</s>
 
 
 10. Rovidites es kettospont kozti mondathatar (csaba fele 'huje string').
-# {NONWORDCHAR}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":"
-IN : Egy du. Kati tanulni kezdett.
-OUT: <s>Egy du. Kati tanulni kezdett.</s>
+IN : Egy stb.): Kati tanulni kezdett.
+OUT: <s>Egy stb.): Kati tanulni kezdett.</s>
 Mondatkezdo verziok:
-# {SNT_OPEN_QX}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":"
-IN : Du. Kati tanulni kezdett.
-OUT: <s>Du. Kati tanulni kezdett.</s>
+IN : Stb.): Kati tanulni kezdett.
+OUT: <s>Stb.): Kati tanulni kezdett.</s>
+IN : Du.: Kati tanulni kezdett.
+OUT: <s>Du.: Kati tanulni kezdett.</s>
 
 
 11. Roviditesek.

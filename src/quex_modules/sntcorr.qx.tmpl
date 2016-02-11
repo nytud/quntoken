@@ -30,7 +30,7 @@ define {
     // kimaradnak, hogy mert altalaban mondat vegen vannak, azaz nem kell
     // kiszedni utanuk a mondathatart. A 9-es szabaly rovidites es ':' kozotti
     // mondathatarokat tavolit el, ez esetben a 'etc' es a 'stb' is szamit.
-    ALLABBREV ({ABBREV}|"etc"|"Etc"|"stb"|"Stb")
+    /* ALLABBREV ({ABBREV}|"etc"|"Etc"|"stb"|"Stb") */
     /* // Megtaggelt mondat. Ehhez es a kovetkezohoz l. a megjegyzest a hozza */
     /* // tartozo szabalynal! */
     /* TAGGED_SENTENCE {SNT_OPEN_QX}{NOT_SNT_CLOSE_QX}+{SNT_CLOSE_QX} */
@@ -214,16 +214,17 @@ mode PROGRAM {
 
     // 10. Rovidites es kettospont kozti mondathatar (csaba fele 'huje string').
     // Megj.: ha a roviditesekkel (10.) fel van cserelve, akkor segfault lehet.
+    // Megj.: Sosem fut le, nem kell.
     // eredeti: {ALL_ABBREV}"."")"?"</s><s>:"
-    {NONWORDCHAR}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":" {
-        std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
-    }
-    // Mondatkezdo verzio:
-    {SNT_OPEN_QX}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":" {
-        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(SNTCORR_ANYCHAR, LEX.c_str());
-    }
+    /* {NONWORDCHAR}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":" { */
+    /*     std::wstring LEX(self.snt_boundary_correction(Lexeme)); */
+    /*     self_send1(SNTCORR_ANYCHAR, LEX.c_str()); */
+    /* } */
+    /* // Mondatkezdo verzio: */
+    /* {SNT_OPEN_QX}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":" { */
+    /*     std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme)); */
+    /*     self_send1(SNTCORR_ANYCHAR, LEX.c_str()); */
+    /* } */
 
     // 11. Roviditesek.
     // BE: Pl.</s> <s>Jani szerint ápr.</s> <s>Kati kedvenc hónapja.
