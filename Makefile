@@ -22,9 +22,9 @@ CPPFLAGS +=	-isystem $(GTEST_DIR)/include
 CXXFLAGS +=	-Wall \
 			-Wextra \
 			-Wconversion \
-			-Werror \
 			-std=c++11 \
 			-I$(CPP_DIR) \
+			# -Werror \
 			# -g
 
 # g++ kapcsoloi quex-es fajlokhoz

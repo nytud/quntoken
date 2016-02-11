@@ -147,7 +147,7 @@ cca.
 gr.
 hsz.
 htb.
-luth.
+# luth.
 megh.
 ov.
 ovh.
