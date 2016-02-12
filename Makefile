@@ -10,8 +10,7 @@ SOURCE_DIR		= src
 CPP_DIR			= $(SOURCE_DIR)/cpp
 SCRIPTS_DIR		= $(SOURCE_DIR)/scripts
 GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
-GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h \
-				  $(GTEST_DIR)/include/gtest/internal/*.h
+GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h $(GTEST_DIR)/include/gtest/internal/*.h
 QUEX_DIR		= quex/quex-0.65.4
 
 # parancsok
@@ -50,11 +49,11 @@ CXXFLAGS_GTEST =	$(CXXFLAGS) \
 					-pthread \
 
 # a quex kapcsoloi
-QUEXFLAGS =	-b 4 \
-		 	--bet wchar_t \
+QUEXFLAGS =	-i $^ \
+			-b 4 \
+			--bet wchar_t \
 			--odir $(TMP_DIR)/ \
-			-i $^ \
-		 	--icu
+			--icu
 # Megj1: icu konverter használata:
 #   - telepíteni kell a libicu52-t és a libicu-dev-et
 #   - quex-nek kell az --icu kapcsoló
@@ -128,19 +127,19 @@ $(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 
 ### quex
 $(TMP_DIR)/prep_prep_lexer.cpp: $(DEFINITIONS) $(PREP_MODULE)
-	$(QUEX_CMD)	-o prep::prep_lexer \
-				--token-id-prefix PREP_ \
-				$(QUEXFLAGS)
+	$(QUEX_CMD)	$(QUEXFLAGS) \
+				-o prep::prep_lexer \
+				--token-id-prefix PREP_
 
 $(TMP_DIR)/snt_snt_lexer.cpp: $(DEFINITIONS) $(SNT_MODULE)
-	$(QUEX_CMD)	-o snt::snt_lexer \
-				--token-id-prefix SNT_ \
-				$(QUEXFLAGS)
+	$(QUEX_CMD)	$(QUEXFLAGS) \
+				-o snt::snt_lexer \
+				--token-id-prefix SNT_
 
 $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(DEFINITIONS) $(TMP_DIR)/sntcorr.qx
-	$(QUEX_CMD)	-o sntcorr::sntcorr_lexer \
-				--token-id-prefix SNTCORR_ \
-				$(QUEXFLAGS)
+	$(QUEX_CMD)	$(QUEXFLAGS) \
+				-o sntcorr::sntcorr_lexer \
+				--token-id-prefix SNTCORR_
 
 # generalas template-bol
 $(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(SNTCORR_MODULE) $(ABBREVIATIONS)
