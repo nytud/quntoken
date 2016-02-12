@@ -11,10 +11,10 @@ CPP_DIR			= $(SOURCE_DIR)/cpp
 SCRIPTS_DIR		= $(SOURCE_DIR)/scripts
 GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h $(GTEST_DIR)/include/gtest/internal/*.h
-QUEX_DIR		= quex/quex-0.65.4
+QUEX_DIR		= quex
 
 # parancsok
-QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; ./$(QUEX_DIR)/quex-exe.py
+QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
 
 version:
 	$(QUEX_CMD) -v
@@ -79,8 +79,7 @@ test: $(TARGET_DIR)/test
 
 .PHONY: test
 
-# TODO: install_quex
-install: prepare install_gtest
+install: prepare install_gtest install_quex
 
 .PHONY: install
 
@@ -170,6 +169,13 @@ $(TMP_DIR)/gtest_main.a : $(TMP_DIR)/gtest-all.o $(TMP_DIR)/gtest_main.o
 ######  I N S T A L L   A N D   U P D A T E  ##################################
 CMD_INSTALL_GTEST = cd $(SOURCE_DIR) ; git clone https://github.com/google/googletest.git
 CMD_UPDATE_GTEST = cd $(GTEST_DIR) ; git pull
+QUEX_VERSION = quex-0.65.4
+QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_VERSION).tar.gz
+CMD_INSTALL_QUEX = cd $(TMP_DIR) ; \
+				   wget $(QUEX_LINK) ; \
+				   tar zxvf $(QUEX_VERSION).tar.gz ; \
+				   mv $(QUEX_VERSION)/ ../$(QUEX_DIR) ; \
+				   rm $(QUEX_VERSION).tar.gz
 
 prepare:
 	mkdir -p $(TARGET_DIR)
@@ -181,6 +187,11 @@ install_gtest:
 	if ! [ -d $(GTEST_DIR) ] ; then $(CMD_INSTALL_GTEST) ; fi
 
 .PHONY: install_gtest
+
+install_quex:
+	if ! [ -d $(QUEX_DIR) ] ; then $(CMD_INSTALL_QUEX) ; fi
+
+.PHONY: install_quex
 
 update_gtest:
 	$(CMD_UPDATE_GTEST)
