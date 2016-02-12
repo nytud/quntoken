@@ -12,6 +12,13 @@ SCRIPTS_DIR		= $(SOURCE_DIR)/scripts
 GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h \
 				  $(GTEST_DIR)/include/gtest/internal/*.h
+QUEX_DIR		= quex/quex-0.65.4
+
+# parancsok
+QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; ./$(QUEX_DIR)/quex-exe.py
+
+version:
+	$(QUEX_CMD) -v
 
 ### forditok kapcsoloi ########################################################
 
@@ -29,8 +36,9 @@ CXXFLAGS +=	-Wall \
 
 # g++ kapcsoloi quex-es fajlokhoz
 CXXFLAGS_QUEX =	$(CXXFLAGS) \
-				-I$(QUEX_PATH) \
+				-I$(QUEX_DIR) \
 				-I$(TMP_DIR) \
+				-I./ \
 				-DQUEX_OPTION_ASSERTS_DISABLED \
 				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
 				-DENCODING_NAME='"UTF8"' \
@@ -100,11 +108,11 @@ $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TM
 $(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/printer.o: $(CPP_DIR)/printer.cpp $(CPP_DIR)/printer.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
 $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
+
+$(TMP_DIR)/printer.o: $(CPP_DIR)/printer.cpp $(CPP_DIR)/printer.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
@@ -118,25 +126,25 @@ $(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 
 ### quex
 $(TMP_DIR)/prep_prep_lexer.cpp: $(DEFINITIONS) $(PREP_MODULE)
-	cd $(TMP_DIR) ; \
-	quex 	-i ../$(DEFINITIONS) ../$(PREP_MODULE) \
-			-o prep::prep_lexer \
-			--token-id-prefix PREP_ \
-			$(QUEXFLAGS)
+	$(QUEX_CMD)	-i $(DEFINITIONS) $(PREP_MODULE) \
+				--odir $(TMP_DIR)/ \
+				-o prep::prep_lexer \
+				--token-id-prefix PREP_ \
+				$(QUEXFLAGS)
 
 $(TMP_DIR)/snt_snt_lexer.cpp: $(DEFINITIONS) $(SNT_MODULE)
-	cd $(TMP_DIR) ; \
-	quex 	-i ../$(DEFINITIONS) ../$(SNT_MODULE) \
-			-o snt::snt_lexer \
-			--token-id-prefix SNT_ \
-			$(QUEXFLAGS)
+	$(QUEX_CMD)	-i $(DEFINITIONS) $(SNT_MODULE) \
+				--odir $(TMP_DIR)/ \
+				-o snt::snt_lexer \
+				--token-id-prefix SNT_ \
+				$(QUEXFLAGS)
 
 $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(DEFINITIONS) $(TMP_DIR)/sntcorr.qx
-	cd $(TMP_DIR) ; \
-	quex 	-i ../$(DEFINITIONS) sntcorr.qx \
-			-o sntcorr::sntcorr_lexer \
-			--token-id-prefix SNTCORR_ \
-			$(QUEXFLAGS)
+	$(QUEX_CMD)	-i $(DEFINITIONS) $(TMP_DIR)/sntcorr.qx \
+				--odir $(TMP_DIR)/ \
+				-o sntcorr::sntcorr_lexer \
+				--token-id-prefix SNTCORR_ \
+				$(QUEXFLAGS)
 
 # generalas template-bol
 $(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(SNTCORR_MODULE) $(ABBREVIATIONS)

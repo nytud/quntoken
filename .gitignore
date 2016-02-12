@@ -32,6 +32,7 @@ bin/
 tmp/
 others/
 googletest/
+quex/
 
 # files
 test/example_*
