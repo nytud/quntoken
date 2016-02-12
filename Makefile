@@ -9,7 +9,7 @@ TMP_DIR			= tmp
 SOURCE_DIR		= src
 CPP_DIR			= $(SOURCE_DIR)/cpp
 SCRIPTS_DIR		= $(SOURCE_DIR)/scripts
-GTEST_DIR		= $(SOURCE_DIR)/googletest/googletest
+GTEST_DIR		= googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h $(GTEST_DIR)/include/gtest/internal/*.h
 QUEX_DIR		= quex
 
@@ -167,7 +167,7 @@ $(TMP_DIR)/gtest_main.a : $(TMP_DIR)/gtest-all.o $(TMP_DIR)/gtest_main.o
 
 
 ######  I N S T A L L   A N D   U P D A T E  ##################################
-CMD_INSTALL_GTEST = cd $(SOURCE_DIR) ; git clone https://github.com/google/googletest.git
+CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
 CMD_UPDATE_GTEST = cd $(GTEST_DIR) ; git pull
 QUEX_VERSION = quex-0.65.4
 QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_VERSION).tar.gz
