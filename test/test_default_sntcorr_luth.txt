@@ -1,0 +1,6 @@
+# SNTCORR luth
+A misztikus hiba tesztelese.
+
+IN : luth
+OUT: <s>luth</s>
+
