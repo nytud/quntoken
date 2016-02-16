@@ -7,6 +7,7 @@
 #include "prep_prep_lexer" // a *_lexer-eknek elobb kell lenniuk, mint a tobbi quex-esnek
 #include "snt_snt_lexer"
 #include "sntcorr_sntcorr_lexer"
+#include "token_token_lexer"
 #include <quex/code_base/multi.i> // a több quex modulhoz
 #include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
@@ -54,6 +55,26 @@ std::string sntcorrTest(std::string text) {
     // output
     Printer xml_printer(XML);
     std::string res = ss4.str();
+    return xml_printer.convert_tags(res);
+}
+
+std::string tokenTest(std::string text) {
+    // stringstreams
+    std::stringstream ss0(text); // input of preprocessing
+    std::stringstream ss1; // output of prepocessing, input of snt module
+    std::stringstream ss2; // output of snt module, input of sntcorr module
+    std::stringstream ss3; // output of sntcorr module, input of sntcorr mudule
+    std::stringstream ss4; // output of sntcorr module, input of token module
+    std::stringstream ss5; // output of token module
+    // modules
+    using_module<std::stringstream*, std::stringstream, prep::prep_lexer, prep::Token>(&ss0, ss1, PREP_TERMINATION);
+    using_module<std::stringstream*, std::stringstream, snt::snt_lexer, snt::Token>(&ss1, ss2, SNT_TERMINATION);
+    using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&ss2, ss3, SNTCORR_TERMINATION);
+    using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&ss3, ss4, SNTCORR_TERMINATION);
+    using_module<std::stringstream*, std::stringstream, token::token_lexer, token::Token>(&ss4, ss5, TOKEN_TERMINATION);
+    // output
+    Printer xml_printer(XML);
+    std::string res = ss5.str();
     return xml_printer.convert_tags(res);
 }
 

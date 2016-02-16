@@ -1,0 +1,12 @@
+token {
+    ANYCHAR;
+}
+
+mode PREPROC {
+    .               => TOKEN_ANYCHAR(Lexeme);
+    on_failure      => TOKEN_TERMINATION;
+    <<EOF>>         => TOKEN_TERMINATION;
+}
+
+// vim:set syntax=cpp:
+

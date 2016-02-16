@@ -8,6 +8,7 @@ DEFINITIONS		= $(QMODULES_DIR)/definitions.qx
 PREP_MODULE    	= $(QMODULES_DIR)/preproc.qx
 SNT_MODULE     	= $(QMODULES_DIR)/snt.qx
 SNTCORR_MODULE 	= $(QMODULES_DIR)/sntcorr.qx.tmpl
+TOKEN_MODULE	= $(QMODULES_DIR)/token.qx
 
 # roviditeseket tartalmazo fajl az SNTCORR_MODULE-hoz
 # Megj: fejleszteshez erdemes az orig-ot haznalni, mert joval gyorsabban fordul
@@ -21,5 +22,6 @@ TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
              $(MYTEST_DIR)/test_default_snt_boundary.txt \
              $(MYTEST_DIR)/test_default_snt_newline.txt  \
              $(MYTEST_DIR)/test_default_sntcorr_all.txt \
-             $(MYTEST_DIR)/test_default_sntcorr_luth.txt
+             $(MYTEST_DIR)/test_default_sntcorr_luth.txt \
+             $(MYTEST_DIR)/test_default_token_all.txt \
 

@@ -129,7 +129,7 @@ def main():
 if __name__ == "__main__":
     INP_PREFIX = "IN : "
     OUT_PREFIX = "OUT: "
-    MODULES2FUNCTIONS = {'PREP':'prepTest', 'SNT':'sntTest', 'SNTCORR':'sntcorrTest'}
+    MODULES2FUNCTIONS = {'PREP':'prepTest', 'SNT':'sntTest', 'SNTCORR':'sntcorrTest', 'TOKEN':'tokenTest'}
     TEST_TEMPLATE = Template("""TEST(${TESTCASE}, ${TESTNAME}){
     ${EXPECTATIONS}\n}""")
     EXPECT_TEMPLATE = Template("""
