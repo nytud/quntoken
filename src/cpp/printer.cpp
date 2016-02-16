@@ -1,10 +1,14 @@
 #include "printer.h"
 
 // konstansok
-const std::string SNT_OPEN_CPP("🀰");
-const std::string SNT_CLOSE_CPP("🀱");
-const std::string SNT_OPEN_WS("🀲");
-const std::string SNT_CLOSE_WS("🀳");
+const std::string SNT_OPEN("🀰");
+const std::string SNT_CLOSE("🀱");
+const std::string WS_OPEN("🀲");
+const std::string WS_CLOSE("🀳");
+const std::string WORD_OPEN("🀴");
+const std::string WORD_CLOSE("🀵");
+const std::string PUNCT_OPEN("🀶");
+const std::string PUNCT_CLOSE("🀷");
 
 // konstruktor
 Printer::Printer(OUTPUT_TYPE type) {
@@ -55,10 +59,14 @@ std::string& Printer::convert_tags(std::string &text) {
 // xml:
 Printer::ConversionMap Printer::createXmlMap() {
     ConversionMap xml_map;
-    xml_map[SNT_OPEN_CPP] = "<s>";
-    xml_map[SNT_CLOSE_CPP] = "</s>";
-    xml_map[SNT_OPEN_WS] = "<w>";
-    xml_map[SNT_CLOSE_WS] = "</w>";
+    xml_map[SNT_OPEN] = "<snt>";
+    xml_map[SNT_CLOSE] = "</snt>";
+    xml_map[WS_OPEN] = "<wspace>";
+    xml_map[WS_CLOSE] = "</wspace>";
+    xml_map[WORD_OPEN] = "<word>";
+    xml_map[WORD_CLOSE] = "</word>";
+    xml_map[PUNCT_OPEN] = "<punct>";
+    xml_map[PUNCT_CLOSE] = "</punct>";
     return xml_map;
 }
 

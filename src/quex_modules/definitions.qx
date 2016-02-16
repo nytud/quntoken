@@ -18,6 +18,10 @@ body {
     const std::wstring SNT_CLOSE_CPP    = L"🀱";
     const std::wstring WS_OPEN_CPP      = L"🀲";
     const std::wstring WS_CLOSE_CPP     = L"🀳";
+    const std::wstring WORD_OPEN_CPP      = L"🀴";
+    const std::wstring WORD_CLOSE_CPP     = L"🀵";
+    const std::wstring PUNCT_OPEN_CPP      = L"🀶";
+    const std::wstring PUNCT_CLOSE_CPP     = L"🀷";
 
     // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
     const std::wstring REPLACEMENTCHAR_CPP = L"�";
@@ -178,13 +182,17 @@ define {
     SNT_CLOSE_QX    \U01F031 // 🀱
     WS_OPEN_QX      \U01F032 // 🀲
     WS_CLOSE_QX     \U01F033 // 🀳
+    WORD_OPEN_QX    \U01F034 // 🀴
+    WORD_CLOSE_QX   \U01F035 // 🀵
+    PUNCT_OPEN_QX   \U01F036 // 🀶
+    PUNCT_CLOSE_QX  \U01F037 // 🀷
     NOT_SNT_CLOSE_QX [: difference( {BASE_CLASS}, {SNT_OPEN_QX} ) :]
     NOT_WS_CLOSE_QX  [: difference( {BASE_CLASS},  {WS_OPEN_QX} ) :]
 
     // egyebek:
     // tetszoleges egesz szam:
-    INT             [0-9]+
-    // romai szamok (forras: http://stackoverflow.com/a/267405)
+    INT             [\-+]?[0-9]+
+    // romai szamok (http://stackoverflow.com/a/267405 felhasznalasaval)
     ROMAN_NUM       "M"{0,4}("CM"|"CD"|("D"?"C"{0,3}))("XC"|"XL"|("L"?"X"{0,3}))("IX"|"IV"|("V"?"I"{0,3}))
     // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
     /* REPLACEMENTCHAR_QX "�" */

@@ -2,44 +2,44 @@
 
 1. Mondathatár túllépés: mondatzáró után kis betű. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : N. kormányzósági székhely.
-OUT: <s>N. kormányzósági székhely.</s>
+OUT: <snt>N. kormányzósági székhely.</snt>
 
 IN : A www.akármi.hu.
-OUT: <s>A www.akármi.hu.</s>
+OUT: <snt>A www.akármi.hu.</snt>
 
 IN : - Nézd a! - mondta az egyik.
-OUT: <s>- Nézd a! - mondta az egyik.</s>
+OUT: <snt>- Nézd a! - mondta az egyik.</snt>
 
 IN : A 4. javítócsomagot.
-OUT: <s>A 4. javítócsomagot.</s>
+OUT: <snt>A 4. javítócsomagot.</snt>
 
 IN : 3434/1992. évi elszámolás.
-OUT: <s>3434/1992. évi elszámolás.</s>
+OUT: <snt>3434/1992. évi elszámolás.</snt>
 
 IN : "Jót s jól! Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.
-OUT: <s>"Jót s jól!</s><w> </w><s>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</s>
+OUT: <snt>"Jót s jól!</snt><wspace> </wspace><snt>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</snt>
 
 IN : - Szia Péterkém! Holnap találkozunk - mondta Gizi.
-OUT: <s>- Szia Péterkém!</s><w> </w><s>Holnap találkozunk - mondta Gizi.</s>
+OUT: <snt>- Szia Péterkém!</snt><wspace> </wspace><snt>Holnap találkozunk - mondta Gizi.</snt>
 
 
 2. Mondatzáró után idéző- vagy kötő jel. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : A "Ne már!"-ral az a baj.
-OUT: <s>A "Ne már!"-ral az a baj.</s>
+OUT: <snt>A "Ne már!"-ral az a baj.</snt>
 
 
 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva. ~~~~~~~~
 IN : A WWW.AKARMI.HU.
-OUT: <s>A WWW.AKARMI.HU.</s>
+OUT: <snt>A WWW.AKARMI.HU.</snt>
 
 
 4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű ~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : Azt mondta, hogy "Na!", "Csináld!" és így tovább.
-OUT: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
+OUT: <snt>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</snt>
 
 
 5. Mondatban lévő zárójeles rész kezelése. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : A macska (családjában a 25.) Katinak nyávogott.
-OUT: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
+OUT: <snt>A macska (családjában a 25.) Katinak nyávogott.</snt>
 
 

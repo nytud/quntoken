@@ -2,7 +2,7 @@
 #define PRINTER_H
 
 // quex modulok belso formatumanak atalakitasa a vegso kimeneti formatumra
-// API:
+// Felulet:
 //      convert_tags(string& text);
 //          Kapott szovegben lecsereli a quex modulokban hasznalt belso
 //          tag-eket a Printer tipusanak megfelelo stringekre (xml. json, tsv)
@@ -35,7 +35,6 @@ class Printer {
         // konstruktor, destruktor
         Printer(OUTPUT_TYPE type);
         ~Printer() {}
-        // API:
         std::string& convert_tags(std::string &text);
         void operator<<(std::string text);
     private:
