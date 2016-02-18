@@ -13,11 +13,6 @@ GTEST_DIR		= googletest/googletest
 GTEST_HEADERS	= $(GTEST_DIR)/include/gtest/*.h $(GTEST_DIR)/include/gtest/internal/*.h
 QUEX_DIR		= quex
 
-# parancsok
-QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
-
-version:
-	$(QUEX_CMD) -v
 
 ### forditok kapcsoloi ########################################################
 
@@ -128,6 +123,9 @@ $(TMP_DIR)/token.o: $(TMP_DIR)/token_token_lexer.cpp
 
 
 ### quex
+# parancsok
+QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
+
 $(TMP_DIR)/prep_prep_lexer.cpp: $(DEFINITIONS) $(PREP_MODULE)
 	$(QUEX_CMD)	$(QUEXFLAGS) \
 				-o prep::prep_lexer \
