@@ -4,11 +4,11 @@
 #include <sstream>
 #include <cstdlib>
 #include "printer.h"
-#include "using_module.h"
 #include "prep_prep_lexer" // a *_lexer-eknek elobb kell lenniuk, mint a tobbi quex-esnek
 #include "snt_snt_lexer"
 #include "sntcorr_sntcorr_lexer"
 #include "token_token_lexer"
+#include "using_module.h"
 #include <quex/code_base/multi.i> // több quex modulhoz osszekapcsolasahoz
 #include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
