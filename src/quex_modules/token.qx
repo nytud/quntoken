@@ -1,9 +1,34 @@
 token {
     ANYCHAR;
+    NEWLINE;
 }
 
-mode PREPROC {
+
+
+// M O D E S
+start = PROGRAM;
+
+// alap feldolgozas
+mode PROGRAM : COMMON {
+    {SNT_OPEN_QX}   {
+        self_send1(TOKEN_ANYCHAR, Lexeme);
+        self << INSNT;
+    }
     .               => TOKEN_ANYCHAR(Lexeme);
+}
+
+// mondaton beluli feldolgozas
+mode INSNT : COMMON {
+    {SNT_CLOSE_QX}   {
+        self_send1(TOKEN_ANYCHAR, Lexeme);
+        self << PROGRAM;
+    }
+    [: difference( {BASE_CLASS}, {SNT_CLOSE_QX}):] => TOKEN_ANYCHAR(Lexeme);
+}
+
+// kozos dolgok
+mode COMMON : <inheritable: only> {
+    {NEWLINE}       => TOKEN_NEWLINE(Lexeme);
     on_failure      => TOKEN_TERMINATION;
     <<EOF>>         => TOKEN_TERMINATION;
 }
