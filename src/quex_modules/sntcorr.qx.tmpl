@@ -37,6 +37,7 @@ define {
     // mondatokon beluli szabalyokhoz kell es csak egy sortores lehet benne,
     // ebben meg barmennyi lehet, egymas utan is, mert mondatok kozotti
     // ws-ekre akar illeszkedni.
+    // TODO: egyertelmu megnevezes, ws_seq-kel ne lehessen osszekeverni!
     TAGGED_WS ({WS_OPEN_QX}{NOT_WS_CLOSE_QX}+{WS_CLOSE_QX})
 
 }
