@@ -21,14 +21,14 @@ int main(int argc, char** argv)
         std::cerr << "Missing file name!" << std::endl;
         exit(0);
     }
-    FILE* fh = fopen(argv[1], "rb");
     Printer xml_printer(XML);
 
     std::stringstream ss1; // output of prepocessing, input of snt processing
     std::stringstream ss2; // output of snt modul, input of sntcorr modul
     std::stringstream ss3; // output of sntcorr1, input of sntcorr2
     std::stringstream ss4; // output of sntcorr modul, input of token modul
-    using_module<FILE*, std::stringstream, prep::prep_lexer, prep::Token>(fh, ss1, PREP_TERMINATION);
+
+    using_module<const char*, std::stringstream, prep::prep_lexer, prep::Token>(argv[1], ss1, PREP_TERMINATION);
     using_module<std::stringstream*, std::stringstream, snt::snt_lexer, snt::Token>(&ss1, ss2, SNT_TERMINATION);
     using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&ss2, ss3, SNTCORR_TERMINATION);
     using_module<std::stringstream*, std::stringstream, sntcorr::sntcorr_lexer, sntcorr::Token>(&ss3, ss4, SNTCORR_TERMINATION);
