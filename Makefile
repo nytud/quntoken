@@ -78,8 +78,7 @@ install: prepare install_gtest install_quex
 
 .PHONY: install
 
-# TODO: update_quex_
-update: update_gtest
+update: update_gtest update_quex
 
 .PHONY: update
 
@@ -175,13 +174,12 @@ $(TMP_DIR)/gtest_main.a : $(TMP_DIR)/gtest-all.o $(TMP_DIR)/gtest_main.o
 ######  I N S T A L L   A N D   U P D A T E  ##################################
 CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
 CMD_UPDATE_GTEST = cd $(GTEST_DIR) ; git pull
-QUEX_VERSION = quex-0.65.4
-QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_VERSION).tar.gz
+QUEX_STABLE_VERSION = quex-0.65.4
+QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_STABLE_VERSION).tar.gz
 CMD_INSTALL_QUEX = cd $(TMP_DIR) ; \
-				   wget $(QUEX_LINK) ; \
-				   tar zxvf $(QUEX_VERSION).tar.gz ; \
-				   mv $(QUEX_VERSION)/ ../$(QUEX_DIR) ; \
-				   rm $(QUEX_VERSION).tar.gz
+				   svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
+                   mv trunk/ ../$(QUEX_DIR)
+CMD_UPDATE_QUEX = cd $(QUEX_DIR) ; svn up
 
 prepare:
 	mkdir -p $(TARGET_DIR)
@@ -194,14 +192,34 @@ install_gtest:
 
 .PHONY: install_gtest
 
+# TODO: a jelenlegi verzioval nem fordul, de nem fut a quex. 0.65.4 az utolso
+# hasznalhato verzio. Csak a downgrade utan lesz jo.
 install_quex:
 	if ! [ -d $(QUEX_DIR) ] ; then $(CMD_INSTALL_QUEX) ; fi
 
 .PHONY: install_quex
 
+# Ez csak egy biztonsagi lehetoseg. Utana nem lesz frissitheto a quex (TODO).
+downgrade_quex:
+	rm -rf $(QUEX_DIR) ; \
+	cd $(TMP_DIR) ; \
+	wget $(QUEX_LINK) ; \
+	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
+	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX_DIR) ; \
+	rm $(QUEX_STABLE_VERSION).tar.gz
+
+.PHONY: downgrade_quex
+
 update_gtest:
-	$(CMD_UPDATE_GTEST)
+	if [ -d $(GTEST_DIR) ] ; then $(CMD_UPDATE_GTEST) ; fi
 
 .PHONY: update_gtest
+
+update_quex:
+	if [ -d $(QUEX_DIR) ] ; then $(CMD_UPDATE_QUEX) ; fi
+
+.PHONY: update_quex
+
+
 
 
