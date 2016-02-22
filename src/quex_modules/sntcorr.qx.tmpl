@@ -305,9 +305,10 @@ mode PROGRAM {
     // barmi mas kiirasa:
     .               => SNTCORR_ANYCHAR(Lexeme);
     {NEWLINE}       => SNTCORR_ANYCHAR(Lexeme);
-    on_after_match  {
-        std::cerr << QUEX_CONVERTER_STRING(unicode, char)(Lexeme);
-    }
+    // degug-hoz:
+    /* on_after_match  { */
+    /*     std::cerr << QUEX_CONVERTER_STRING(unicode, char)(Lexeme); */
+    /* } */
     <<EOF>>         => SNTCORR_TERMINATION;
     on_failure      => SNTCORR_TERMINATION;
 }
