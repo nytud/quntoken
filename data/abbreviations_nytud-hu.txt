@@ -1,5 +1,8 @@
 # nytudos, roviditeseket tartalmazo fajl utf8-ra konvertalva (M.I.)
 
+Mlle.
+Mme.
+Ms.
 a.
 ac.
 a.C.
