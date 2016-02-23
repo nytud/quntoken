@@ -1,7 +1,10 @@
 # Fejlesztoi konfiguracio megadasa (milyen modulok es tesztek forduljanak).
 # Uj valtozat keszitesenel egy uj config fajlt kell kesziteni es azt
-# include-olni a default helyett.
-include default_config.mk
+# megadni a default helyett. Peldaul:
+#   make clean
+#   make all CONFIG_FILE=alter_config.mk
+CONFIG_FILE = default_config.mk
+include $(CONFIG_FILE)
 
 # konyvatarak
 TARGET_DIR		= bin
