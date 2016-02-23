@@ -26,8 +26,8 @@ define {
     MONTH_CAP (J[aA][nN]|F[eE][bB]|M[áÁ][rR][cC]|Á[pP][rR]|M[áÁ][jJ]|J[Úú][nNlL]|A[uU][gG]|S[zZ][eE][pP]|O[kK][tT]|N[oO][vV]|D[eE][cC])
     // honapnev-roviditesek:
     MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
-    // roviditesek (kulso fajlbol generalodik):
-    ABBREV  (${ABBREV})
+    /* // roviditesek (kulso fajlbol generalodik): */
+    /* ABBREV  (${ABBREV}) */
     // ABBREV kiegeszitese 'etc'-vel es 'stb'-vel. Ezek az alap roviditesekbol
     // kimaradnak, hogy mert altalaban mondat vegen vannak, azaz nem kell
     // kiszedni utanuk a mondathatart. A 10-es szabaly rovidites es ':' kozotti

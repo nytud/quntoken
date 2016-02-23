@@ -135,19 +135,20 @@ $(TMP_DIR)/snt_snt_lexer.cpp: $(DEFINITIONS) $(SNT_MODULE)
 				-o snt::snt_lexer \
 				--token-id-prefix SNT_
 
-$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(DEFINITIONS) $(TMP_DIR)/sntcorr.qx
+$(TMP_DIR)/sntcorr_sntcorr_lexer.cpp: $(DEFINITIONS) $(TMP_DIR)/abbrev.qx $(SNTCORR_MODULE)
 	$(QUEX_CMD)	$(QUEXFLAGS) \
 				-o sntcorr::sntcorr_lexer \
 				--token-id-prefix SNTCORR_
-
-# sntcorr.qx generalasa template-bol
-$(TMP_DIR)/sntcorr.qx: $(SCRIPTS_DIR)/sntcorr.tmpl2qx.py $(SNTCORR_MODULE) $(ABBREVIATIONS)
-	./$< -t $(word 2, $^) -d $(word 3, $^) -o $@
 
 $(TMP_DIR)/token_token_lexer.cpp: $(DEFINITIONS) $(TOKEN_MODULE)
 	$(QUEX_CMD)	$(QUEXFLAGS) \
 				-o token::token_lexer \
 				--token-id-prefix TOKEN_
+
+# roviditeseket tartalmayo abbrev.qx generalasa
+$(TMP_DIR)/abbrev.qx: $(SCRIPTS_DIR)/generate_abbrev.qx.py $(ABBREVIATIONS)
+	./$< -d $(word 2, $^) -o $@
+
 
 ### test.cpp
 $(TMP_DIR)/test.cpp: $(SCRIPTS_DIR)/test.tmpl2cpp.py $(CPP_DIR)/test.cpp.tmpl $(TEST_FILES)

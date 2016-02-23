@@ -11,16 +11,9 @@ from string import Template
 def args_handling():
     """ Parancssori argumentumok kezelése.
     """
-    descr_tmpl = 'Forrás fájl: templátum.'
-    descr_data = 'Forrás fájl: adatok.'
+    descr_data = 'Roviditeseket tartalmazo fajl.'
     descr_out  = 'Cél fájl neve (elérési úttal együtt).'
     pars = argparse.ArgumentParser(description=__doc__)
-    pars.add_argument(
-            '-t',
-            '--template-file',
-            help=descr_tmpl,
-            required=True,
-            nargs=1)
     pars.add_argument(
             '-d',
             '--data-file',
@@ -29,7 +22,7 @@ def args_handling():
             nargs=1)
     pars.add_argument(
             '-o',
-            '--object-file',
+            '--output-file',
             help=descr_out,
             required=True,
             nargs=1)
@@ -46,29 +39,29 @@ def get_abbrevs(data):
     upper_abbrevs = [ x.upper() for x in abbrevs ]
     abbrevs += capital_abbrevs + upper_abbrevs
     abbrevs = sorted(set(abbrevs))
-    return '|'.join(abbrevs)
+    return '\n           |'.join(abbrevs)
 
-def generate_qx(tmpl, data):
+def generate_qx(data):
     """Templatum behelyettesites.
     """
-    tmpl = Template(tmpl.read())
+    tmpl = Template(QX_TMPL)
     abbrevs = get_abbrevs(data)
     return tmpl.substitute(ABBREV=abbrevs)
 
 
 def main():
     args = args_handling()
-    TMPL_FILE = args['template_file'][0]
     DATA_FILE = args['data_file'][0]
-    OUT_FILE  = args['object_file'][0]
+    OUT_FILE  = args['output_file'][0]
 
-    with open(TMPL_FILE, 'r') as tmpl, open(DATA_FILE, 'r') as data:
-        qx = generate_qx(tmpl, data)
+    with open(DATA_FILE, 'r') as data:
+        qx = generate_qx(data)
     with open(OUT_FILE, 'w') as out:
         out.write(qx)
 
 
 if __name__ == '__main__':
+    QX_TMPL = 'define {\n    ABBREV (${ABBREV})\n}\n\n'
     main()
 
 
