@@ -295,23 +295,12 @@ mode PROGRAM {
     ///////////////////////////////////////////////////////////////////////////
 
 
-    // mondatkozi whitespace-ek kiirasa:
+    // Mondatkozi whitespace-ek kiirasa:
     {TAGGED_WS}     => SNTCORR_WHITESPACE(Lexeme);
-    // Megj.: a korrigalasra nem szorulo mondatok es mondatreszletek kiirasa
-    // karakterenkent tortenik, mert nem megoldott azon
-    // mondatok elejere valo illesztes, melyek (kesobb) tartalmaznek
-    // korrigalando reszletet, hiszen a teljes mondatra illeszkedo szabaly fog
-    // mindig lefutni a hosszabb illeszkedes miatt. Ennek az illesztesnek
-    // raadasul lustanak kellene lennie, ami meg kevesbe megoldott.
-    // barmi mas kiirasa:
-    .               => SNTCORR_ANYCHAR(Lexeme);
-    {NEWLINE}       => SNTCORR_ANYCHAR(Lexeme);
-    // degug-hoz:
-    /* on_after_match  { */
-    /*     std::cerr << QUEX_CONVERTER_STRING(unicode, char)(Lexeme); */
-    /* } */
+    // Ami nem illeszkedik, azt siman tovabbkuldjuk:
+    on_failure      => SNTCORR_ANYCHAR(Lexeme);
+    // Fajl vege:
     <<EOF>>         => SNTCORR_TERMINATION;
-    on_failure      => SNTCORR_TERMINATION;
 }
 
 // vim:set syntax=cpp:
