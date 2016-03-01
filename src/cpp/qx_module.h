@@ -54,8 +54,6 @@ private:
                 std::cerr << "Wrong module type!" << std::endl;
                 exit(1);
         }
-        // If next module exists, output of this module will be setup as its
-        // input:
     }
 
     template <class LEXER, class TOKEN>
