@@ -30,15 +30,23 @@ enum OUTPUT_TYPE {
 };
 
 class Printer {
+    // friendship
+    friend class QxModuleQueue;
+
+    // type definitions
     typedef std::map<std::string, std::string> ConversionMap;
-    public:
-        // konstruktor, destruktor
+
+    // private members
+    private:
+        ConversionMap myConversionMap;
+
+    // konstruktor, destruktor
+    private:
         Printer(OUTPUT_TYPE type);
         ~Printer() {}
-        std::string& convert_tags(std::string &text);
-        void operator<<(std::string text);
+
+    // static members and their functions
     private:
-        // statikus fordito szotarak es az oket inicializalo fuggvenyek
         static ConversionMap xml_map;
         static ConversionMap json_map;
         static ConversionMap tsv_map;
@@ -46,10 +54,10 @@ class Printer {
         static ConversionMap createJsonMap();
         static ConversionMap createTsvMap();
 
-        // a Printer sajat fordito szotara
-        ConversionMap myConversionMap;
-
-        // privat tagfuggvenyek:
+    // private functions
+    private:
+        std::string& convert_tags(std::string &text);
+        void operator<<(std::string text);
         void replace_tag(std::string &text, const std::string &what, const std::string &for_what);
 };
 
