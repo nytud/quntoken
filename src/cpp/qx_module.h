@@ -25,17 +25,20 @@ private:
     std::stringstream* input_p;
 
 // constructors & destructors
-private:
+public:
     // constructor:
-    QxModule(MODULE_TYPE type)
-        : type(type), input_p(nullptr) { }
+    QxModule()
+        : input_p(nullptr) { }
 
     // destructor:
-    // TODO: megfelelo destruktor irasa (mikor torlodjon az output, hogy biztos
-    // ne hasznalja mar mas)
+    ~QxModule() { }
 
 // private functions
 private:
+    void set_type(MODULE_TYPE t) {
+        type = t;
+    }
+
     void using_module() {
         switch(type) {
             case PREP:
