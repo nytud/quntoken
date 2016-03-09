@@ -59,14 +59,14 @@ std::string& Printer::convert_tags(std::string &text) {
 // xml:
 Printer::ConversionMap Printer::createXmlMap() {
     ConversionMap xml_map;
-    xml_map[SNT_OPEN] = "<snt>";
-    xml_map[SNT_CLOSE] = "</snt>";
-    xml_map[WS_OPEN] = "<wspace>";
-    xml_map[WS_CLOSE] = "</wspace>";
-    xml_map[WORD_OPEN] = "<word>";
-    xml_map[WORD_CLOSE] = "</word>";
-    xml_map[PUNCT_OPEN] = "<punct>";
-    xml_map[PUNCT_CLOSE] = "</punct>";
+    xml_map[SNT_OPEN] = "<s>";
+    xml_map[SNT_CLOSE] = "</s>";
+    xml_map[WS_OPEN] = "<ws>";
+    xml_map[WS_CLOSE] = "</ws>";
+    xml_map[WORD_OPEN] = "<w>";
+    xml_map[WORD_CLOSE] = "</w>";
+    xml_map[PUNCT_OPEN] = "<c>";
+    xml_map[PUNCT_CLOSE] = "</c>";
     return xml_map;
 }
 

@@ -2,44 +2,44 @@
 
 1. Mondathatár túllépés: mondatzáró után kis betű. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : N. kormányzósági székhely.
-OUT: <snt>N. kormányzósági székhely.</snt>
+OUT: <s>N. kormányzósági székhely.</s>
 
 IN : A www.akármi.hu.
-OUT: <snt>A www.akármi.hu.</snt>
+OUT: <s>A www.akármi.hu.</s>
 
 IN : - Nézd a! - mondta az egyik.
-OUT: <snt>- Nézd a! - mondta az egyik.</snt>
+OUT: <s>- Nézd a! - mondta az egyik.</s>
 
 IN : A 4. javítócsomagot.
-OUT: <snt>A 4. javítócsomagot.</snt>
+OUT: <s>A 4. javítócsomagot.</s>
 
 IN : 3434/1992. évi elszámolás.
-OUT: <snt>3434/1992. évi elszámolás.</snt>
+OUT: <s>3434/1992. évi elszámolás.</s>
 
 IN : "Jót s jól! Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.
-OUT: <snt>"Jót s jól!</snt><wspace> </wspace><snt>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</snt>
+OUT: <s>"Jót s jól!</s><ws> </ws><s>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</s>
 
 IN : - Szia Péterkém! Holnap találkozunk - mondta Gizi.
-OUT: <snt>- Szia Péterkém!</snt><wspace> </wspace><snt>Holnap találkozunk - mondta Gizi.</snt>
+OUT: <s>- Szia Péterkém!</s><ws> </ws><s>Holnap találkozunk - mondta Gizi.</s>
 
 
 2. Mondatzáró után idéző- vagy kötő jel. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : A "Ne már!"-ral az a baj.
-OUT: <snt>A "Ne már!"-ral az a baj.</snt>
+OUT: <s>A "Ne már!"-ral az a baj.</s>
 
 
 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva. ~~~~~~~~
 IN : A WWW.AKARMI.HU.
-OUT: <snt>A WWW.AKARMI.HU.</snt>
+OUT: <s>A WWW.AKARMI.HU.</s>
 
 
 4. Mondatzáró után közvetlenül [,;:], utánuk kisbetű ~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : Azt mondta, hogy "Na!", "Csináld!" és így tovább.
-OUT: <snt>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</snt>
+OUT: <s>Azt mondta, hogy "Na!", "Csináld!" és így tovább.</s>
 
 
 5. Mondatban lévő zárójeles rész kezelése. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 IN : A macska (családjában a 25.) Katinak nyávogott.
-OUT: <snt>A macska (családjában a 25.) Katinak nyávogott.</snt>
+OUT: <s>A macska (családjában a 25.) Katinak nyávogott.</s>
 
 

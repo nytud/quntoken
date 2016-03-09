@@ -1,6 +1,20 @@
 token {
     ANYCHAR;
     NEWLINE;
+    TOKEN;
+    PUNCT;
+    WS;
+}
+
+define {
+// mindenfele punktuaciok:
+/* PUNCT ([.,;?!()[\]{}:"'\-]|"&lsquor;"|"&ldquor;"|"&rdquo""r"?";"?|"&raquo;"|"&laquo;"|"&hellip;"|"..."|"&ndash;"|"&mdash;") */
+    PUNCT               [: intersection( {BASE_CLASS}, union(\P{Block=Supplemental_Punctuation}, \P{Block=General_Punctuation})) :]
+// osszevonhato punktuacio szerusegek:
+    SYMS                "&#x"("02c5"|"02ef"|"1f4b6"|"00a"[9e]|"00b"[239]|"02e"[123]|"02b"[01]|"2"[0-9ab][0-9a-f][0-9a-f])";"
+    PUNCT_JOINABLE_CHAR [.?!~@#$%^*+=<>_¢¤§·×÷°,:;\-]
+    PUNCT_JOINABLE      ({PUNCT_JOINABLE_CHAR}|"&ndash;"|"&mdash;"|{SYMS})
+    /* TOKEN_CHAR          [: difference( {BASE_CLASS}, union({WSPACE}, {PUNCT_JOINABLE_CHAR}, {PUNCT}) ):] */
 }
 
 
@@ -14,22 +28,71 @@ mode PROGRAM : COMMON {
         self_send1(TOKEN_ANYCHAR, Lexeme);
         self << INSNT;
     }
-    .               => TOKEN_ANYCHAR(Lexeme);
+    {TAGGED_WS_SEQ} => TOKEN_WS(Lexeme);
 }
 
 // mondaton beluli feldolgozas
 mode INSNT : COMMON {
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // whitespaces:
+    {WSPACE}+ {
+        std::wstring LEX(Lexeme);
+        LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
+        self_send1(TOKEN_WS, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // punctuations
+    // joinable punctuations:
+    {PUNCT_JOINABLE}+ {
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
+    }
+    // other punctuations:
+    {PUNCT} {
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // basic tokenizer rule: tokens can contain wordchars and dots, but dot can
+    // not follow another dot
+    // version for sentence endig:
+    "."?({WORDCHAR2}+"."?)+{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme);
+        // delete dot and sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-2, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+              self.SNT_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+        self << PROGRAM;
+    }
+    // version for other cases:
+    "."?({WORDCHAR2}+"."?)+ {
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // end of sentence: back to the basic mode (PROGRAM)
     {SNT_CLOSE_QX}   {
         self_send1(TOKEN_ANYCHAR, Lexeme);
         self << PROGRAM;
     }
-    [: difference( {BASE_CLASS}, {SNT_CLOSE_QX}):] => TOKEN_ANYCHAR(Lexeme);
 }
 
 // kozos dolgok
 mode COMMON : <inheritable: only> {
-    {NEWLINE}       => TOKEN_NEWLINE(Lexeme);
+    /* {NEWLINE}       => TOKEN_NEWLINE(Lexeme); */
     on_failure      => TOKEN_TERMINATION;
+    /* on_failure      { */
+    /*     std::wcout << L"HIBA: >>" << Lexeme << L"<<\n"; */
+    /*     self_send1(TOKEN_ANYCHAR, Lexeme); */
+    /* } */
     <<EOF>>         => TOKEN_TERMINATION;
 }
 

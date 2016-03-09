@@ -151,9 +151,9 @@ define {
 
     WSPACE      ({NEWLINE}|{SPACE})
 
-    WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/])) :]
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
 
-    WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/])) :]
+    WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number},  [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
 
     NONWORDCHAR [: difference( {BASE_CLASS}, {WORDCHAR}) :]
 
@@ -186,8 +186,6 @@ define {
     WORD_CLOSE_QX   \U01F035 // 🀵
     PUNCT_OPEN_QX   \U01F036 // 🀶
     PUNCT_CLOSE_QX  \U01F037 // 🀷
-    NOT_SNT_CLOSE_QX [: difference( {BASE_CLASS}, {SNT_OPEN_QX} ) :]
-    NOT_WS_CLOSE_QX  [: difference( {BASE_CLASS},  {WS_OPEN_QX} ) :]
 
     // egyebek:
     // tetszoleges egesz szam:
@@ -197,6 +195,16 @@ define {
     // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
     /* REPLACEMENTCHAR_QX "�" */
 
+    // ws szekvencia benne legfeljebb 1 db sortoressel (mondaton belul)
+    WS_SEQ_INSNT            (({SPACE}+{NEWLINE}?{SPACE}*)|({NEWLINE}{SPACE}*))
+    // megtag-gelt ws_seq
+    TAGGED_WS_SEQ_INSNT     ({WS_OPEN_QX}{WS_SEQ_INSNT}{WS_CLOSE_QX})
+    // mondathatar: mondatzaro tag + taggelt space-sorozat + mondatnyito tag
+    SENTENCE_BOUNDARY       ({SNT_CLOSE_QX}{TAGGED_WS_SEQ_INSNT}{SNT_OPEN_QX})
+    // ugyan ez "." utan
+    DOT_SENTENCE_BOUNDARY   ("."{SENTENCE_BOUNDARY})
+    // megtag-gelt ws_seq, benne barhany sortores (mondatkozi)
+    TAGGED_WS_SEQ     ({WS_OPEN_QX}{WSPACE}*{WS_CLOSE_QX})
 }
 
 

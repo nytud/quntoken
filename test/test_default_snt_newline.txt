@@ -2,13 +2,13 @@
 
 Egyszerű mondat.
 IN : Egy mondat.
-OUT: <snt>Egy mondat.</snt>
+OUT: <s>Egy mondat.</s>
 
 Egyszeres sortörés bárhol lehet a modatban.
 IN : A kutya ugat. Jo
 IN : lenne, ha abbahagyna!
-OUT: <snt>A kutya ugat.</snt><wspace> </wspace><snt>Jo
-OUT: lenne, ha abbahagyna!</snt>
+OUT: <s>A kutya ugat.</s><ws> </ws><s>Jo
+OUT: lenne, ha abbahagyna!</s>
 
 Egyszeres sortörés bárhol lehet a modatban, többször is, kivéve a mondatzáró
 írásjel sorozatban.
@@ -16,39 +16,39 @@ IN : A
 IN : kutya
 IN : ugat
 IN : .
-OUT: <snt>A
+OUT: <s>A
 OUT: kutya
 OUT: ugat
-OUT: .</snt>
+OUT: .</s>
 IN : A
 IN : kutya
 IN : ugat
 IN : ...
-OUT: <snt>A
+OUT: <s>A
 OUT: kutya
 OUT: ugat
-OUT: ...</snt>
+OUT: ...</s>
 IN : A
 IN : kutya
 IN : ugat
 IN : .
 IN : .
 IN : .
-OUT: <snt>A
+OUT: <s>A
 OUT: kutya
 OUT: ugat
-OUT: .</snt><wspace>
-OUT: </wspace><snt>.
-OUT: .</snt>
+OUT: .</s><ws>
+OUT: </ws><s>.
+OUT: .</s>
 
 Többszörös sortörés új bekezdést hoz létre. Az előtte lévő mondat lezárul, akár
 írásjel nélkül is (hasznos lehet pl. cím esetén).
 IN : Ez itt mar
 IN :
 IN : kulon bekezdes!
-OUT: <snt>Ez itt mar</snt><wspace>
+OUT: <s>Ez itt mar</s><ws>
 OUT:
-OUT: </wspace><snt>kulon bekezdes!</snt>
+OUT: </ws><s>kulon bekezdes!</s>
 IN : 1. fejezet
-OUT: <snt>1. fejezet</snt>
+OUT: <s>1. fejezet</s>
 

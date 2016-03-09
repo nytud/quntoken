@@ -4,49 +4,49 @@
 1. Mondatkezdo sorszamok.
 # {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{UPPER}
 IN : 25. Magyarország
-OUT: <snt>25. Magyarország</snt>
+OUT: <s>25. Magyarország</s>
 IN : 25. §
-OUT: <snt>25. §</snt>
+OUT: <s>25. §</s>
 
 
 2. Zarojelezett datum.
 # {INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({SENTENCE_BOUNDARY}?{INT}".")?")"{SENTENCE_BOUNDARY}?
 IN : A 2002. (IV. 25.)
-OUT: <snt>A 2002. (IV. 25.)</snt>
+OUT: <s>A 2002. (IV. 25.)</s>
 IN : A 2002. (IV. 25.) van.
-OUT: <snt>A 2002. (IV. 25.) van.</snt>
+OUT: <s>A 2002. (IV. 25.) van.</s>
 IN : A 2002. (IV.25.) van.
-OUT: <snt>A 2002. (IV.25.) van.</snt>
+OUT: <s>A 2002. (IV.25.) van.</s>
 IN : A 2002. (IV.) van.
-OUT: <snt>A 2002. (IV.) van.</snt>
+OUT: <s>A 2002. (IV.) van.</s>
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({SENTENCE_BOUNDARY}?{INT}".")?")"{SENTENCE_BOUNDARY}?
 IN : 2002. (IV. 25.)
-OUT: <snt>2002. (IV. 25.)</snt>
+OUT: <s>2002. (IV. 25.)</s>
 IN : 2002. (IV. 25.) van.
-OUT: <snt>2002. (IV. 25.) van.</snt>
+OUT: <s>2002. (IV. 25.) van.</s>
 IN : 2002. (IV.25.) van.
-OUT: <snt>2002. (IV.25.) van.</snt>
+OUT: <s>2002. (IV.25.) van.</s>
 IN : 2002. (IV.) van.
-OUT: <snt>2002. (IV.) van.</snt>
+OUT: <s>2002. (IV.) van.</s>
 
 
 3. Roviditett honap + nap.
 # ({INT}{DOT_SENTENCE_BOUNDARY})?{MONTH_ABBR}{DOT_SENTENCE_BOUNDARY}[0123]?[0-9]
 IN : A Szep. 11.
-OUT: <snt>A Szep. 11.</snt>
+OUT: <s>A Szep. 11.</s>
 IN : A Szep. 11-ről.
-OUT: <snt>A Szep. 11-ről.</snt>
+OUT: <s>A Szep. 11-ről.</s>
 IN : A szep. 11.
-OUT: <snt>A szep. 11.</snt>
+OUT: <s>A szep. 11.</s>
 IN : A szep. 11-ről.
-OUT: <snt>A szep. 11-ről.</snt>
+OUT: <s>A szep. 11-ről.</s>
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{MONTH_ABBR}{DOT_SENTENCE_BOUNDARY}[0123]?[0-9]
 IN : Szep. 11.
-OUT: <snt>Szep. 11.</snt>
+OUT: <s>Szep. 11.</s>
 IN : Szep. 11-ről.
-OUT: <snt>Szep. 11-ről.</snt>
+OUT: <s>Szep. 11-ről.</s>
 
 
 4. Ev + nagybetus honap.
@@ -54,152 +54,152 @@ OUT: <snt>Szep. 11-ről.</snt>
 Mondat elejen nem fog lefutni 1. miatt, mert az 1. szabaly mar a mondatnyito
 tag-tol illeszkedik, es megfeleloen kezeli is az esetet (azert teszteljuk).
 IN : Valami tortent 2012. MÁJUS-ban.
-OUT: <snt>Valami tortent 2012. MÁJUS-ban.</snt>
+OUT: <s>Valami tortent 2012. MÁJUS-ban.</s>
 IN : Ez 2012. Júl.
-OUT: <snt>Ez 2012. Júl.</snt>
+OUT: <s>Ez 2012. Júl.</s>
 Mondatkezdo verziok:
 IN : 2012. MÁJUS-ban.
-OUT: <snt>2012. MÁJUS-ban.</snt>
+OUT: <s>2012. MÁJUS-ban.</s>
 IN : 2012. Júl.
-OUT: <snt>2012. Júl.</snt>
+OUT: <s>2012. Júl.</s>
 
 
 5. Ugyiratszam + datum.
 Megj.: Megoldja mar a 2. szabaly is. A tesztek azert itt vannak.
 IN : A 25/2002. (IV. 25.)
-OUT: <snt>A 25/2002. (IV. 25.)</snt>
+OUT: <s>A 25/2002. (IV. 25.)</s>
 IN : A 25/2002. (IV. 25.) van.
-OUT: <snt>A 25/2002. (IV. 25.) van.</snt>
+OUT: <s>A 25/2002. (IV. 25.) van.</s>
 IN : A 25/2002. (IV.25.)
-OUT: <snt>A 25/2002. (IV.25.)</snt>
+OUT: <s>A 25/2002. (IV.25.)</s>
 IN : A 25/2002. (IV.25.) van.
-OUT: <snt>A 25/2002. (IV.25.) van.</snt>
+OUT: <s>A 25/2002. (IV.25.) van.</s>
 IN : A 25/2002. (IV.)
-OUT: <snt>A 25/2002. (IV.)</snt>
+OUT: <s>A 25/2002. (IV.)</s>
 IN : A 25/2002. (IV.) van.
-OUT: <snt>A 25/2002. (IV.) van.</snt>
+OUT: <s>A 25/2002. (IV.) van.</s>
 Mondatkezdo verziok:
 IN : 25/2002. (IV. 25.)
-OUT: <snt>25/2002. (IV. 25.)</snt>
+OUT: <s>25/2002. (IV. 25.)</s>
 IN : 25/2002. (IV. 25.) van.
-OUT: <snt>25/2002. (IV. 25.) van.</snt>
+OUT: <s>25/2002. (IV. 25.) van.</s>
 IN : 25/2002. (IV.25.)
-OUT: <snt>25/2002. (IV.25.)</snt>
+OUT: <s>25/2002. (IV.25.)</s>
 IN : 25/2002. (IV.25.) van.
-OUT: <snt>25/2002. (IV.25.) van.</snt>
+OUT: <s>25/2002. (IV.25.) van.</s>
 IN : 25/2002. (IV.)
-OUT: <snt>25/2002. (IV.)</snt>
+OUT: <s>25/2002. (IV.)</s>
 IN : 25/2002. (IV.) van.
-OUT: <snt>25/2002. (IV.) van.</snt>
+OUT: <s>25/2002. (IV.) van.</s>
 
 
 6. Sorszamot koveto szam, paragrafusjel vagy romai honap.
 # {INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{INT}|"§")
 IN : A 2002. 4.
-OUT: <snt>A 2002. 4.</snt>
+OUT: <s>A 2002. 4.</s>
 IN : A 2002. 4. havában.
-OUT: <snt>A 2002. 4. havában.</snt>
+OUT: <s>A 2002. 4. havában.</s>
 IN : A 25. §.
-OUT: <snt>A 25. §.</snt>
+OUT: <s>A 25. §.</s>
 IN : A 25. § szerint.
-OUT: <snt>A 25. § szerint.</snt>
+OUT: <s>A 25. § szerint.</s>
 IN : A 2002. IV.
-OUT: <snt>A 2002. IV.</snt>
+OUT: <s>A 2002. IV.</s>
 IN : A 2002. IV. havában.
-OUT: <snt>A 2002. IV. havában.</snt>
+OUT: <s>A 2002. IV. havában.</s>
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{INT}|"§")
 IN : 2002. 4.
-OUT: <snt>2002. 4.</snt>
+OUT: <s>2002. 4.</s>
 IN : 2002. 4. havában.
-OUT: <snt>2002. 4. havában.</snt>
+OUT: <s>2002. 4. havában.</s>
 IN : 25. §.
-OUT: <snt>25. §.</snt>
+OUT: <s>25. §.</s>
 IN : 25. § szerint.
-OUT: <snt>25. § szerint.</snt>
+OUT: <s>25. § szerint.</s>
 IN : 2002. IV.
-OUT: <snt>2002. IV.</snt>
+OUT: <s>2002. IV.</s>
 IN : 2002. IV. havában.
-OUT: <snt>2002. IV. havában.</snt>
+OUT: <s>2002. IV. havában.</s>
 
 
 7. Teljes datum romai honappal.
 # {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}
 IN : A 2001. XII. 10-en tortentek megraztak a vilagot.
-OUT: <snt>A 2001. XII. 10-en tortentek megraztak a vilagot.</snt>
+OUT: <s>A 2001. XII. 10-en tortentek megraztak a vilagot.</s>
 IN : A 2001. XII. 10.
-OUT: <snt>A 2001. XII. 10.</snt>
+OUT: <s>A 2001. XII. 10.</s>
 problemas eset: "2001. XII. 11. Bori szuletesnapja, nem Gazsie."
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}
 IN : 2001. XII. 10-en tortentek megraztak a vilagot.
-OUT: <snt>2001. XII. 10-en tortentek megraztak a vilagot.</snt>
+OUT: <s>2001. XII. 10-en tortentek megraztak a vilagot.</s>
 IN : 2001. XII. 10.
-OUT: <snt>2001. XII. 10.</snt>
+OUT: <s>2001. XII. 10.</s>
 # Ennek nem szabadna illeszkednie, de valami megis kiveszi a mondathatart:
 # IN : A 2001. XIII. 10-en tortentek megraztak a vilagot.
-# OUT: <snt>A 2001.</snt><wspace> </wspace><snt>XIII. 10-en tortentek megraztak a vilagot.</snt>
+# OUT: <s>A 2001.</s><ws> </ws><s>XIII. 10-en tortentek megraztak a vilagot.</s>
 
 
 8. Romai szamok (VI. Lajos), kiveve CD.
 # {NONWORDCHAR}{ROMAN_NUM}{DOT_SENTENCE_BOUNDARY}
 IN : A XIV. Lajos.
-OUT: <snt>A XIV. Lajos.</snt>
+OUT: <s>A XIV. Lajos.</s>
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}{ROMAN_NUM}{DOT_SENTENCE_BOUNDARY}
 IN : XIV. Lajos.
-OUT: <snt>XIV. Lajos.</snt>
+OUT: <s>XIV. Lajos.</s>
 A 'CD' utan marad a mondathatar:
 IN : Ott a CD. Hallod?
-OUT: <snt>Ott a CD.</snt><wspace> </wspace><snt>Hallod?</snt>
+OUT: <s>Ott a CD.</s><ws> </ws><s>Hallod?</s>
 
 
 9. Monogramok.
 # {NONWORDCHAR}({UPPER}{DOT_SENTENCE_BOUNDARY})+
 IN : Ez B. Jenő.
-OUT: <snt>Ez B. Jenő.</snt>
+OUT: <s>Ez B. Jenő.</s>
 IN : Az a B. Jenő van.
-OUT: <snt>Az a B. Jenő van.</snt>
+OUT: <s>Az a B. Jenő van.</s>
 IN : Ez A. E. X. Wilson.
-OUT: <snt>Ez A. E. X. Wilson.</snt>
+OUT: <s>Ez A. E. X. Wilson.</s>
 IN : Az az A. E. X. Wilson van.
-OUT: <snt>Az az A. E. X. Wilson van.</snt>
+OUT: <s>Az az A. E. X. Wilson van.</s>
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}({UPPER}{DOT_SENTENCE_BOUNDARY})+
 IN : B. Jenő.
-OUT: <snt>B. Jenő.</snt>
+OUT: <s>B. Jenő.</s>
 IN : B. Jenő van.
-OUT: <snt>B. Jenő van.</snt>
+OUT: <s>B. Jenő van.</s>
 IN : A. E. X. Wilson.
-OUT: <snt>A. E. X. Wilson.</snt>
+OUT: <s>A. E. X. Wilson.</s>
 IN : A. E. X. Wilson van.
-OUT: <snt>A. E. X. Wilson van.</snt>
+OUT: <s>A. E. X. Wilson van.</s>
 
 
 10. Rovidites es kettospont kozti mondathatar (csaba fele 'huje string').
 IN : Egy stb.): Kati tanulni kezdett.
-OUT: <snt>Egy stb.): Kati tanulni kezdett.</snt>
+OUT: <s>Egy stb.): Kati tanulni kezdett.</s>
 Mondatkezdo verziok:
 IN : Stb.): Kati tanulni kezdett.
-OUT: <snt>Stb.): Kati tanulni kezdett.</snt>
+OUT: <s>Stb.): Kati tanulni kezdett.</s>
 IN : Du.: Kati tanulni kezdett.
-OUT: <snt>Du.: Kati tanulni kezdett.</snt>
+OUT: <s>Du.: Kati tanulni kezdett.</s>
 
 
 11. Roviditesek.
 # {NONWORDCHAR}({ABBREV}{DOT_SENTENCE_BOUNDARY})+
 IN : Pl. Jani szerint du. Kati kedvenc napszakja.
-OUT: <snt>Pl. Jani szerint du. Kati kedvenc napszakja.</snt>
+OUT: <s>Pl. Jani szerint du. Kati kedvenc napszakja.</s>
 Mondatkezdo verziok:
 # {SNT_OPEN_QX}({ABBREV}{DOT_SENTENCE_BOUNDARY})+
 IN : Du. Katinak nem kedvence.
-OUT: <snt>Du. Katinak nem kedvence.</snt>
+OUT: <s>Du. Katinak nem kedvence.</s>
 stb. es etc. utan nem szabad kivenni a hatart...
 IN : Alma, szilva, stb. Új mondat.
-OUT: <snt>Alma, szilva, stb.</snt><wspace> </wspace><snt>Új mondat.</snt>
+OUT: <s>Alma, szilva, stb.</s><ws> </ws><s>Új mondat.</s>
 'Pl.' utan mindig kiszedjuk a mondathatart.
 IN : Pl. Péter és Marcsa pl. 25 fánkot is ehetne.
-OUT: <snt>Pl. Péter és Marcsa pl. 25 fánkot is ehetne.</snt>
+OUT: <s>Pl. Péter és Marcsa pl. 25 fánkot is ehetne.</s>
 
 
 

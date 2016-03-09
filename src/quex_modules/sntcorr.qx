@@ -11,14 +11,6 @@ token {
 }
 
 define {
-    // ws szekvencia benne legfeljebb 1 db sortoressel
-    WS_SEQ              (({SPACE}+{NEWLINE}?{SPACE}*)|({NEWLINE}{SPACE}*))
-    // megtag-gelt ws_seq
-    TAGGED_WS_SEQ       ({WS_OPEN_QX}{WS_SEQ}{WS_CLOSE_QX})
-    // "." utani mondatzaro-tag, ws, mondatnyito-tag kombinacio:
-    DOT_SENTENCE_BOUNDARY   ("."{SNT_CLOSE_QX}{TAGGED_WS_SEQ}{SNT_OPEN_QX})
-    // ugyan ez pont nelkul
-    SENTENCE_BOUNDARY       ({SNT_CLOSE_QX}{TAGGED_WS_SEQ}{SNT_OPEN_QX})
     // honap romai szammal
     //eredeti: ([VX]?"I"{1,3}|"I"?[VX]) - ez a XIII-at is megengedi
     ROMAN_MONTH         ("V"?"I"{1,3}|"I"?[VX]|"X""I"{1,2})
@@ -26,12 +18,6 @@ define {
     MONTH_CAP (J[aA][nN]|F[eE][bB]|M[áÁ][rR][cC]|Á[pP][rR]|M[áÁ][jJ]|J[Úú][nNlL]|A[uU][gG]|S[zZ][eE][pP]|O[kK][tT]|N[oO][vV]|D[eE][cC])
     // honapnev-roviditesek:
     MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
-    // Megtaggelt ws szekvencia. Nem keverendo a fenti tagged_ws_seq-kel: az a
-    // mondatokon beluli szabalyokhoz kell es csak egy sortores lehet benne,
-    // ebben meg barmennyi lehet, egymas utan is, mert mondatok kozotti
-    // ws-ekre akar illeszkedni.
-    // TODO: egyertelmu megnevezes, ws_seq-kel ne lehessen osszekeverni!
-    TAGGED_WS ({WS_OPEN_QX}{NOT_WS_CLOSE_QX}+{WS_CLOSE_QX})
 
     // Megj.:
     // Roviditesek (ABBREV) kulso fajlbol generalodnak az abbrev.qx modulba.
@@ -296,7 +282,7 @@ mode PROGRAM {
 
 
     // Mondatkozi whitespace-ek kiirasa:
-    {TAGGED_WS}     => SNTCORR_WHITESPACE(Lexeme);
+    {TAGGED_WS_SEQ}     => SNTCORR_WHITESPACE(Lexeme);
     // Ami nem illeszkedik, azt siman tovabbkuldjuk:
     on_failure      => SNTCORR_ANYCHAR(Lexeme);
     // Fajl vege:

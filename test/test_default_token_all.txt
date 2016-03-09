@@ -1,24 +1,8 @@
 # TOKEN all
 
 1. Mondathatár túllépés: mondatzáró után kis betű. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-IN : N. kormányzósági székhely.
-OUT: <snt>N. kormányzósági székhely.</snt>
-
-IN : A www.akármi.hu.
-OUT: <snt>A www.akármi.hu.</snt>
-
-IN : - Nézd a! - mondta az egyik.
-OUT: <snt>- Nézd a! - mondta az egyik.</snt>
-
-IN : A 4. javítócsomagot.
-OUT: <snt>A 4. javítócsomagot.</snt>
-
-IN : 3434/1992. évi elszámolás.
-OUT: <snt>3434/1992. évi elszámolás.</snt>
-
-IN : "Jót s jól! Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.
-OUT: <snt>"Jót s jól!</snt><wspace> </wspace><snt>Ebben áll a nagy titok" - figyelmezteti Kazinczy költőtársait.</snt>
-
-IN : - Szia Péterkém! Holnap találkozunk - mondta Gizi.
-OUT: <snt>- Szia Péterkém!</snt><wspace> </wspace><snt>Holnap találkozunk - mondta Gizi.</snt>
+IN : N. kormányzósági
+IN : székhely.
+OUT: <s><w>N.</w><ws> </ws><w>kormányzósági</w><ws>
+OUT: </ws><w>székhely</w><c>.</c></s>
 
