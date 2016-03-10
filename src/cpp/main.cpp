@@ -20,19 +20,7 @@ int main(int argc, char** argv)
     std::stringstream fst_input;
     fst_input << in.rdbuf();
 
-    // 'print' versions
     qtoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &fst_input, XML);
-    /* full_qtoken_print(&fst_input, XML); */
-    /* tkn_qtoken_print(&fst_input, XML); */
-    /* snt_qtoken_print(&fst_input, XML); */
-
-    // 'get_str' versions:
-    /* std::string result; */
-    /* qtoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &fst_input, XML); */
-    /* full_qtoken_get_str(result, &fst_input, XML); */
-    /* tkn_qtoken_get_str(result, &fst_input, XML); */
-    /* snt_qtoken_get_str(result, &fst_input, XML); */
-    /* std::cout << result; */
 
     std::cout << std::endl;
 

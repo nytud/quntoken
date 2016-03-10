@@ -7,14 +7,18 @@ token {
 }
 
 define {
-// mindenfele punktuaciok:
-/* PUNCT ([.,;?!()[\]{}:"'\-]|"&lsquor;"|"&ldquor;"|"&rdquo""r"?";"?|"&raquo;"|"&laquo;"|"&hellip;"|"..."|"&ndash;"|"&mdash;") */
-    PUNCT               [: intersection( {BASE_CLASS}, union(\P{Block=Supplemental_Punctuation}, \P{Block=General_Punctuation})) :]
-// osszevonhato punktuacio szerusegek:
+    // CHARACTERS CLASSES:
+    SYMBOL              [: intersection( {BASE_CLASS}, \G{S} ) :]
+    // punctuations (all):
+    PUNCT               [: intersection( {BASE_CLASS}, \G{P} ) :]
+    // joinable punctuations:
     SYMS                "&#x"("02c5"|"02ef"|"1f4b6"|"00a"[9e]|"00b"[239]|"02e"[123]|"02b"[01]|"2"[0-9ab][0-9a-f][0-9a-f])";"
     PUNCT_JOINABLE_CHAR [.?!~@#$%^*+=<>_¢¤§·×÷°,:;\-]
     PUNCT_JOINABLE      ({PUNCT_JOINABLE_CHAR}|"&ndash;"|"&mdash;"|{SYMS})
-    /* TOKEN_CHAR          [: difference( {BASE_CLASS}, union({WSPACE}, {PUNCT_JOINABLE_CHAR}, {PUNCT}) ):] */
+
+    // RULE FRAGMENTS
+    // word token with dot:
+    WORD                "."?({WORDCHAR2}+"."?)+
 }
 
 
@@ -49,8 +53,8 @@ mode INSNT : COMMON {
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
-    // other punctuations:
-    {PUNCT} {
+    // other punctuations or symbols:
+    {PUNCT}|{SYMBOL} {
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
@@ -60,7 +64,7 @@ mode INSNT : COMMON {
     // basic tokenizer rule: tokens can contain wordchars and dots, but dot can
     // not follow another dot
     // version for sentence endig:
-    "."?({WORDCHAR2}+"."?)+{SNT_CLOSE_QX} {
+    {WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
         // delete dot and sentence close tag from the end of the Lexeme
         LEX.erase(LEX.end()-2, LEX.end());
@@ -71,7 +75,42 @@ mode INSNT : COMMON {
         self << PROGRAM;
     }
     // version for other cases:
-    "."?({WORDCHAR2}+"."?)+ {
+    {WORD} {
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // words with parenthesis:
+    // examples: (zaro)jel or zaro(jel), or zar(o)jel, but not (zarojel)
+    "("{WORD}")"{WORD}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme);
+        // delete dot and sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-2, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+              self.SNT_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+        self << PROGRAM;
+    }
+    // version for other cases:
+    "("{WORD}")"{WORD} {
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+    {WORD}"("{WORD}")"{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme);
+        // delete only the sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-1, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+              self.SNT_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+        self << PROGRAM;
+    }
+    // version for other cases:
+    {WORD}"("{WORD}")" {
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());

@@ -67,6 +67,7 @@ define {
     //      TODO: Legyen NEWLINE_CHAR es NEWLINE kulon, hogy az osszetettek is
     //          egynek szamitsanak.
     // SPACE: Minden wspace a base_class-ból, az újsor karakterek kivételével.
+    //      SOFT HYPHEN (00AD) is benne van.
     //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
     // WSPACE: Minden white space a base class-bol.
     // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
@@ -127,9 +128,9 @@ define {
                           \P{Block=Arrows},
                           \P{Block=Supplemental_Arrows-A},
                           \P{Block=Supplemental_Arrows-B},
-                          \P{Block=Private_Use_Area},
-                          \P{Block=Supplementary_Private_Use_Area-A},
-                          \P{Block=Supplementary_Private_Use_Area-B},
+                          /* \P{Block=Private_Use_Area}, */
+                          /* \P{Block=Supplementary_Private_Use_Area-A}, */
+                          /* \P{Block=Supplementary_Private_Use_Area-B}, */
                           \P{Block=Spacing_Modifier_Letters},
                           \P{Block=Alphabetic_Presentation_Forms},
                           \P{Block=Phonetic_Extensions},
@@ -143,11 +144,11 @@ define {
                           \P{Block=Miscellaneous_Technical},
                           \P{Block=Musical_Symbols},
                           \P{Block=Miscellaneous_Symbols},
-                          {EMOTICONS}) :]
+                          {EMOTICONS} ) :]
 
     NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
 
-    SPACE       [: intersection( {BASE_CLASS}, difference( \P{White_Space}, {NEWLINE}) ) :]
+    SPACE       [: intersection( {BASE_CLASS}, union(difference(\P{White_Space}, {NEWLINE}), [­]) ) :]
 
     WSPACE      ({NEWLINE}|{SPACE})
 
