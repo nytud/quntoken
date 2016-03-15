@@ -23,5 +23,5 @@ TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
              $(MYTEST_DIR)/test_default_snt_newline.txt  \
              $(MYTEST_DIR)/test_default_sntcorr_all.txt \
              $(MYTEST_DIR)/test_default_sntcorr_luth.txt \
-             $(MYTEST_DIR)/test_default_token_all.txt \
+             $(MYTEST_DIR)/test_default_token_dotsandpars.txt \
 

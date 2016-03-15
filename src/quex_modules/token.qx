@@ -62,7 +62,8 @@ mode INSNT : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic tokenizer rule: tokens can contain wordchars and dots, but dot can
-    // not follow another dot
+    // not follow another dot; dot at the end of the word belongs to the
+    // sentence, if it is followed by a snt close tag.
     // version for sentence endig:
     {WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
