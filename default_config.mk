@@ -24,4 +24,5 @@ TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
              $(MYTEST_DIR)/test_default_sntcorr_all.txt \
              $(MYTEST_DIR)/test_default_sntcorr_luth.txt \
              $(MYTEST_DIR)/test_default_token_dotsandpars.txt \
+             $(MYTEST_DIR)/test_default_token_hyphenanddash.txt \
 

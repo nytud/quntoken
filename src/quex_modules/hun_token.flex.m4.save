@@ -1,0 +1,3495 @@
+%option noyywrap
+
+/* hun_token - szóra bontó, és nyílttokenosztály-felismerõ lexikai elemzõ */
+/* 2003 (c) Németh László <nemethl@gyorsposta.hu> */
+
+/****************************************************************************************/
+/* Állapotok */
+
+%s S SENTENCE_BEGIN SENTENCE_END OPEN_BEGIN SFX SFX_K SFX_E SFX_J SFX_END SFX_NOT
+
+/****************************************************************************************/
+/*  Makródefiníciók									*/
+
+ABBREV (M4_MACRO_ABBREV)
+BR_ABBREV (M4_MACRO_BR_ABBREV)
+
+ALL_ABBREV ({ABBREV}|{BR_ABBREV})
+
+/* HTML 4.0 ISO 8859-1 karakterentitások, amelyek elõfordulhatnak a szavakban */
+
+LATIN1 "&Agrave;"|"&Atilde;"|"&Aring;"|"&AElig;"|"&Egrave;"|"&Ecirc;"|"&Igrave;"|"&Iuml;"|"&ETH;"|"&Ntilde;"|"&Ograve;"|"&Oslash;"|"&Ugrave;"|"&THORN;"|"&agrave;"|"&atilde;"|"&aring;"|"&aelig;"|"&egrave;"|"&ecirc;"|"&igrave;"|"&iuml;"|"&eth;"|"&ntilde;"|"&ograve;"|"&oslash;"|"&ugrave;"|"&thorn;"|"&yuml;"
+
+/* HTML 4.0 ISO szimbólum karakterentitások */
+/* XXX tízszeresére növeli a flex forrást és a fordítási idõt a szimbólumok kezelése, */
+/* de a szûrõ hatékonysága nem csökken */
+
+SYMBOLS "&pi;"
+
+/* |"&fnof;"|"&Alpha;"|"&Beta;"|"&Gamma;"|"&Delta;"|"&Epsilon;"|"&Zeta;"|"&Eta;"|"&Theta;"|"&Iota;"|"&Kappa;"|"&Lambda;"|"&Mu;"|"&Nu;"|"&Xi;"|"&Omicron;"|"&Pi;"|"&Rho;"|"&Sigma;"|"&Tau;"|"&Upsilon;"|"&Phi;"|"&Chi;"|"&Psi;"|"&Omega;"|"&alpha;"|"&beta;"|"&gamma;"|"&delta;"|"&epsilon;"|"&zeta;"|"&eta;"|"&theta;"|"&iota;"|"&kappa;"|"&lambda;"|"&mu;"|"&nu;"|"&xi;"|"&omicron;"|"&pi;"|"&rho;"|"&sigmaf;"|"&sigma;"|"&tau;"|"&upsilon;"|"&phi;"|"&chi;"|"&psi;"|"&omega;"|"&thetasym;"|"&upsih;"|"&piv;"|"&bull;"|"&hellip;"|"&prime;"|"&Prime;"|"&oline;"|"&frasl;"|"&weierp;"|"&image;"|"&real;"|"&trade;"|"&alefsym;"|"&larr;"|"&uarr;"|"&rarr;"|"&darr;"|"&harr;"|"&crarr;"|"&lArr;"|"&uArr;"|"&rArr;"|"&dArr;"|"&hArr;"|"&forall;"|"&part;"|"&exist;"|"&empty;"|"&nabla;"|"&isin;"|"&notin;"|"&ni;"|"&prod;"|"&sum;"|"&minus;"|"&lowast;"|"&radic;"|"&prop;"|"&infin;"|"&ang;"|"&and;"|"&or;"|"&cap;"|"&cup;"|"&int;"|"&there4;"|"&sim;"|"&cong;"|"&asymp;"|"&ne;"|"&equiv;"|"&le;"|"&ge;"|"&sub;"|"&sup;"|"&nsub;"|"&sube;"|"&supe;"|"&oplus;"|"&otimes;"|"&perp;"|"&sdot;"|"&lceil;"|"&rceil;"|"&lfloor;"|"&rfloor;"|"&lang;"|"&rang;"|"&loz;"|"&spades;"|"&clubs;"|"&hearts;"|"&diams;") */
+
+/* HTML numerikus entitás */
+
+/* HTMLNUM "&#"([0-9]+|[xX][0-9a-fA-F]+)";"?*/
+
+/* csak szabalyos lehessen, ehhez xml valid input kell viszont */
+
+HTMLNUM "&#"([0-9]+|[xX][0-9a-fA-F]+)";"
+
+/* HTML karakter entitas */
+
+HTMLCHAR "&"[a-zA-Z]+";"
+
+/*  WORDCHARS: A szavak az ISO-8859-2 betûi mellett számokat, pontot,			*/
+/*  paragrafus-, fok-, százalék- és kötõjelet, valamint HTML entitásként megadva	*/
+/*  nagykötõjelet (&ndash;), valamint kvirtmínuszt (&mdash;) tartalmazhatnak,		*/
+/*  továbbá betûszerepre nem vizsgált decimális UNICODE entitást (például &345;).	*/
+/*  Az ISO-8859-2 betûi a locale csomag alapján automatikusan lettek kiválogatva.	*/
+/*  További információk: man iso-8859-2.									*/
+
+/* fok, és százalékjel kivéve */
+/* az utolso tagnak xml valid input eseten nincs ertelme... */
+
+WORDCHARS (({HTMLNUM})|({HTMLCHAR})|{LATIN1}|[_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\-_/§0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ]|"&ndash;"|"&mdash;"|"&"[0-9]+";"?)
+
+/* betûkarakterek a fok, százalékjel, és kötõjel kivételével */
+
+LETTERS   (({HTMLNUM})|({HTMLCHAR})|{LATIN1}|[_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\\/§0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ]|"&ndash;"|"&mdash;"|"&"[0-9]+";"?)
+
+/* domain/path nevet akoto karakterek (html entitiek nem jellemzok, ezert ki*/
+
+DOMCHARS   ([_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\\/§0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ]|"&ndash;"|"&mdash;"|"&"[0-9]+";"?)
+
+/* minek ezekbe az entiti?...*/
+DOMCHARS2   ([_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\\/§0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ])
+
+/* mint az elõzõ, számok és perjel nélkül */
+
+LETTERS2 ([_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ§¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ]|"&ndash;"|"&mdash;"|"&"[0-9]+";"?)
+LETTERS3 ([_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ§¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ])
+
+/* nem szókarakter */
+NONWORDCHAR ([^_a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ])
+
+/* egyszerû mondathatárok, kivéve a szón belüli pont */
+BOUNDARY ([.?!])
+
+/* mondathatár után jöhetõ záró idézõjelek. */
+/* illetve kotojel is lehet... */
+ENDQUOPAR ("-"|"\""|"&rdquo""r"?";"?|"&laquo;"|"&quot;"|"''"|"'"|")"|"]"){BOUNDARY}*
+
+/* szóköz */
+
+SPACE " "
+
+SP_TEL ({SPACE}|"-")
+
+/* Tartománynév */
+/* Megengedjük a magyar ékezetes betûket is. (Az újabb szabványok Unicode-ot is.) */
+
+DOMAIN ([a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ\-0-9_]+".")+([a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ])+
+
+DOMAIN2 ([a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ\-0-9_]+"."?)+
+
+SDOMAIN (".hu"|".HU"|".org"|".ORG"|".com"|".COM"|".net"|".NET"|".info"|".INFO"|".edu"|".EDU"|".gov"|".GOV"|".mil"|".MIL")
+
+/* IP szám */
+
+IP ([0-9]{1,3}"."){3}[0-9]{1,3}
+
+/* útvonal állományrendszerben */
+
+PATH (([A-Z]":""\\"?|[a-z]":\\")|([A-Z]":""\\"?|"/"|"\\\\"|[a-z]":\\")((".""."*[\\/])|(({DOMCHARS}|[.~_*])({DOMCHARS}|[\-.~_*])*({DOMCHARS}|"*")+[\\/]*))+)
+
+/* protokollazonosító */
+
+PROTOKOLL [a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ]+"://""/"*
+
+/* kiterjesztések */
+
+EXT (".")[a-zA-Z]{1,4}
+
+EXT_TEXT "txt"|"TXT"|"pdf"|"PDF"|"ps"|"PS"|"htm"|"HTM"|"html"|"HTML"|"xml"|"XML"
+EXT_PIC "jpg"|"JPG"|"jpeg"|"JPEG"|"gif"|"GIF"|"png"|"PNG"|"bmp"|"BMP"|"tif"|"TIF"|"tiff"|"TIFF"
+EXT_AUDIO "wav"|"WAV"|"mp3"|"MP3"|"ogg"|"OGG"|".au"|".AU"|"mid"|"MID"
+EXT_VIDEO "mpeg"|"MPEG"|"avi"|"AVI"|"asf"|"ASF"
+EXT_ARCHIV "tar"|"TAR"|"zip"|"ZIP"|"gz"|"GZ"|"bz2"|"BZ2"|"tgz"|"TGZ"|"rar"|"RAR"|"ace"|"ACE"
+EXT_DOS "exe"|"EXE"|"com"|"COM"|"bat"|"BAT"|"ini"|"INI"|"dll"|"DLL"|".bak"|".BAK"|"sys"|"SYS"
+EXT_MS "rtf"|"RTF"|"doc"|"DOC"|"dot"|"DOT"|"xsl"|"XSL"|"ppt"|"PPT"
+EXT_UNIX "so"|"SO"|"."[1-9]|".old"|".OLD"|"orig"|"ORIG"
+EXT_PRG ".c"|".C"|".h"|".H"|"pas"|"PAS"|"bas"|"BAS"|"cpp"|"CPP"|".o"|".O"|"asm"|"ASM"|"pl"|"py"|"php"|"PHP"|"php3"|"PHP3"|"php4"|"PHP4"|"asp"|"ASP"
+
+EXT_BASE ({EXT_TEXT}|{EXT_PIC}|{EXT_AUDIO}|{EXT_VIDEO}|{EXT_ARCHIV}|{EXT_DOS}|{EXT_MS}|{EXT_UNIX}|{EXT_PRG})("."{EXT_ARCHIV})?
+
+/* óra */
+
+HOUR (([0-1]?[0-9])|([2]?[0-4]))
+HOUR2 (([0-1][0-9])|([2][0-4]))
+
+/* perc */
+
+MIN [0-5]?[0-9]
+MIN2 [0-5][0-9]
+
+/* hónap római számmal */
+
+MONTH_ROMAN ([VX]?"I"{1,3}|"I"?[VX])
+
+MONTH_CHAR ([Jj][Aa][Nn][Uu][Áá][rR]|[Ff][Ee][Bb][rR][uU][Áá][rR]|[Mm][Áá][rR][cC][iI][uU][sS]|[Áá][pP][rR][iI][lL][iI][Ss]|[Mm][Áá][jJ][Uu][Ss]|[Jj][Úú][nNlL][iI][uU][sS]|[Aa][uU][gG][uU][sS][zZ][tT][uU][sS]|[Ss][zZ][eE][pP][tT][eE][mM][bB][eE][rR]|[Oo][kK][tT][Óó][bB][eE][rR]|[NnDd][oOeE][vVcC][eE][mM][bB][eE][rR])
+
+MONTH_ABBR ([Jj][Aa][Nn]|[Ff][Ee][Bb][rR]?|[Mm][Áá][rR][cC]?|[Áá][pP][rR]|[Mm][Áá][jJ]|[Jj][Úú][nNlL]|[Aa][uU][gG]|[Ss][zZ][eE][pP][tT]?|[Oo][kK][tT]|[NnDd][oOeE][vVcC])
+
+DATE_SFX "."?"-"[a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ]{1,6}
+ABBR_SFX ".-"[a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ]{1,6}
+
+/* szóközökkel, vagy - helyesen - spáciummal tagolt számok, pl. 12 000 */
+
+NUMSPACE [0-9]{1,3}(({SPACE}|"&thinsp;")[0-9]{3})+
+
+/* ponttal tagolt számok, pl. 12.000 */
+
+NUMDOT [0-9]{1,3}("."[0-9]{3})+
+
+NUMDIGIT ([0-9]+",")?[0-9]+
+
+NUMSPACEDIGIT {NUMSPACE}(","{NUMSPACE})?
+
+NUMDOTDIGIT {NUMDOT}","([0-9]{1,3}|{NUMDOT})
+
+NUM [+-]?([0-9]+|{NUMDIGIT}|{NUMSPACEDIGIT}|{NUMDOTDIGIT})
+
+NUMRANGE {NUM}(("-""-"?|"&mdash;"|"&ndash;"){NUM})?
+
+/* fontosabb SI mértékegységek */
+
+SI ("m"[2-3]?|[AbBNVWJgl]|"Pa")
+
+/* egyéb mértékegységek */
+
+NSI ("bar"|"l"|"t"|"h"|"min"|"°C"|"ha")
+
+/* mértékegységek */
+
+MEASURE ((([pn]|"&mu;"|[mcdkMGT])?{SI})|{NSI})
+
+/* formula */
+
+FORMULA ("="|"sin"|"cos"|"tg"|"log"|"ln"|{SYMBOLS})
+NUMSIGN [-+(0-9[\](){}%]*[a-z]{FORMULA}*[()[\]{}0-9%]*
+OPERATOR [-+/*=]
+
+/* központozás */
+
+/* &lsquor; - külsõ nyitó idézõjel */
+/* &rdquo; vagy &rdquor; - külsõ záró idézõjel */
+/* &raquo; - belsõ nyitó idézõjel */
+/* &laquo; - belsõ záró idézõjel */
+/* &hellip; - három pont */
+/* &ndash; - gondolatjel v. nagykötõjel */
+/* XXX &mdash; - kvirtmínusz (hiba, ha magyar szövegben elõfordul) */
+/* a kiskötõjel (-) gondolatjelként való használata szintén hiba  */
+
+PUNCT ([.,;?!()[\]{}:"'\-]|"&lsquor;"|"&ldquor;"|"&rdquo""r"?";"?|"&raquo;"|"&laquo;"|"&hellip;"|"..."|"&ndash;"|"&mdash;")
+
+MSPUNCT [.?!]
+CSPUNCT ([,:;\-]|"&ndash;"|"&mdash;")
+
+/* kivettem a '&'-t, hogy ne dobja szet az entity-t: =&amp;*/
+RESTPUNCT [~@#$%^*+=<>_]
+
+
+/* egymással összevonható írásjelszerûségek... */
+
+SYMS "&#x"("02c5"|"02ef"|"1f4b6"|"00a"[9e]|"00b"[239]|"02e"[123]|"02b"[01]|"2"[0-9ab][0-9a-f][0-9a-f])";"
+
+JPUNCT ({SYMS}|"__DUMMY__"|"&gt;"|"&lt;"|"&verbar;"|[¢¤§·×÷°])
+
+PUNCT2 ([.,;?!()[\]{}:"'\-&\n])
+
+WORDSPLIT (" "|{PUNCT2})
+
+/* mosolyjel (smiley) */
+
+SMILEY ([:;B][-oO][)(]+|[;:]"-"[pPoOD])
+SMILEY2 (":"[)(]+)
+/* tovabbi szmajlik, megszoritottabb formaban */
+SMILEY3 ([:xX]DD+|":-"[\\/]|[()]"-"?":"|[3O]":""-"?")")
+
+	/* kimenet formátuma */
+	/* kotojeles toldalekok? */
+	#define FORMAT_UJ "%s%s\t%s[:%s:]"
+	/* teszt */
+	#define FORMAT_UJ2 "%s%s\t%s[:%s:]"
+	/* close printout (formerly </w>\n */
+	#define FORMAT_UJV "\n"
+	/* mi a kulonbseg a FORMAT_UJ-hoz kepest?*/
+	#define FORMAT_ANAUJ "%s%s\t%s[:%s:]"
+	#define FORMAT_ANAUJ2 "%s%s\t%s[:%s:]"
+	/* többértelmûség */
+	#define FORMAT_ANAV "|%s[:%s:]"
+	/* word token at the end of sentence, '-e',mindenfele szimbolumok */
+	/* toldalekolt cimek, stb */
+	#define FORMAT2 "%s\tTOK\n"
+	/* word token */
+	#define FORMAT3 "%s%s\tTOK\n"
+	/* teszt */
+	#define FORMAT4 "%s\t%s\n"
+
+	/* kötõjelezett szavak elemzéséhez */
+	#define OTHER_WORD_SIGN '!'
+
+	#define OPEN "O---sn------" // alapértelmezett MSD kód msd változó inicializására
+	#define TCODE "TOK"
+	char code[BUFSIZ] = TCODE ; // általános kód
+	char msd[13]; // MSD kód tárolására
+	char tok[BUFSIZ]; // token tárolására
+	char sfx[BUFSIZ]; // szuffixum tárolására
+	int abort_formula = 0; // formula érvénytelenítésére
+	int abort_slashdot = 0; // macska-/kutyavilág felismerésére
+
+	// felsorolás a több kategóriába besorolható tokenek kezeléséhez
+	enum { NORMAL, HOUR_DOT_MIN, NUM_DOT_NUM, MON_SLASH_DAY, HOUR_COLON_MIN,
+	NUM_COLON_NUM, MON_DASH_DAY, NUM_DASH_NUM, PATH_OR_WEB, NUM_WORD,
+	NUM_SLASH_NUM, PATH_OR_IDENT, NUM_LETTER };
+	
+	// elõzõ felsorolás értékeit veszi fel
+	int multitoken;
+
+/****************************************************************************************/
+/*  Szabályok										*/
+%%
+
+	/********************************************************************************/
+	/* Mondatok felismerése, feldolgozó állapotba (S) lépés                         */
+
+<INITIAL>^"<s>" {
+	printf("%s", yytext);
+	strcpy(msd, OPEN);
+	multitoken = NORMAL;
+	abort_slashdot = 0;
+	BEGIN(SENTENCE_BEGIN);
+}
+
+<SENTENCE_BEGIN>[^\n]*"\n" {
+        /* mondat külön kiírása (nem kell, csak ujsor - ocs)*/
+	/* printf("%s", yytext); */
+	printf("\n");
+	yyless(0);
+	BEGIN(S);
+}
+	/* tiltott (kódként használt) szekvenciák, megállunk... */
+
+<S>"|"|"[:"[^ ]*":]" {
+	fprintf(stderr,"Illegal token: %s\n", yytext);
+	exit(1);
+}
+
+	/********************************************************************************/
+	/* 1. z = rossz helyesírású magyar szavak */
+
+	/********************************************************************************/
+	/* 2. m(inor/orpheme) = a szónál kisebb tokenek, pl.: A -ság képzõ */
+	/* 6. h(yphen) = Az elõzõbe nem tartozó, kötõjellel kezdõdõ vagy */
+	/* végzõdõ tokenek. */
+	
+	/* BE: <s>-nak, -jaiért, -magyar, bel- */
+
+	/* KI: <s>-nak, -jaiért, -magyar, bel- */
+	
+	/* KI: <w>-nak */
+	/* KI: <anav> */
+	/* KI: <msd><lemma></lemma><mscat>[Om--sg]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>-jaiért */
+	/* KI: <anav> */
+	/* KI: <msd><lemma></lemma><mscat>[Om--pc---s3]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>-magyar */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>-magyar</lemma><mscat>[Oh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>bel- */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>bel-</lemma><mscat>[Oh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>("-s"[áé]"g"|"-"[ght][ae]"t"|"-j"[ae]|"-andó"|"-endõ"|"-bb"|"-csk"[ae]|"-zik") {
+		msd[1] = 'm';
+		tok[0] = '\0';
+		strcpy(sfx, yytext);
+		BEGIN(SFX);
+}	
+
+	/* különvált -e kérdõszó nem kap O-s kódot */
+
+	/* BE: <s>-e */
+
+	/* KI: <s>-e */
+	
+	/* KI: <w>-e */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"-e" {
+	printf("%s\tCLIT\n",yytext);
+}
+
+	/* egyéb toldalékok keresése */
+
+<S>"-"[a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ]+ {
+		msd[1] = 'm';
+		tok[0] = '\0';
+		yyless(1);
+		strcpy(sfx, "-");
+		BEGIN(SFX);
+}	
+
+	/* roviditesek ..., tesztelendo!! (ABBR_SFX-ben benne van a pont ocs */
+<S>{ALL_ABBREV}{ABBR_SFX} {
+            msd[4] = '?';
+            msd[5] = '?';
+	    open_begin('y', 'o');
+}
+
+
+<S>{ALL_ABBREV}"...." {
+            msd[4] = 's';
+            msd[5] = 'n';
+	    yyless(yyleng - 3);
+	    open_begin('y', 'o');
+}
+
+<S>{ALL_ABBREV}"...\n" {
+            msd[4] = 's';
+            msd[5] = 'n';
+	    yyless(yyleng - 3);
+	    open_begin('y', 'o');
+}
+
+<S>{ALL_ABBREV}"..." {
+            msd[4] = 's';
+            msd[5] = 'n';
+	    yyless(yyleng - 2);
+	    open_begin('y', 'o');
+}
+
+<S>{ALL_ABBREV}".". {
+            msd[4] = 's';
+            msd[5] = 'n';
+	    yyless(yyleng - 1);
+	    open_begin('y', 'o');
+}
+
+<S>{ALL_ABBREV}".\n" {
+            msd[4] = 's';
+            msd[5] = 'n';
+	    yyless(yyleng - 1);
+	    open_begin('y', 'o');
+}
+
+	/********************************************************************************/
+
+	/********************************************************************************/
+	/* 3. idegen szavak (külön szûrõvel, pl. MySpell idegen nyelvû - magyar szótárak */
+
+	/********************************************************************************/
+	/* 4. e = elektronikus mail címek, webhelyek, számítógépes útvonal */
+
+	/* Legfelsõ tartománynév */
+
+	/* BE: <s>.edu .HU */
+
+	/* KI: <s>.edu .HU */
+
+	/* KI: <w>.edu */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.edu</lemma><mscat>[Oeo-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.HU */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.HU</lemma><mscat>[Oeo-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>({SDOMAIN}|"."[a-zA-Z][a-zA-Z]) {
+		/* legfelsõ tartománynév */
+		open_begin('e', 'o');
+}
+
+	/* BE: <s>red-stars.com */
+
+	/* KI: <s>red-stars.com */
+
+	/* KI: <w>red-stars.com */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>red-stars.com</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>http://www.valami.com */
+
+	/* KI: <s>http://www.valami.com */
+	
+	/* KI: <w>http://www.valami.com */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>http://www.valami.com</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{DOMCHARS}{WORDCHARS}*{SDOMAIN} {
+		/* legfelsõ tartománynév */
+		open_begin('e', 'w');
+}
+	/* Legfelsõ tartománynév */
+
+	/* BE: <s>valami.comról */
+
+	/* KI: <s>valami.comról */
+
+	/* KI: <w>valami.comról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>valami.comról</lemma><mscat>[Oep-??]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>valami.comról</lemma><mscat>[Oew-??]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([hH][tT][tT][pP]"://""/"*)?([wW][wW][wW]".")?([a-zA-Z0-9][-a-zA-Z0-9]*|[a-zA-Z0-9])?{SDOMAIN}{DOMCHARS}{2,} {
+		/* nem kötõjeles toldalékkal rendelkezõ webhely */
+		int i;
+		msd[1] = 'e';
+		msd[2] = 'p';
+		msd[4] = 's';
+		msd[5] = 'n';
+		for (i = 11; msd[i] == '-'; i--);
+		msd[i + 1] = '\0';
+		printf(FORMAT_ANAUJ, yytext, "", yytext, msd);
+		msd[2] = 'w';		
+		printf(FORMAT_ANAV, yytext, msd);
+		printf(FORMAT_UJV);
+		msd[4] = 's';
+		strcpy(msd, OPEN);
+	}
+
+	/* URL */
+
+	/* Legfelsõ tartománynév */
+
+	/* BE: <s>valami.hu-ról */
+
+	/* KI: <s>valami.hu-ról */
+
+	/* KI: <w>valami.hu-ról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>valami.hu</lemma><mscat>[Oew-sh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>http://valami.hu, www.valami.hu/dinnye.html */
+
+	/* KI: <s>http://valami.hu, www.valami.hu/dinnye.html */
+
+	/* KI: <w>http://valami.hu */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>http://valami.hu</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>www.valami.hu/dinnye.html */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>www.valami.hu/dinnye.html</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[hH][tT][tT][pP]"://""/"*{DOMCHARS}({WORDCHARS}+|[-=.?%])* {
+		open_begin('e', 'w');
+	}
+
+
+<S>([wW][wW][wW]|[wW][3])"."({DOMAIN2}|{IP})?(":"[0-9]{1,4})?({PATH}|"/")? {
+		/* webhely */
+		open_begin('e', 'w');
+	}
+
+
+	/* BE: <s>http://www.valami.com/ */
+
+	/* KI: <s>http://www.valami.com/ */
+	
+	/* KI: <w>http://www.valami.com/ */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>http://www.valami.com/</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>http://777sms.com:80 */
+
+	/* KI: <s>http://777sms.com:80 */
+
+	/* KI: <w>http://777sms.com:80 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>http://777sms.com:80</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>http://777sms.com:80</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>ftp://127.0.0.1:911/Próba/ez-is/macska.jpeg */
+
+	/* KI: <s>ftp://127.0.0.1:911/Próba/ez-is/macska.jpeg */
+
+	/* KI: <w>ftp://127.0.0.1:911/Próba/ez-is/macska.jpeg */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>ftp://127.0.0.1:911/Próba/ez-is/macska.jpeg</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>ftp://127.0.0.1:911/Próba/ez-is/macska.jpeg</lemma><mscat>[Oew-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+	
+<S>{PROTOKOLL}({DOMAIN}|{IP})?(":"[0-9]{1,4})?({PATH}|"/")? {
+		multitoken = PATH_OR_WEB;
+		open_begin('e', 'p');
+	}
+
+	/* Perjel nem gyökérkönyvtár, hanem csak szó */
+	
+	/* BE: <s>/ */
+
+	/* KI: <s>/ */
+
+	/* KI: <w>/ */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[/\\]+ {
+	/* nem szo, punct.um.*/
+	/* itt is lehet slashdotozni...*/
+	/*lasd a 'kötõjelre végzõdõ szavak' szabalyt*/
+        if (abort_slashdot) {
+              abort_slashdot = 0;
+              yyless(1);
+              strcpy(code, "WPUNCT");
+              printf("/\t%s\n", code);
+         } else {
+	      printf("%s\tWPUNCT\n", yytext);
+         }
+}
+
+	/* szám és betû sorszám is lehet (bár nem helyes) */
+
+	/* BE: <s>2.b */
+
+	/* KI: <s>2.b */
+
+	/* KI: <w>2.b */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2.b</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2.b</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+"."[a-zA-Z] { 
+		multitoken = PATH_OR_IDENT;
+		open_begin('e', 'p');
+	}
+
+	/* BE: <s>3a */
+
+	/* KI: <s>3a */
+
+	/* KI: <w>3a */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>3a</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>3a</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+[a-zA-Z] { 
+		multitoken = NUM_LETTER;
+		open_begin('n', 'f');
+	}
+
+	/* BE: <s>paprika.comot */
+
+	/* KI: <s>paprika.comot */
+
+	/* KI: <w>paprika.comot */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>paprika.comot</lemma><mscat>[Oep-??]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>paprika.comot</lemma><mscat>[Oew-??]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+
+<S>{DOMCHARS}+{SDOMAIN} { 
+		multitoken = PATH_OR_WEB;
+		open_begin('e', 'p');
+	}
+
+<S>{DOMAIN}{SDOMAIN} {
+		multitoken = PATH_OR_WEB;
+		open_begin('e', 'p');
+}
+
+<S>{DOMAIN}{SDOMAIN}{LETTERS2}+ {
+		multitoken = PATH_OR_WEB;
+		open_begin('e', 'p');
+		msd[4] = '?';
+		msd[5] = '?';
+}
+
+	/* BE: <s>C: c:\ */
+
+	/* KI: <s>C: c:\ */
+
+	/* KI: <w>C: */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>C:</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>c:\ */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>c:\</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>C:\DINNYE\MACSKA.JPG */
+
+	/* KI: <s>C:\DINNYE\MACSKA.JPG */
+
+	/* KI: <w>C:\DINNYE\MACSKA.JPG */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>C:\DINNYE\MACSKA.JPG</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>\\SZERVER\SZOLGALTATAS$ */
+
+	/* KI: <s>\\SZERVER\SZOLGALTATAS$ */
+
+	/* KI: <w>\\SZERVER\SZOLGALTATAS$ */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>\\SZERVER\SZOLGALTATAS$</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>/etc/.././home/ */
+
+	/* KI: <s>/etc/.././home/ */
+
+	/* KI: <w>/etc/.././home/ */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>/etc/.././home/</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>mailto:Macska.Kati@valahol.hu */
+
+	/* KI: <s>mailto:Macska.Kati@valahol.hu */
+
+	/* KI: <w>mailto:Macska.Kati@valahol.hu */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>mailto:Macska.Kati@valahol.hu</lemma><mscat>[Oem-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>mailto:Macska.Kati@valahol.huról */
+
+	/* KI: <s>mailto:Macska.Kati@valahol.huról */
+
+	/* KI: <w>mailto:Macska.Kati@valahol.huról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>mailto:Macska.Kati@valahol.huról</lemma><mscat>[Oem-??]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{DOMAIN}({PATH}"$"?|"/")? { 
+		if (abort_slashdot) {
+			abort_slashdot = 0;
+			yyless(1);
+			strcpy(code, "WPUNCT");
+			printf("/\t%s\n", code);
+		} else {
+			open_begin('e', 'p');
+		}
+	}
+
+<S>{DOMAIN}?(":"[0-9]{1,4})?({PATH}"$"?|"/") { 
+	/* ide is kerulhet a slashdotos hujeseg, lasd macska-/kutyavilág...*/
+	/* otromba bug az eredetiben is */
+		if (abort_slashdot) {
+			abort_slashdot = 0;
+			yyless(1);
+			strcpy(code, "WPUNCT");
+			printf("/\t%s\n", code);
+		} else {
+			open_begin('e', 'p');
+		}
+	}
+
+<S>("mailto:")?([a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ\-.]+"@")({DOMAIN}|{IP})?[a-z]*{SDOMAIN} {
+		/* e-mail, tartománynév, IP-cím */
+		open_begin('e', 'm');
+	}
+
+<S>("mailto:")?([a-zA-ZíóúÍÓÚáéõöüûÁÉÕÖÜÛ\-.]+"@")*({DOMAIN}) {
+		/* e-mail, tartománynév */
+		open_begin('e', 'm');
+		msd[4] = 's';
+		msd[5] = 'n';		
+	}
+
+	/* BE: <s>ADMIN$ */
+
+	/* KI: <s>ADMIN$ */
+
+	/* KI: <w>ADMIN$ */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>ADMIN$</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[A-Z]+"$" {
+		/* Windows hálózati szolgáltatás */
+		open_begin('e', 'p');
+}
+
+	/* Önmagukban elõforduló kiterjesztések */
+
+	/* BE: <s>txt .AVI .bmp.zip */
+
+	/* KI: <s>txt .AVI .bmp.zip */
+
+	/* KI: <w>txt */
+	/* KI: </w> */
+	/* KI: <w>.AVI */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.AVI</lemma><mscat>[Oee-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.bmp.zip */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.bmp.zip</lemma><mscat>[Oee-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"."{EXT_BASE} {
+		/* kiterjesztés */
+		open_begin('e', 'e');
+	}
+
+	/* *.doc, *.* alakok */
+
+	/* BE: <s>*.doc *.* */
+
+	/* KI: <s>*.doc *.* */
+
+	/* KI: <w>*.doc */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>*.doc</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>*.* */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>*.*</lemma><mscat>[Oep-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"*."({EXT_BASE}|"*") {
+		/* kiterjesztés */
+		open_begin('e', 'p');
+	}
+
+	/********************************************************************************/
+	/* 5. index? Trade Mark/Registered Trade Mark */
+
+<S>{WORDCHARS}+([\231\256]|"&reg"";"|"&2122"";") {
+		open_begin('d', '-');
+}
+
+	/********************************************************************************/
+	/* 6. n(umber) = számok */
+
+	/********************************************************************************/
+	/* a) sporteredmény */
+
+	/* BE: <s>1:20:36.7, 4:01,95 */
+
+	/* KI: <s>1:20:36.7, 4:01,95 */
+
+	/* KI: <w>1:20:36.7 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:20:36.7</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>4:01,95 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>4:01,95</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>(({HOUR}":")*{MIN}":")+{MIN}[,.][0-9]?[0-9] {
+		/* a) sporteredmény */
+		open_begin('n', 'r');
+	}
+
+	/* sporteredmény, arány és óra:perc */
+
+	/* BE: <s>1:35 */
+
+	/* KI: <s>1:35 */
+
+	/* KI: <w>1:35 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:35</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:35</lemma><mscat>[Onq-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:35</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:35</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{HOUR}":"{MIN2} {
+		/* a) ido */
+		multitoken = HOUR_COLON_MIN;
+		open_begin('n', 't');
+	}
+
+	/* sporteredmény, és arány */
+
+	/* BE: <s>1:3 */
+
+	/* KI: <s>1:3 */
+
+	/* KI: <w>1:3 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:3</lemma><mscat>[Onq-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:3</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1:3</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+":"[0-9]+ {
+		/* a) sporteredmény és arány */
+		multitoken = NUM_COLON_NUM;
+		open_begin('n', 'q');
+}
+
+	/* sporteredmény, hónap-nap */
+
+	/* BE: <s>10-12 */
+
+	/* KI: <s>10-12 */
+
+	/* KI: <w>10-12 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10-12</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10-12</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10-12</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([0][0-9]|[1][0-2])"-"+([0-2][0-9]|[3][0-1]) {
+		/* c) dátum kötõjelekkel */
+		multitoken = MON_DASH_DAY;
+		open_begin('n', 't');
+	}
+
+	/* BE: <s>1-3 */
+
+	/* KI: <s>1-3 */
+
+	/* KI: <w>1-3 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1-3</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1-3</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+"-"+[0-9]+ {
+		/* a) sporteredmény és arány */
+		multitoken = NUM_DASH_NUM;
+		open_begin('n', 'r');
+}
+
+	/* BE: <s>0&ndash;5 */
+
+	/* KI: <s>0&ndash;5 */
+
+	/* KI: <w>0&ndash;5 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>0&ndash;5</lemma><mscat>[Onr-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* ha baloldalt 0, vagy jobb oldalt 0, vagy 1 (tipikusan foci) */
+
+<S>([0]("-"|"&ndash;"|"&mdash;")[0-9]+|[0-9]+("-"|"&ndash;"|"&mdash;")[01]) {
+		/* a) sporteredmény */
+		open_begin('n', 'r');
+	}
+
+
+	/********************************************************************************/
+	/* elõjeles számok */
+	
+	/* Az elõjelek utáni szám lehet közökkel tagolt */
+
+	/* BE: <s>-23,12, +12 500, +12.500.000 */
+
+	/* KI: <s>-23,12, +12 500, +12.500.000 */
+
+	/* KI: <w>-23,12 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>-23,12</lemma><mscat>[Ons-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>+12 500 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>+12 500</lemma><mscat>[Ons-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>+12.500.000 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>+12.500.000</lemma><mscat>[Ons-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[+-][0-9]+([.,][0-9]+)? {
+		/* b) elõjeles szám */
+		open_begin('n', 's');
+	}
+
+<S>[+-]{NUMSPACE}([.,]{NUMSPACE})? {
+		/* b) elõjeles szám közökkel */
+		open_begin('n', 's');
+	}
+
+<S>[+-]{NUMDOT}(","{NUMDOT})? {
+		/* b) elõjeles szám ponttal határolva */
+		open_begin('n', 's');
+	}
+
+	/********************************************************************************/
+	/* a) idõ */
+
+	/* BE: <s>10.35 */
+
+	/* KI: <s>10.35 */
+
+	/* KI: <w>10.35 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10.35</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10.35</lemma><mscat>[Ond-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10.35</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{HOUR}"."{MIN2} {
+		/* a) ido */
+		multitoken = HOUR_DOT_MIN;
+		open_begin('n', 't');
+	}
+
+<S>{HOUR}":"{MIN2}":"{MIN2} {
+		/* a) ido */
+		open_begin('n', 't');
+	}
+
+	/********************************************************************************/
+	/* dátumok */
+	
+	/* BE: <s>2003. 01. 06., 2003-01-06 */
+
+	/* KI: <s>2003. 01. 06., 2003-01-06 */
+
+	/* KI: <w>2003. 01. 06. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2003. 01. 06.</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>2003-01-06 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2003-01-06</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([12]?[0-9]{3}". ")?[01]?[0-9]". "[0-3]?[0-9]{DATE_SFX}{WORDSPLIT} {
+		/* c) toldalékos mégsem dátum (miért nem? ocs)*/
+                yyless(yyleng - 1);
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}". ")?[01]?[0-9]". "[0-3]?[0-9]"."{WORDSPLIT} {
+		/* c) mégsem dátum (miért nem? ocs)*/
+                yyless(yyleng - 1);
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}". ")?[01]?[0-9]". "[0-3]?[0-9]"-" {
+		/* c) dátum (nem tudom mijen ez..., nincs toldalekosan meg */
+                yyless(yyleng - 1);
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}"-")[01]?[0-9]"-"[0-3]?[0-9]{DATE_SFX} {
+		/* c) toldalékos dátum kötõjelekkel */
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}"-")[01]?[0-9]"-"[0-3]?[0-9] {
+		/* c) dátum kötõjelekkel */
+		open_begin('n', 'x');
+	}
+
+	/* BE: <s>2003. I. 06., IV. 12. */
+
+	/* KI: <s>2003. I. 06., IV. 12. */
+
+	/* KI: <w>2003. I. 06. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2003. I. 06.</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>IV. 12. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>IV. 12.</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([12]?[0-9]{3}". ")?({MONTH_CHAR}|{MONTH_ABBR}".")" "[0-3]?[0-9]{DATE_SFX}{WORDSPLIT} {
+		/* c) toldalékos dátum */
+		yyless(yyleng - 1);
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}". ")?({MONTH_CHAR}|{MONTH_ABBR}".")" "[0-3]?[0-9]"."{WORDSPLIT} {
+		/* c) dátum */
+		yyless(yyleng - 1);
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}". ")?{MONTH_ROMAN}". "[0-3]?[0-9]{DATE_SFX}{WORDSPLIT} {
+		/* c) toldalékos dátum */
+		yyless(yyleng - 1);
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}". ")?{MONTH_ROMAN}". "[0-3]?[0-9]"."{WORDSPLIT} {
+		/* c) dátum */
+		yyless(yyleng - 1);
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}". ")?{MONTH_ROMAN}". "[0-3]?[0-9]"-" {
+		/* c) dátum (ez megint nem tudom mi) */
+		yyless(yyleng - 1);
+		open_begin('n', 'x');
+        }
+	
+<S>([12]?[0-9]{3}". "){MONTH_ROMAN}"." {
+		/* c) dátum */
+		open_begin('n', 'x');
+	}
+
+	/********************************************************************************/
+	/* XXX hibás: köz nélküli és idegen dátumleírás */
+
+	/* BE: <s>2003.01.06., IV.12., 05/12, 2003/05/12 */
+
+	/* KI: <s>2003.01.06., IV.12., 05/12, 2003/05/12 */
+
+	/* KI: <w>2003.01.06. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2003.01.06.</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>IV.12. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>IV.12.</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>05/12 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>05/12</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>05/12</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>2003/05/12 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2003/05/12</lemma><mscat>[Ont-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([12]?[0-9]{3}".")[01]?[0-9]"."[0-3]?[0-9]{DATE_SFX} {
+		/* c) toldalékos dátum */
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}".")[01]?[0-9]"."[0-3]?[0-9]"." {
+		/* c) dátum */
+		open_begin('n', 'x');
+	}
+
+<S>[01][0-9]"."[0-3][0-9]{DATE_SFX} {
+		/* c) toldalékos dátum */
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>[01][0-9]"."[0-3][0-9]"." {
+		/* c) dátum */
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}".")?{MONTH_ROMAN}(".")[0-3]?[0-9]{DATE_SFX} {
+		/* c) toldalékos dátum */
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}".")?{MONTH_ROMAN}(".")[0-3]?[0-9]"." {
+		/* c) dátum */
+		open_begin('n', 'x');
+	}
+<S>([12]?[0-9]{3}".")?{MONTH_ROMAN}(".")[0-3]?[0-9]{DATE_SFX} {
+		/* c) toldalékos dátum */
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}".")?{MONTH_ROMAN}(".")[0-3]?[0-9]"." {
+		/* c) dátum */
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}"/")[01]?[0-9]"/"[0-3]?[0-9]{DATE_SFX} {
+		/* c) toldalékos dátum */
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>([12]?[0-9]{3}"/")[01]?[0-9]"/"[0-3]?[0-9] {
+		/* c) dátum */
+		open_begin('n', 'x');
+	}
+
+<S>[01][0-9]"/"[0-3][0-9]{DATE_SFX} {
+		/* c) toldalékos dátum */
+		multitoken = MON_SLASH_DAY;
+		msd[5] = '?';
+		open_begin('n', 'x');
+	}
+
+<S>[01][0-9]"/"[0-3][0-9] {
+		/* c) dátum */
+		multitoken = MON_SLASH_DAY;
+		open_begin('n', 'x');
+	}
+
+	/* <S>([12]?[0-9]{3}"/")?{MONTH_ROMAN}"/"[0-3]?[0-9] { */
+		/* c) dátum */
+	/*	open_begin('n', 'x'); */
+	/* } */
+
+	/********************************************************************************/
+	/* pontot tartalmazó számok */
+
+	/* azonosító és szám is lehet */
+	
+	/* BE: <s>25.3 */
+
+	/* KI: <s>25.3 */
+
+	/* KI: <w>25.3 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>25.3</lemma><mscat>[Ond-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>25.3</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+"."[0-9]+ {
+		/* d) pontot tartalmazó szám */
+		multitoken = NUM_DOT_NUM;
+		open_begin('n', 'd');
+	}
+
+	/* Írásmû része (azonosító) */
+
+	/* BE: <s>1.1.2. 1.3.128-ból */
+
+	/* KI: <s>1.1.2. 1.3.128-ból */
+
+	/* KI: <w>1.1.2. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1.1.2.</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>1.3.128-ból */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1.3.128</lemma><mscat>[Oi--se]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* kétjegyû számok ponttal elválasztva, utolsó háromjegyû is lehet */
+	/* nullával nem kezdõdhet */
+
+<S>[1-9]([0-9])?"."([0-9]{1,2}".")*[0-9]{1,3}"."? {
+		/* d) fejezet és szakasz azonosító */
+		open_begin('i', '-');
+	}
+
+	/* egyéb pontot tartalmazó számok */
+	
+	/* BE: <s>133.000.000 */
+
+	/* KI: <s>133.000.000 */
+
+	/* KI: <w>133.000.000 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>133.000.000</lemma><mscat>[Ond-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([0-9]+".")+[0-9]+ {
+		/* d) pontot tartalmazó szám */
+		open_begin('n', 'd');
+	}
+
+	/* BE: <s>123.45/67. */
+
+	/* KI: <s>123.45/67. */
+
+	/* KI: <w>123.45/67. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>123.45/67.</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([a-zA-Z0-9]+".")+[0-9]+"/"[a-z0-9]+"."? {
+		/* d) pontot és perjelet tartalmazó azonosító */
+		open_begin('i', '-');
+	}
+
+	/********************************************************************************/
+	/* tizedestörtek és tõszámnevek */
+
+	/* BE: <s>0,99 133,000 */
+
+	/* KI: <s>0,99 133,000 */
+
+	/* KI: <w>0,99 */
+	/* KI: </w> */
+	/* KI: <w>133,000 */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{NUMDIGIT} {
+		/* d) tizedestört és egész számok */
+		open_begin('c', '-');
+                msd[3] = 's';
+                msd[4] = 'n';
+                msd[5] = 'd';
+		msd[0] = 'M';
+		/* ez miert kerult ide, nem kell...?*/
+		multitoken = NUM_WORD;
+	}
+
+	/* BE: <s>1,5-2,5, 1-2,5, 1,5-2 */
+
+	/* KI: <s>1,5-2,5, 1-2,5, 1,5-2 */
+
+	/* KI: <w>1,5-2,5 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1,5-2,5</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>1-2,5 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1-2,5</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>1,5-2 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1,5-2</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([0-9]+",")*[0-9]+("-"|"&ndash;")"-"?[0-9]+","[0-9]+ {
+		open_begin('n', 'f');
+	}
+
+<S>[0-9]+","[0-9]+("-"|"&ndash;")"-"?([0-9]+",")*[0-9]+ {
+		open_begin('n', 'f');
+	}
+
+
+
+	/********************************************************************************/
+	/* sorszámok: 15.-rõl, 2002-2003. */
+
+	/* BE: <s>2002-2003., 15.-rõl  */
+
+	/* KI: <s>2002-2003., 15.-rõl  */
+
+	/* KI: <w>2002-2003. */
+	/* KI: </w> */
+	/* KI: <c>,</c> */	
+	/* KI: <w>15.-rõl */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>(([0-9]+",")?[0-9]+("-"|"&ndash;"|"&mdash;")"-"*)?([0-9]+",")?[0-9]+"." {
+		open_begin('o', '-');
+		msd[0] = 'M';
+                msd[3] = 's';
+                msd[4] = 'n';
+		msd[5] = 'd';
+	        multitoken= NUM_WORD;
+	}
+
+	/********************************************************************************/
+	/* % jelet tartalmazó szám */
+
+	/* BE: <s>-0,99% 133,000%-kal 10-20%-kal */
+
+	/* KI: <s>-0,99% 133,000%-kal 10-20%-kal */
+
+	/* KI: <w>-0,99% */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>-0,99%</lemma><mscat>[Onp-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>133,000%-kal */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>133,000%</lemma><mscat>[Onp-si]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>10-20%-kal */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>10-20%</lemma><mscat>[Onp-si]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[%/°§] {
+	printf(FORMAT2, yytext);
+}
+
+<S>[+-]?([0-9]+[-])?[0-9]+(","[0-9]+)?" "?"%-a" {
+		/* d) százalék -a toldalékkal */
+                yyless(yyleng - 2);
+		open_begin('n', 'p');
+	}
+
+<S>[+-]?([0-9]+[-])?[0-9]+(","[0-9]+)?" "?"%" {
+		/* d) százalék */
+		open_begin('n', 'p');
+	}
+
+<S>[+-]?[0-9]+("."[0-9]+)?" "?"%-a" {
+		/* d) százalék, XXX hibás a tizedespont használata, -a toldalékkal */
+                yyless(yyleng - 2);
+		open_begin('n', 'p');
+	}
+
+<S>[+-]?[0-9]+("."[0-9]+)?" "?"%" {
+		/* d) százalék, XXX hibás a tizedespont használata */
+		open_begin('n', 'p');
+	}
+
+	/********************************************************************************/
+	/* fokjelet tartalmazó token */
+
+	/* BE: <s>5°, °C */
+
+	/* KI: <s>5°, °C */
+
+	/* KI: <w>5° */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>5°</lemma><mscat>[Ong-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>°C */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"°"[CF] {
+		printf(FORMAT2, yytext);
+	}
+
+<S>[+-]?[0-9]*(","[0-9]+)?"°" {
+		/* d) százalék */
+		open_begin('n', 'g');
+	}
+
+<S>[+-]?[0-9]*("."[0-9]+)?"°" {
+		/* d) százalék XXX hibás a tizedespont használata */
+		open_begin('n', 'g');
+	}
+
+	/********************************************************************************/
+	/* &yen tartalmú szöveg */
+
+	/* BE: <s>600&yen;2400 */
+
+	/* KI: <s>600&yen;2400 */
+
+	/* KI: <w>600&yen;2400 */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+"&yen;"[0-9]+ {
+	printf(FORMAT2,yytext);
+}
+
+	/********************************************************************************/
+	/* szóközökkel tagolt szám */
+
+	/* BE: <s>12 500,1 231, 12.500,12  */
+
+	/* KI: <s>12 500,1 231, 12.500,12  */
+
+	/* KI: <w>12 500,1 231 */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>12.500,12 */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{NUMSPACEDIGIT}/[^0-9] {
+		/* szóközökkel tagolt szám (rossz, megeszi az utana levo */
+		/* szamot is, akarmiyenpl. 100 2345/6 => 100_234 5/6 */
+		/* es mivel nincs utana semmi, a kiirato nem fut le ra, */
+		/* igy el is nyeli!!! */
+		open_begin('c', '-');
+                msd[0] = 'M';
+                msd[3] = 's';
+                msd[4] = 'n';
+                msd[5] = 'd';
+		multitoken= NUM_WORD;
+	}
+
+<S>{NUMDOTDIGIT} {
+		/* pontokkal tagolt szám */
+		open_begin('c', '-');
+		msd[0] = 'O';
+		msd[1] = 'n';
+		msd[2] = 'd';
+	}
+
+	/********************************************************************************/
+	/* szám és tõszámnév */
+
+	/* BE: <s>63 millió, 23 ezerrõl, 3 ezret, 23 milliárdosnak, 1,5-2,5 milliót */
+
+	/* KI: <s>63 millió, 23 ezerrõl, 3 ezret, 23 milliárdosnak, 1,5-2,5 milliót */
+
+	/* KI: <w>63 millió */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>63 millió</lemma><mscat>[Mc--snd]</mscat></msd> */
+	/* KI: </anav> */	
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>23 ezerrõl */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>23 ezer</lemma><mscat>[Mc--shd]</mscat></msd> */
+	/* KI: </anav> */	
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>3 ezret */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>3 ezret</lemma><mscat>[Mc--??d]</mscat></msd> */
+	/* KI: </anav> */	
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>23 */
+	/* KI: </w> */
+	/* KI: <w>milliárdosnak */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>1,5-2,5 milliót */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1,5-2,5 millió</lemma><mscat>[Mc--sad]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+	/* AZ osszes ilyen szabaly egyelore felesleges - ocs*/
+
+	/*<S>{NUMRANGE}" "("milliós"|"milliárdos"|"billiós"|"trilliós") {
+		int i;
+		for (i = yyleng; yytext[i] != ' '; i--);
+		yyless(i);
+		open_begin('c', '-');
+		msd[0] = 'M';
+		BEGIN(SFX_END);
+	}
+
+	<S>{NUMRANGE}" "("ezerszer"|"milliószor"|"milliárdszor"|"billiószor"|"trilliószor") {
+		msd[1] = 'c';
+		sfx[0] = '\0';
+		msd[0] = 'M';
+                multitoken= NUM_WORD;
+                msd[3] = 's';
+                msd[4] = '6';
+                msd[5] = 'd';
+		strcpy(tok, yytext);
+		BEGIN(SFX_END);
+	}
+
+	<S>{NUMRANGE}" "("ezret") {
+		msd[1] = 'c';
+		sfx[0] = '\0';
+                msd[0] = 'M';
+                msd[3] = 's';
+                msd[4] = 'a';
+                msd[5] = 'd';
+		multitoken= NUM_WORD;
+		strcpy(tok, yytext);
+		BEGIN(SFX_END);
+	}
+
+	<S>{NUMRANGE}" "("ezerszeres"|"milliószoros"|"milliárdszoros"|"billiószoros"|"trilliószoros"){WORDCHARS} {
+		msd[1] = 'c';
+		sfx[0] = '\0';
+		msd[0] = 'M';
+		multitoken= NUM_WORD;
+                msd[3] = 's';
+                msd[4] = '6';
+                msd[5] = 'd';
+		yyless(yyleng - 1);
+		strcpy(tok, yytext);
+		BEGIN(SFX);
+	}
+
+	<S>{NUMRANGE}" "("ezredik"|"milliomodik"|"milliárdodik"|"billiomodik"|"trilliomodik"){WORDCHARS} {
+		msd[1] = 'o';
+		sfx[0] = '\0';
+		msd[0] = 'M';
+		multitoken= NUM_WORD;
+                msd[3] = 's';
+                msd[4] = 'n';
+                msd[5] = 'd';
+		yyless(yyleng - 1);
+		strcpy(tok, yytext);
+		BEGIN(SFX);
+	}
+
+	<S>{NUMRANGE}" "("ezer"|"millió"|"milliárd"|"billió"|"trillió"){WORDCHARS} {
+		msd[1] = 'c';
+		sfx[0] = '\0';
+		msd[0] = 'M';
+		multitoken= NUM_WORD;
+                msd[3] = 's';
+                msd[4] = 'n';
+                msd[5] = 'd';
+		yyless(yyleng - 1);
+		strcpy(tok, yytext);
+		BEGIN(SFX);
+	}
+
+	<S>{NUMRANGE}" "("ezer"|"millió"|"milliárd"|"billió"|"trillió"). {
+		yyless(yyleng - 1);
+		open_begin('c', '-');
+		multitoken= NUM_WORD;
+                msd[0] = 'M';
+                msd[3] = 's';
+                msd[4] = 'n';
+                msd[5] = 'd';
+		BEGIN(SFX_END);
+	}
+		*/
+
+	/********************************************************************************/
+	/* arány */
+
+	/* BE: <s>1645kJ/1000g 1645 kJ/100 g */
+
+	/* KI: <s>1645kJ/1000g 1645 kJ/100 g */
+
+	/* KI: <w>1645kJ/1000g */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1645kJ/1000g</lemma><mscat>[Onq-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>1645 kJ/100 g */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1645 kJ/100 g</lemma><mscat>[Onq-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+	
+<S>[0-9]+" "?{MEASURE}" "?"/"" "?[0-9]*" "?{MEASURE} {
+	if (abort_formula == 1) {
+		abort_formula = 0;
+		REJECT;
+	} else {
+		open_begin('n','q');
+	}
+}
+
+<S>[0-9]+" "?{MEASURE}" "?"/"" "?[0-9]*" "?{MEASURE}{DOMCHARS}+ {
+	abort_formula = 1;
+	REJECT;
+}
+
+	/********************************************************************************/
+	/* méret */
+
+	/* BE: <s>800x600, 12&times; 1x2x3x4 */
+
+	/* KI: <s>800x600, 12&times; 1x2x3x4 */
+
+	/* KI: <w>800x600 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>800x600</lemma><mscat>[Onm-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>12&times; */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>12&times;</lemma><mscat>[Onm-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>1x2x3x4 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1x2x3x4</lemma><mscat>[Onm-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+("x"|"&times;")([0-9]+)? {
+		/* szóközökkel tagolt szám */
+		open_begin('n', 'm');
+	}
+
+<S>[0-9]+(("x"|"&times;")([0-9]+))+ {
+		/* szóközökkel tagolt szám */
+		open_begin('n', 'm');
+	}
+
+	/**********************/
+	/* formula az azonosítók után */
+
+	/********************************************************************************/
+	/* 7. azonosítók */
+
+	/* szabvány jelzete (www.mszt.hu) */
+	/* MSZ 11434:1996, MSZ EN ISO 30011-2:1993, MSZ EN 456-1, */
+	/* MSZ IEC 745-2-13, MSZ-05-96.0820, DIN 345, EN 3434-34) */
+	/* MSZ-09-10.0346:1990, MSZ-09 KGST 2345:1980 */
+
+	/* BE: <s>MSZ EN ISO 30011-2:1993, MSZ-09-10.0346:1990 */
+
+	/* KI: <s>MSZ EN ISO 30011-2:1993, MSZ-09-10.0346:1990 */
+
+	/* KI: <w>MSZ EN ISO 30011-2:1993 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>MSZ EN ISO 30011-2:1993</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>MSZ-09-10.0346:1990 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>MSZ-09-10.0346:1990</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+
+<S>"MSZ"(" EN"|" ENV"|" HD"|" ETS"|" I-ETS"|" ISO"|" ISO/IEC"|"-"[0-17]|"K"|"KGST"){0,2}" "?[-0-9:.]*[0-9]+([-0-9:.]*[0-9]+)* {
+		open_begin('i', '-');
+}
+
+<S>("DIN"|"EN"|"ENV"|"HD"|"ETS"|"I-ETS"|"ISO"|"ISO/IEC"|"K")" "?[-0-9:.]*[0-9]+([-0-9:.]*[0-9]+)* {
+		open_begin('i', '-');
+}
+
+	/* ISBN azonosító */
+	
+	/* BE: <s>ISBN 0-7201-2270-8 */
+
+	/* KI: <s>ISBN 0-7201-2270-8 */
+
+	/* KI: <w>ISBN 0-7201-2270-8 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>ISBN 0-7201-2270-8</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"ISBN "[0-9]+[ -][0-9]+[ -][0-9]+[ -][0-9]+ {
+		open_begin('i', '-');
+}
+
+
+	/* szám-perjel-szám */
+
+	/* BE: <s>5/4, 5/4-ét */
+
+	/* KI: <s>5/4, 5/4-ét */
+
+	/* KI: <w>5/4 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>5/4</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>5/4</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>5/4-ét */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>5/4</lemma><mscat>[Oi--sa-----s]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>5/4</lemma><mscat>[Onf-??]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+"/"[0-9]+ {
+		multitoken = NUM_SLASH_NUM;
+		open_begin('i', '-');
+}
+
+	/* (kötõjelet, vagy kötõjeleket) számokat tartalmazó azonosító */
+
+	/* BE: <s>M5, TU&ndash;154 */
+
+	/* KI: <s>M5, TU&ndash;154 */
+
+	/* KI: <w>M5 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>M5</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>TU&ndash;154 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>TU&ndash;154</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>45654/1994/3., */
+
+	/* KI: <s>45654/1994/3., */
+
+	/* KI: <w>45654/1994/3. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>45654/1994/3.</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI:  */
+
+	/* azonosító */
+	/* ez rossz, minden szamra illeszkedik... */
+	
+	/* {LETTERS}+((""|"-"|"&ndash;")[0-9]+)+{LETTERS}*"."? { */
+
+<S>{LETTERS}+(("-"|"&ndash;")[0-9]+)+{LETTERS}*"."? {
+		if (yytext[0] == '/') {
+		    REJECT;
+		} else {
+		    open_begin('i', '-');
+		}
+}
+
+	/* XXX hibás azonosító kvirtmínusszal */
+
+<S>{LETTERS}+("&mdash;")[0-9]+{LETTERS}* {
+		open_begin('i', '-');
+}
+
+	/* 1/a, 1/A. */
+
+	/* BE: <s>1/A, 41/J., */
+
+	/* KI: <s>1/A, 41/J., */
+
+	/* KI: <w>1/A */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>1/A</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */	
+	/* KI: <w>41/J. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>41/J.</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI:  */
+
+<S>[0-9]+"/"[a-zA-Z]"."? {
+		open_begin('i', '-');
+	}
+
+	/* III/1 */
+
+	/* BE: <s>III/1 */
+
+	/* KI: <s>III/1 */
+
+	/* KI: <w>III/1 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>III/1</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[iIvVxXlLcCdDmM]+"/"[0-9]+"."? {
+		open_begin('i', '-');
+	}
+
+	/* IV/c, IV/C */
+
+	/* BE: <s>IV/c */
+
+	/* KI: <s>IV/c */
+
+	/* KI: <w>IV/c */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>IV/c</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[iIvVxXlLcCdDmM]+"/"[a-zA-Z]"."? {
+		open_begin('i', '-');
+	}
+
+	/* 2000/45. */
+
+	/* BE: <s>2000/45.-rõl */
+
+	/* KI: <s>2000/45.-rõl */
+
+	/* KI: <w>2000/45.-rõl */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2000/45.</lemma><mscat>[Oi--sh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+"/"[0-9]+"." {
+		open_begin('i', '-');
+	}
+
+	/* telefonszámok */
+
+	/* BE: <s>06 (20) 477-4917, 47-55-45/25-rõl */
+
+	/* KI: <s>06 (20) 477-4917, 47-55-45/25-rõl */
+
+	/* KI: <w>06 (20) 477-4917 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>06 (20) 477-4917</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */	
+	/* KI: <w>47-55-45/25-rõl */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>47-55-45/25</lemma><mscat>[Oi--sh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]{3}"-"[0-9]{3,4} {
+		/* i) magyar telefonszám 345-345, 567-3452 */
+		open_begin('i', '-');
+	}
+
+<S>(("06"|"+"?"36"){SP_TEL}?)?("("[0-9][0-9]?")"{SP_TEL}?)?("1-")?[0-9]{3}"-"[0-9]{3,4}("/"[0-9]+)? {
+		/* i) magyar telefonszám 345-345, 567-3452 */
+		open_begin('i', '-');
+	}
+
+<S>(("06"|"+"?"36"){SP_TEL}?)?("("[0-9][0-9]?")"{SP_TEL}?)?("1-")?[0-9]{2}"-"[0-9]{2}"-"[0-9]{2}("/"[0-9]+)? {
+		/* i) magyar telefonszám 34-45-34 */
+		open_begin('i', '-');
+	}
+
+	/* egynél több kötõjelet tartalmazó azonosítók */
+	
+	/* BE: <s>21559468-1-06 */
+
+	/* KI: <s>21559468-1-06 */
+
+	/* KI: <w>21559468-1-06 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>21559468-1-06</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+	
+<S>([0-9]+"-"){2,}[0-9]+ {
+		open_begin('i', '-');
+	}
+
+	/* számok és nagybetûk (pl. alvázszám) */
+	
+	/* BE: <s>JA51BF26X5H345328 */
+
+	/* KI: <s>JA51BF26X5H345328 */
+
+	/* KI: <w>JA51BF26X5H345328 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>JA51BF26X5H345328</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[A-Z]*([0-9]+[A-Z]+)+[0-9]* {
+		open_begin('i', '-');
+	}
+
+	/* számok és nagybetûk legalább két perjellel */
+	
+	/* BE: <s>BDE/2000/01/0983/0010 */
+
+	/* KI: <s>BDE/2000/01/0983/0010 */
+
+	/* KI: <w>BDE/2000/01/0983/0010 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>BDE/2000/01/0983/0010</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([-0-9A-Z]+"/"){2,}[-0-9A-Z]*[0-9A-Z]+ {
+		open_begin('i', '-');
+	}
+
+	/* számok, betûk legalább egy ponttal */
+	
+	/* BE: <s>802.11b */
+
+	/* KI: <s>802.11b */
+
+	/* KI: <w>802.11b */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>802.11b</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([0-9A-Za-z]+".")+[0-9a-zA-Z]*[0-9a-zA-Z]+ {
+		open_begin('i', '-');
+	}
+
+	/* betûk, évszám ponttal */
+
+	/* BE: <s>BH1992., */
+
+	/* KI: <s>BH1992., */
+
+	/* KI: <w>BH1992. */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>BH1992.</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI:  */
+
+<S>{LETTERS2}+[12][90][0-9][0-9]"." {
+		open_begin('i', '-');
+	}
+
+	/* iii) */
+	
+	/* BE: <s>iii) */
+
+	/* KI: <s>iii) */
+
+	/* KI: <w>iii) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>iii)</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[iIvVxX]+")" {
+		open_begin('i', '-');
+	}
+
+	/* (iii) */
+	
+	/* BE: <s>(iii) */
+
+	/* KI: <s>(iii) */
+
+	/* KI: <w>(iii) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>(iii)</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"("[iIvVxX]+")" {
+		open_begin('i', '-');
+	}
+
+
+	/* a), A) */
+	
+	/* BE: <s>a), ( A ) */
+
+	/* KI: <s>a), ( A ) */
+
+	/* KI: <w>a) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>a)</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>( A ) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>( A )</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+	/* ez igy baromsag, tul sok mindent megenged, kivettem a szokozt */
+
+<S>[0-9a-zA-Z]")" {
+		open_begin('i', '-');
+	}
+
+<S>"("[0-9b-zB-Z]")" {
+		open_begin('i', '-');
+	}
+
+<S>"("" "[a-zA-Z]" "?")" {
+		open_begin('i', '-');
+	}
+
+<S>"("" "?[a-zA-Z]" "")" {
+		open_begin('i', '-');
+	}
+
+<S>"("" "[0-9]+" "?")" {
+		open_begin('i', '-');
+	}
+
+<S>"("" "?[0-9]+" "")" {
+		open_begin('i', '-');
+	}
+
+	/* a névelõk külön kezelése */
+
+<S>"(a)" {
+		printf("(\tOPUNCT\na\tTOK\n)\tCPUNCT\n");
+	}
+
+<S>"(A)" {
+		printf("(\tOPUNCT\nA\tTOK\n)\tCPUNCT\n");
+	}
+
+	/* (iii)-(viii) */
+	
+	/* BE: <s>(iii)-(viii) */
+
+	/* KI: <s>(iii)-(viii) */
+
+	/* KI: <w>(iii)-(viii) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>(iii)-(viii)</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"("" "?[iIvVxX]+" "?")"(" "?"-"" "?|" "?"&ndash;"" "?)"("" "?[iIvVxX]+" "?")" {
+		open_begin('i', '-');
+	}
+
+	/* a)-d) */
+	
+	/* BE: <s>a)-d)] */
+
+	/* KI: <s>a)-d)] */
+
+	/* KI: <w>a)-d) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>a)-d)</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>]</c> */
+	/* KI:  */
+
+<S>[a-zA-Z]" "?")"(" "?"-"" "?|" "?"&ndash;"" "?)[a-zA-D]" "?")" {
+		open_begin('i', '-');
+	}
+
+<S>[a-zA-Z]" "?")"(" "?"-"" "?|" "?"&ndash;"" "?)[a-zA-D]" "?")"[\]}] {
+                yyless(yyleng - 1);
+		open_begin('i', '-');
+	}
+
+	/* XXX hibásan kvirtmínusszal */
+
+<S>"("" "?[iIvVxX]+" "?")"(" "?"&mdash;"" "?)"("[iIvVxX]+" "?")" {
+		open_begin('i', '-');
+	}
+
+	/* (1)-(4) */
+	
+	/* BE: <s>(1)-(4) */
+
+	/* KI: <s>(1)-(4) */
+
+	/* KI: <w>(1)-(4) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>(1)-(4)</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>"("" "?[0-9a-zA-Z]+" "?")"(" "?"-"" "?|" "?"&ndash;"" "?)"("" "?[0-9a-zA-Z]+" "?")" {
+		open_begin('i', '-');
+	}
+
+	/* XXX hibásan kvirtmínusszal */
+
+<S>"("" "?[0-9a-zA-Z]+" "?")"(" "?"&mdash;"" "?)"("" "?[0-9a-zA-Z]+" "?")" {
+		open_begin('i', '-');
+	}
+
+	/********************************************************************************/
+	/* formula */
+
+	/* BE: <s>2r&pi;, 2 * 2 = 4, (a+b)(a-b), 36-os */
+
+	/* KI: <s>2r&pi;, 2 * 2 = 4, (a+b)(a-b), 36-os */
+
+	/* KI: <w>2r&pi; */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2r&pi;</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */	
+	/* KI: <w>2 * 2 = 4 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>2 * 2 = 4</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */	
+	/* KI: <w>(a+b)(a-b) */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>(a+b)(a-b)</lemma><mscat>[Onf-sn]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */	
+	/* KI: <w>36-os */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[0-9]+{NUMSIGN} {
+		/* i) képlet */
+		if (abort_formula) {
+			//abort_formula = 0;
+			REJECT;
+		} else {
+			open_begin('n', 'f');
+		}
+	}
+
+	/* rossz, tulaltalanos szabaly... */
+	/*<S>(({NUMSIGN}|[0-9]+"%"?)({SPACE}{OPERATOR}{SPACE}({NUMSIGN}|[0-9]+"%"?))+)+ {
+		/* i) képlet */
+	/*	if (abort_formula) {
+			abort_formula = 0;
+			REJECT;
+		} else {
+			open_begin('n', 'f');
+		}
+	}*/
+
+<S>(({NUMSIGN}|[0-9]+"%"?)({OPERATOR}({NUMSIGN}|[0-9]+"%"?))+)+ {
+		/* i) képlet */
+		if (abort_formula) {
+			abort_formula = 0;
+			REJECT;
+		} else {
+			open_begin('n', 'f');
+		}
+	}
+
+	/* ,,képlet'' folytatódik, pl. 456-612-rõl */
+
+<S>(({NUMSIGN}|[0-9]+"%"?)({SPACE}{OPERATOR}{SPACE}({NUMSIGN}|[0-9]+"%"?))+)+{LETTERS}+ {
+		/* i) képlet */
+		abort_formula = 1;
+		REJECT;
+	}
+
+<S>(({NUMSIGN}|[0-9]+"%"?)({OPERATOR}({NUMSIGN}|[0-9]+"%"?))+)+{LETTERS}+ {
+		/* i) képlet */
+		abort_formula = 1;
+		REJECT;
+	}
+
+
+	/********************************************************************************/
+	/* Idézõjelezett és toldalékolt szövegek (címek, stb). */
+	/* Ez egy veszelyes szabaly, nem biztos hogy kell (ocs.) */
+	/* biztos, hogy hujeseg..., kiszedve*/
+
+	/* BE: <s>Az "Íme, hát megleltem hazámat"-ban írta. */
+
+	/* KI: <s>Az "Íme, hát megleltem hazámat"-ban írta. */
+
+	/* KI: <w>Az */
+	/* KI: </w> */
+	/* KI: <w>"Íme, hát megleltem hazámat"-ban */
+	/* KI: </w> */
+	/* KI: <w>írta */
+	/* KI: </w> */
+	/* KI: <c>.</c> */
+	/* KI:  */
+
+	/*<S>("\""|"&ldquor;")[^ \n]([^&"\n]|"&"[^lr]|"&"[a-z][^d])+("\""|"&rdquo""r"?";"?)"-"{WORDCHARS}+ { 
+	printf(FORMAT2, yytext);
+	}*/
+
+	/*<S>("&raquo;")[^ \n]([^&"\n]|"&"[^lr]|"&"[a-z][^da]|"&"[a-z][a-z][^q])+("&laquo;")"-"{WORDCHARS}+ {
+	printf(FORMAT2, yytext);
+	}*/
+
+	/********************************************************************************/
+	/* XXX mosolyjel (smiley) */
+
+	/* BE: <s>:-) */
+
+	/* KI: <s>:-) */
+
+	/* KI: <c>:-)</c> */
+	/* KI:  */
+
+<S>{SMILEY} {
+	printf("%s\tSYMBOL\n", yytext);
+	}
+<S>{SMILEY2} {
+	printf("%s\tSYMBOL\n", yytext);
+	}
+<S>{SMILEY3} {
+	printf("%s\tSYMBOL\n", yytext);
+	}
+
+
+	/********************************************************************************/
+	/* Írásjelek */
+
+	/* BE: <s>"!"&ldquor; */
+
+	/* KI: <s>"!"&ldquor; */
+
+	/* KI: <c>"</c> */
+	/* KI: <c>!</c> */
+	/* KI: <c>"</c> */
+	/* KI: <c>&ldquor;</c> */
+	/* KI:  */
+
+
+<S>{JPUNCT}+ {
+	/* összevonható szimbolumok */
+	strcpy(code, "SYMBOL");
+	printf("%s\t%s\n", yytext, code);
+	abort_slashdot = 0;
+	}
+
+<S>{MSPUNCT}+ {
+	/* osszzevonhato irasjelek*/ 
+	strcpy(code, "WPUNCT");
+	printf("%s\t%s\n", yytext, code);
+	abort_slashdot = 0;
+	}
+
+<S>{CSPUNCT}+ {
+	/* osszevonhato irasjelek*/ 
+	strcpy(code, "WPUNCT");
+	printf("%s\t%s\n", yytext, code);
+	abort_slashdot = 0;
+	}
+
+<S>{RESTPUNCT}+ {
+	/* osszzevonhato irasjelek*/ 
+	strcpy(code, "WPUNCT");
+	printf("%s\t%s\n", yytext, code);
+	abort_slashdot = 0;
+	}
+
+<S>{PUNCT} {
+	strcpy(code, "WPUNCT");
+	printf("%s\t%s\n", yytext, code);
+	abort_slashdot = 0;
+	}
+
+	/* szóközök törlése */
+
+	/********************************************************************************/
+	/* szóközök törlése */	
+
+<S>{SPACE}
+
+	/********************************************************************************/
+	/* Stb... */
+
+	/* BE: <s>Stb... stb... */
+
+	/* KI: <s>Stb... stb... */
+
+	/* KI: <w>Stb. */
+	/* KI: </w> */
+	/* KI: <c>...</c> */
+	/* KI: <w>stb. */
+	/* KI: </w> */
+	/* KI: <c>...</c> */
+	/* KI:  */
+
+<S>[Ss]"tb..." {
+	/* Stb... */
+	char c[10];
+	yyless(yyleng - 3);
+	strncpy(c, yytext, yyleng);
+	c[yyleng] = '.';
+	c[yyleng + 1] = '\0';	
+        printf("%s\t%s[:Oyo-sn:]\n", c, c);
+}
+
+	/********************************************************************************/
+	/* A mondat végi pontok írásjelek, kivéve ha a mondat végi szó a ,,stb.'' */
+
+	/* BE: <s>Pl. nagy. */
+
+	/* KI: <s>Pl. nagy. */
+
+	/* KI: <w>Pl. */
+	/* KI: </w> */
+	/* KI: <w>nagy */
+	/* KI: </w> */
+	/* KI: <c>.</c> */
+	/* KI:  */
+
+	/* BE: <s>stb. */
+
+	/* KI: <s>stb. */
+
+	/* KI: <w>stb. */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* BE: <s>stb.) */
+
+	/* KI: <s>stb.) */
+
+	/* KI: <w>stb. */
+	/* KI: </w> */
+	/* KI: <c>)</c> */
+	/* KI:  */
+
+<S>{LETTERS2}+"."{1,3}{ENDQUOPAR}?"\n" {
+	BEGIN(SENTENCE_END);
+	yyless(0);
+
+}
+
+<SENTENCE_END>[Ss]"tb..." {
+	char c[10];
+	yyless(yyleng - 3);
+	strncpy(c, yytext, yyleng);
+        c[yyleng] = '.';
+        c[yyleng + 1] = '\0';   
+        printf("%s\t%s[:Oyo-sn:]\n", c, c);
+        BEGIN(S);
+}
+
+<SENTENCE_END>{WORDCHARS}*"." {
+	/* erre feltetelre nincs mar szukseg */
+	/* if (strcmp(yytext, "stb.") != 0) { */
+	yyless(yyleng - 1); 
+	/* } */
+	printf(FORMAT2, yytext);
+	BEGIN(S);
+}
+
+
+	/********************************************************************************/
+	/* szavak három ponttal */
+
+	/* BE: <s>Jó... Is.... */
+
+	/* KI: <s>Jó... Is.... */
+
+	/* KI: <w>Jó */
+	/* KI: </w> */
+	/* KI: <c>...</c> */
+	/* KI: <w>Is. */
+	/* KI: </w> */
+	/* KI: <c>...</c> */
+	/* KI:  */
+
+
+	/* <S>{WORDCHARS}+"..." { */
+<S>{LETTERS}+"..." {
+	/* szavak három ponttal */
+	yyless(yyleng - 3);
+	printf(FORMAT2, yytext);
+}
+
+	/* <S>{WORDCHARS}+"...." { */
+<S>{LETTERS}+"...." {
+	/* szavak négy ponttal (ocs: itt is vissza mind, a roviditesek kulon */
+	/* vannak kezelve. vagyis erre a szabalyra nincs is szukseg...!) */
+	yyless(yyleng - 4);
+	printf(FORMAT2, yytext);
+}
+
+	/********************************************************************************/
+	/* nagybetûk pontokkal */
+
+	/* BE: <s>S.M.A.R.T. */
+
+	/* KI: <s>S.M.A.R.T. */
+
+	/* KI: <w>S.M.A.R.T. */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>([A-Z]"."){2,}{WORDCHARS}* {
+	printf(FORMAT2, yytext);
+}
+
+	/* kötõjelre végzõdõ szavak */
+
+	/********************************************************************************/
+	/* -e kérdõszó leválasztása */
+
+	/* BE: <s>Lakik-e? */
+
+	/* KI: <s>Lakik-e? */
+
+	/* KI: <w>Lakik */
+	/* KI: </w> */
+	/* KI: <w>-e */
+	/* KI: </w> */
+	/* KI: <c>?</c> */
+	/* KI:  */
+
+<S>{WORDCHARS}+"-e" {
+	/* egyéb, késõbb feldolgozandó szavak és -e kérdõszó */
+	/* XXX Voltaire-e, 27-e, itt nem mindig kérdõszó az -e */
+	yytext[yyleng - 2] = '\0';
+	printf(FORMAT2, yytext);
+	printf("%s\tCLIT\n", "-e");
+}
+
+	/* Ha folytatódik az -e, akkor nem kérdõszó */
+
+	/* BE: <s>7-es */
+
+	/* KI: <s>7-es */
+
+	/* KI: <w>7-es */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{WORDCHARS}+"-e"{WORDCHARS}+ {
+	/* -e*-ra végzõdõ, késõbb feldolgozandó szavak */
+	printf(FORMAT2, yytext);
+}
+
+        /********************************************************************************/
+        /* HTML Unicode numerikus entitások (ezek nincsenek átalakítva) */
+	/* ez igy tok rossz, kiszedve */
+
+	/* BE: <s>&#8222; */
+
+	/* KI: <s>&#8222; */
+
+	/* KI: <w>&#8222; */
+	/* KI: </w> */
+	/* KI:  */
+
+	/* <S>{HTMLNUM} { */
+	/* printf(FORMAT2, yytext); */
+	/* } */
+
+	/********************************************************************************/
+	/* 6. kötõjelre végzõdõ szavak */
+
+	/* BE: <s>bel-, Dinnye-domb- */
+
+	/* KI: <s>bel-, Dinnye-domb- */
+
+	/* KI: <w>bel- */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>bel-</lemma><mscat>[Oh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>Dinnye-domb- */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>Dinnye-domb-</lemma><mscat>[Oh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+
+<S>{LETTERS}+"-"{NONWORDCHAR}"/"  {
+	/* kötõjel + perjel (macska-/kutyavilág) */
+		abort_slashdot = 1;
+		REJECT;
+}
+
+<S>[0-9]+".""-"+([0-9]+".""-"+)*{NONWORDCHAR}  {
+	/* kötõjeles sorszamok */
+			if (yytext[yyleng-1] == '/') {
+				abort_slashdot = 1;
+			}
+			yyless(yyleng - 1);
+			msd[0] = 'M';
+			msd[1] = 'o';
+			msd[2] = '-';
+			msd[3] = 's';
+			msd[4] = 'n';
+			msd[5] = 'd';
+			msd[6] = '\0';
+			printf(FORMAT_UJ, yytext, "", yytext, msd); 
+			printf(FORMAT_UJV);
+			strcpy(msd, OPEN);
+}
+
+<S>[0-9]+"-"+([0-9]+"-"+)*{NONWORDCHAR}  {
+	/* kötõjeles szamok */
+			if (yytext[yyleng-1] == '/') {
+				abort_slashdot = 1;
+			}
+			yyless(yyleng - 1);
+			msd[0] = 'M';
+			msd[1] = 'c';
+			msd[2] = '-';
+			msd[3] = 's';
+			msd[4] = 'n';
+			msd[5] = 'd';
+			msd[6] = '\0';
+			printf(FORMAT_UJ, yytext, "", yytext, msd); 
+			printf(FORMAT_UJV);
+			strcpy(msd, OPEN);
+}
+
+<S>{LETTERS}+"-"({LETTERS2}+"-")*{NONWORDCHAR}  {
+	/* kötõjelre végzõdõ szavak */
+			if (yytext[yyleng-1] == '/') {
+				abort_slashdot = 1;
+			}
+			yyless(yyleng - 1);
+			msd[0] = 'O';
+			msd[1] = 'h';
+			msd[2] = '\0';
+			/* printf(FORMAT_UJ, yytext, "", yytext, msd); */
+			/* printf(FORMAT_UJV); */
+			printf(FORMAT2, yytext);
+			strcpy(msd, OPEN);
+}
+
+	/********************************************************************************/
+	/* %, § toldalékolva */
+
+	/* BE: <s>§-sal */
+
+	/* KI: <s>§-sal */
+
+	/* KI: <w>§-sal */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[%§]"-"{LETTERS2}+ {
+	printf(FORMAT2, yytext);
+}
+
+	/********************************************************************************/
+	/* késõbb feldolgozandó szavak */
+
+	/* BE: <s>Moli&egrave;re-rõl beszélj! */
+
+	/* KI: <s>Moli&egrave;re-rõl beszélj! */
+
+	/* KI: <w>Moli&egrave;re-rõl */
+	/* KI: </w> */
+	/* KI: <w>beszélj */
+	/* KI: </w> */
+	/* KI: <c>!</c> */
+	/* KI:  */
+
+	/* BE: <s>CD-ROM-okról */
+
+	/* KI: <s>CD-ROM-okról */
+
+	/* KI: <w>CD-ROM-okról */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{LETTERS}+".\n" {
+	/* egyéb (pontra vegzodo) szavak */
+        yyless(yyleng-2);
+	open_begin(OTHER_WORD_SIGN,'-');
+	}
+
+	/* egyeb pontot es alahuzast tartalmazo szavak roviditesek ? */
+	/* B._ú._é._k. */
+
+<S>({LETTERS}+".""_"+)+{LETTERS}+ {
+	printf(FORMAT2, yytext);
+}
+
+	/*<S>{LETTERS2}+"."[^\n] {*/
+<S>{LETTERS2}+"."({LETTERS3}|"-") {
+	/* egyéb szavak (pontot tartalmazo es valamivel folytatodo) */
+	/* ez  a szabaly nem teljesen ok... illetve rossz, tesztelni kell */
+	/* pl elszall akkor ha az utolso unit egy entity, ilyenkor levagja */
+	/* az utolso ';'-t!!!*/
+	/* fix: kivettem az entitiket a lehetseges folytatasbol*/
+        yyless(yyleng-1);
+	open_begin(OTHER_WORD_SIGN,'-');
+	}
+
+<S>"-"?({LETTERS2}|[0-9])+"/"+ {
+        int i;
+	for (i = 0; yytext[i] != '/'; i++);
+	//fprintf(stderr,"I: %d\n", i);
+	yyless(i);
+	printf(FORMAT2, yytext);
+        /*open_begin(OTHER_WORD_SIGN,'-');*/
+	}
+
+	/* tovabbi azonosito*/
+<S>[A-Z}+[0-9]*"/"[0-9]+ {
+	open_begin('i', '-');
+	}
+
+	/* par hukje kivetel...*/
+
+<S>"Fort-St." {
+        open_begin(OTHER_WORD_SIGN,'-');
+	}
+
+<S>"FORT-ST." {
+        open_begin(OTHER_WORD_SIGN,'-');
+	}
+
+
+<S>{LETTERS}+ {
+	/* egyéb szavak */
+	open_begin(OTHER_WORD_SIGN,'-');
+	}
+
+	/* BE: <s>X.25-rõl */
+
+	/* KI: <s>X.25-rõl */
+
+	/* KI: <w>X.25-rõl */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>X.25</lemma><mscat>[Oi--sh]</mscat></msd> */
+	/* KI: </anav> */	
+	/* KI: </w> */
+	/* KI:  */
+
+<S>{LETTERS}+"."[0-9]+ {
+	/* betû.szám */
+	open_begin(OTHER_WORD_SIGN,'-');
+	}
+
+	/********************************************************************************/
+	/* Zárójeles részeket tartalmazó szavak */
+
+	/* BE: <s>(Ki)adós fizess(en) könyv(ek)et? */
+
+	/* KI: <s>(Ki)adós fizess(en) könyv(ek)et? */
+
+	/* KI: <w>(Ki)adós */
+	/* KI: </w> */
+	/* KI: <w>fizess(en) */
+	/* KI: </w> */
+	/* KI: <w>könyv(ek)et */
+	/* KI: </w> */
+	/* KI: <c>?</c> */
+	/* KI:  */
+
+<S>("("{WORDCHARS}+")"){WORDCHARS}+ {
+	/* Zárójeles részeket tartalmazó szavak */
+	printf(FORMAT2, yytext);
+	}
+
+<S>{WORDCHARS}+("("{WORDCHARS}+")"){WORDCHARS}* {
+	/* Zárójeles részeket tartalmazó szavak */
+	printf(FORMAT2, yytext);
+	}
+
+	/********************************************************************************/
+	/* & jelet tartalmazó nagybetûs szók */
+	/* marhasag, xml-ben ez nem valid */
+	/* BE: <s>AT&T */
+
+	/* KI: <s>AT&T */
+
+	/* KI: <w>AT&T */
+	/* KI: </w> */
+	/* KI:  */
+
+<S>[A-Z]+"&"[A-Z]+ {
+	printf(FORMAT2, yytext);
+	}
+
+<S>[A-ZÉÁÕÚÛÓÜÖÍ]+"&amp;"[A-ZÉÁÕÚÛÖÜÓÍ]+ {
+	printf(FORMAT2, yytext);
+	}
+
+	/********************************************************************************/
+	/* aposztrófot tartalmazó szavak */
+
+	/* BE: <s>don't */
+
+	/* KI: <s>don't */
+
+	/* KI: <w>don't */
+	/* KI: </w> */
+	/* KI:  */
+
+
+<S>{LETTERS}+"'"{LETTERS}+ {
+	printf(FORMAT2, yytext);
+	}
+
+	/********************************************************************************/
+	/* Mondat vége */
+	
+<S>"\n" {
+	ECHO;
+	BEGIN(INITIAL);
+}
+
+	/********************************************************************************/
+	/* Kimaradt entitások */
+
+<S>"&"[a-zA-Z]+";"? {
+	printf(FORMAT2, yytext);
+}
+	/********************************************************************************/
+	/* Kimaradt karakterek (pl. plusz jel, &, stb. */
+
+<S>. {
+	printf(FORMAT4, yytext, code);
+}
+
+	/********************************************************************************/
+	/* Nyílt token után kötõjelezett toldalék vizsgálata */
+
+<OPEN_BEGIN>"-" {
+	strcat(sfx, yytext);
+	BEGIN(SFX);
+}
+
+	/********************************************************************************/
+	/* Kötõjelet és számokat is tartalmazó tokenek */
+
+	/* BE: <s>A-B100, A-B100-ról */
+
+	/* KI: <s>A-B100, A-B100-ról */
+
+	/* KI: <w>A-B100 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>A-B100</lemma><mscat>[Oi--sn]</mscat></msd> */
+	/* KI: </anav> */	
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI: <w>A-B100-ról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>A-B100-ról</lemma><mscat>[Oi--??]</mscat></msd> */
+	/* KI: </anav> */	
+	/* KI: </w> */
+	/* KI:  */
+
+	/* nem kötõjelre végzõdõ */
+	/* eloszor a html entitasos */
+
+<OPEN_BEGIN>"-"("-"*{LETTERS}+)+ {
+	    multitoken = NORMAL;
+	    strcat(tok, yytext);
+	    msd[0] = '\0';
+	    sfx[0] = '\0';
+	    BEGIN(SFX_END);
+	}
+
+
+<OPEN_BEGIN>"-"({LETTERS}|"."|[-0-9])*[-0-9]+({LETTERS}|"."|[-0-9])*"-"{LETTERS2}+ {
+	    multitoken = NORMAL;
+	    strcat(tok, yytext);
+	    msd[0] = 'O';
+	    msd[1] = 'i';
+            msd[2] = '-';
+	    msd[3] = '-';
+	    msd[4] = 's';
+	    msd[5] = 'n';
+	    sfx[0] = '\0';
+	    BEGIN(SFX_END);
+	}
+
+	/*<OPEN_BEGIN>"-"({LETTERS}|"."|[-0-9])*[0-9]+({LETTERS}|"."|[-0-9])* {*/
+<OPEN_BEGIN>"-"({LETTERS}|"."|[-0-9])*[0-9]+({LETTERS}|[-0-9])* {
+	/* pontot kivettem... ocs*/
+	    multitoken = NORMAL;
+	    strcat(tok, yytext);
+	    /* teljes msd kell, mert megeleozo tokenbol maradhat rossz*/
+	    msd[0] = 'O';
+	    msd[1] = 'i';
+	    msd[2] = '-';
+	    msd[3] = '-';
+	    msd[4] = 's';
+	    msd[5] = 'n';
+	    sfx[0] = '\0';
+	    BEGIN(SFX_END);
+	}
+
+	/********************************************************************************/
+	/* ponttal kezdõdõ */
+
+	/* BE: <s>.bash_rc, .dinnye.macska.25 */
+
+	/* KI: <s>.bash_rc, .dinnye.macska.25 */
+
+	/* KI: <w>.bash_rc */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.bash_rc</lemma><mscat>[Oep]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */	
+	/* KI: <c>,</c> */
+	/* KI: <w>.dinnye.macska.25 */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.dinnye.macska.25</lemma><mscat>[Oep]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */		
+	/* KI:  */
+
+	/* entiti nelkul*/
+<S>("."({DOMCHARS2}|"_")+)+ {
+		/* egyéb útvonal */
+		open_begin('e', 'p');
+		msd[4] = 's';
+		msd[5] = 'n';
+}
+
+	/********************************************************************************/
+	/* többes szám, birtoktöbbesítõ jel */
+
+	/* BE: <s>.hu-ról .hu-i .hu-iról .hu-nkról .hu-inkról .hu-éról .hu-éiról .hu-inkéról .hu-inkéiról */
+
+	/* KI: <s>.hu-ról .hu-i .hu-iról .hu-nkról .hu-inkról .hu-éról .hu-éiról .hu-inkéról .hu-inkéiról */
+	/* KI: <w>.hu-ról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-sh]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-i */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-pn---s3]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-iról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-ph---s3]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-nkról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-sh---p1]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-inkról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-ph---p1]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-éról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-sh-----s]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-éiról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-sh-----p]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-inkéról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-ph---p1s]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI: <w>.hu-inkéiról */
+	/* KI: <anav> */
+	/* KI: <msd><lemma>.hu</lemma><mscat>[Oeo-ph---p1p]</mscat></msd> */
+	/* KI: </anav> */
+	/* KI: </w> */
+	/* KI:  */
+
+<SFX>([oeöa]?"k"|"ék") {
+	msd[4] = 'p';
+	strcat(sfx,yytext);
+	BEGIN(SFX_K);
+}
+
+	/********************************************************************************/
+	/* I/3. birtokos személyjelet megelõlegezzük */
+
+<SFX>"i" {
+	msd[4] = 'p';
+	msd[9] = 's';
+	msd[10] = '3';
+	strcat(sfx,yytext);
+	BEGIN(SFX_K);
+}
+
+<SFX>("j"?[ae]?"i"("ék")?) {
+	msd[4] = 'p';
+	msd[9] = 's';
+	msd[10] = '3';
+	strcat(sfx,yytext);
+	BEGIN(SFX_K);
+}
+
+	/********************************************************************************/
+	/* Birtokos személyragok */
+	
+<SFX,SFX_K>[oeöa]"m" {
+	msd[9] = 's';
+	msd[10] = '1';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+<SFX,SFX_K>[ae]"d" {
+	msd[9] = 's';
+	msd[10] = '2';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+<SFX,SFX_K>("j"?[aeá]|"jé") {
+	msd[9] = 's';
+	msd[10] = '3';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+<SFX,SFX_K>[uü]?"nk" {
+	msd[9] = 'p';
+	msd[10] = '1';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+<SFX,SFX_K>"t"[oeö]"k" {
+	msd[9] = 'p';
+	msd[10] = '2';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+<SFX,SFX_K>"j"?[uü]"k" {
+	msd[9] = 'p';
+	msd[10] = '3';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+<SFX_K>"k" {
+	msd[9] = 'p';
+	msd[10] = '3';
+	strcat(sfx,yytext);
+	BEGIN(SFX_J);
+}
+
+	/* Birtokjel */
+
+<SFX,SFX_K,SFX_J>"éi" {
+	msd[11] = 'p';
+	strcat(sfx,yytext);
+	BEGIN(SFX_E);
+}
+
+<SFX,SFX_K,SFX_J>"é" {
+	msd[11] = 's';
+	strcat(sfx,yytext);
+	BEGIN(SFX_E);
+}
+
+	/********************************************************************************/
+	/* Esetragok */
+
+<SFX,SFX_K,SFX_E,SFX_J>[oeöa]?"t" {
+	if (msd[0] == 'M') { msd[4] = 'a'; } else { msd[5] = 'a'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"n"[ae]"k" {
+	/* XXX lehet d is! */
+	if (msd[0] == 'M') { msd[4] = 'g'; } else { msd[5] = 'g'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>([bcdfghjklmnprstvz]|"cs"|"dzs"|"gy"|"ly"|"ny"|"sz"|"ty"|"zs")[ae]"l" {
+        if (msd[0] == 'M') { msd[4] = 'i'; } else { msd[5] = 'i'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"b"[ae] {
+        if (msd[0] == 'M') { msd[4] = 'x'; } else { msd[5] = 'x'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"b"[ae]"n" {
+        if (msd[0] == 'M') { msd[4] = '2'; } else { msd[5] = '2'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"b"[óõ]"l" {
+	if (msd[0] == 'M') { msd[4] = 'e'; } else { msd[5] = 'e'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"h"[oeö]"z" {
+        if (msd[0] == 'M') { msd[4] = 't'; } else { msd[5] = 't'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"n"[áé]"l" {
+        if (msd[0] == 'M') { msd[4] = 'x'; } else { msd[5] = 'x'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"t"[óõ]"l" {
+        if (msd[0] == 'M') { msd[4] = 'b'; } else { msd[5] = 'b'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"r"[ae] {
+        if (msd[0] == 'M') { msd[4] = '2'; } else { msd[5] = '2'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>[oeö]?"n" {
+        if (msd[0] == 'M') { msd[4] = 'p'; } else { msd[5] = 'p'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"r"[óõ]"l" {
+        if (msd[0] == 'M') { msd[4] = 'h'; } else { msd[5] = 'h'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"ig" {
+        if (msd[0] == 'M') { msd[4] = '9'; } else { msd[5] = '9'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>[uü]"l" {
+        if (msd[0] == 'M') { msd[4] = 'w'; } else { msd[5] = 'w'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>("ként"|"képp"("en")?) {
+        if (msd[0] == 'M') { msd[4] = 'f'; } else { msd[5] = 'f'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"kor" {
+        if (msd[0] == 'M') { msd[4] = 'm'; } else { msd[5] = 'm'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"ért" {
+        if (msd[0] == 'M') { msd[4] = 'c'; } else { msd[5] = 'c'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"st"[uü]"l" {
+        if (msd[0] == 'M') { msd[4] = 'q'; } else { msd[5] = 'q'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>([bcdfghjklmnprsvz]|"cs"|"dzs"|"gy"|"ly"|"ny"|"sz"|"ty"|"zs")[áé] {
+        if (msd[0] == 'M') { msd[4] = 'y'; } else { msd[5] = 'y'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"nként" {
+        if (msd[0] == 'M') { msd[4] = 'u'; } else { msd[5] = 'u'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J>"szor" {
+        if (msd[0] == 'M') { msd[4] = '6'; } else { msd[5] = '6'; }
+	strcat(sfx,yytext);
+	BEGIN(SFX_END);
+}
+
+<OPEN_BEGIN,SFX_K,SFX_E,SFX_J,SFX_END>"\n" {
+	int i;
+	if ((msd[1] == OTHER_WORD_SIGN) || (msd[0] != 'O')) {
+		if (multitoken == NUM_WORD) {
+			for (i = 11; msd[i] == '-'; i--);
+			msd[i + 1] = '\0';
+			printf(FORMAT_UJ, tok, sfx, tok, msd);
+			printf(FORMAT_UJV);			
+		} else {
+    			printf(FORMAT3, tok, sfx);
+		}
+	} else {
+		for (i = 11; msd[i] == '-'; i--);
+		msd[i + 1] = '\0';
+		if (multitoken != NORMAL) {
+			printf(FORMAT_ANAUJ, tok, sfx, tok, msd);
+			print_ana();		    
+		} else {
+		       /* tok ures, ha kotojeles a toldalek */
+		       if (tok[0] == '\0') {
+		       	  printf(FORMAT_UJ2, tok, sfx, sfx, msd); 
+			} else {
+			  printf(FORMAT_UJ2, tok, sfx, tok, msd);
+				}
+			}
+		printf(FORMAT_UJV);
+	}
+	strcpy(msd, OPEN);
+	yyless(0);
+	BEGIN(INITIAL);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J,SFX_END>{WORDCHARS} {
+	strcat(sfx, yytext);
+	BEGIN(SFX_NOT);
+}
+
+<OPEN_BEGIN,SFX_K,SFX_E,SFX_J,SFX_END>. {
+	int i;
+	if ((msd[1] == OTHER_WORD_SIGN) || (msd[0] != 'O')) {
+		if (multitoken == NUM_WORD) {
+			for (i = 11; msd[i] == '-'; i--);
+			msd[i + 1] = '\0';
+			printf(FORMAT_UJ, tok, sfx, tok, msd);
+			printf(FORMAT_UJV);			
+			//fprintf(stderr,"Itt vagyok\n");
+		} else {
+    			printf(FORMAT3, tok, sfx);
+			//fprintf(stderr,"Itt2 vagyok\n");
+		}
+	} else {
+		for (i = 11; msd[i] == '-'; i--);
+		msd[i + 1] = '\0';
+		if (multitoken != NORMAL) {
+			printf(FORMAT_ANAUJ, tok, sfx, tok, msd);
+			print_ana();		    
+		} else {
+		       /* tok ures, ha kotojeles a toldalek */
+		       if (tok[0] == '\0') {
+		       	  printf(FORMAT_UJ2, tok, sfx, sfx, msd); 
+			} else {
+			  printf(FORMAT_UJ2, tok, sfx, tok, msd);
+			  //fprintf(stderr,"Itt3 vagyok\n");
+				}
+			}
+		printf(FORMAT_UJV);
+	}
+	strcpy(msd, OPEN);
+	multitoken = NORMAL;
+	yyless(0);
+	BEGIN(S);
+}
+
+<SFX_END,SFX_NOT>{WORDCHARS}+ {
+	strcat(sfx, yytext);
+	if (multitoken == NUM_WORD) {
+			int i;
+			for (i = 11; msd[i] == '-'; i--);
+			msd[i + 1] = '\0';
+			if (msd[0] == 'M') { msd[4] = '?'; msd[6] = '\0'; } 
+			else {	msd[5] = '?'; msd[7] = '\0'; }
+			printf(FORMAT_UJ, tok, sfx, tok, msd);
+			printf(FORMAT_UJV);			
+	} else {
+	    if (tok[0] == '\0') {
+			msd[1] = 'h';
+			msd[2] = '\0';
+			printf(FORMAT3, tok, sfx);
+			/*printf(FORMAT_UJ, tok, sfx, sfx, msd);
+			printf(FORMAT_UJV);*/
+			/*fprintf(stderr,"Ez az\n");*/
+
+	    } else {
+			printf(FORMAT3, tok, sfx);
+	    }
+	}
+
+	strcpy(msd, OPEN);
+	multitoken = NORMAL;
+	BEGIN(S);
+}
+
+<SFX,SFX_K,SFX_E,SFX_J,SFX_END>[^\n] {
+	if (multitoken == NUM_WORD) {
+			int i;
+			for (i = 11; msd[i] == '-'; i--);
+			msd[i + 1] = '\0';
+			printf(FORMAT_UJ, tok, sfx, tok, msd);
+			printf(FORMAT_UJV);			
+	} else {
+	    printf(FORMAT3, tok, sfx);
+	}
+	yyless(0);
+	multitoken = NORMAL;
+	strcpy(msd, OPEN);
+	BEGIN(S);
+}
+
+	/* BE: <s>Hogue-t, */
+
+	/* KI: <s>Hogue-t, */
+
+	/* KI: <w>Hogue-t */
+	/* KI: </w> */
+	/* KI: <c>,</c> */
+	/* KI:  */
+
+<SFX_NOT>[^\n] {
+	if (multitoken == NUM_WORD) {
+			int i;
+			for (i = 11; msd[i] == '-'; i--);
+			msd[i + 1] = '\0';
+			if (msd[0] == 'M') { msd[4] = '?'; msd[6] = '\0'; } 
+			else {	msd[5] = '?'; msd[7] = '\0'; }
+			printf(FORMAT_UJ, tok, sfx, tok, msd);
+			printf(FORMAT_UJV);			
+	} else {
+	    if (tok[0] == '\0') {
+			msd[1] = 'h';
+			msd[2] = '\0';
+			printf(FORMAT_UJ, tok, sfx, sfx, msd);
+			printf(FORMAT_UJV);
+	    } else {
+			printf(FORMAT3, tok, sfx);
+			yyless(0);
+	    }
+	}
+	yyless(0);
+	strcpy(msd, OPEN);
+	multitoken = NORMAL;
+	BEGIN(S);
+}
+
+<SFX_NOT>"\n" {
+	if (multitoken == NUM_WORD) {
+			int i;
+			for (i = 11; msd[i] == '-'; i--);
+			msd[i + 1] = '\0';
+			if (msd[0] == 'M') { msd[4] = '?'; msd[6] = '\0'; } 
+			else {	msd[5] = '?'; msd[7] = '\0'; }
+			printf(FORMAT_UJ, tok, sfx, tok, msd);
+			printf(FORMAT_UJV);			
+	} else {
+	    if (tok[0] == '\0') {
+			msd[1] = 'h';
+			msd[2] = '\0';
+			printf(FORMAT_UJ, tok, sfx, sfx, msd);
+			printf(FORMAT_UJV);
+	    } else {
+			printf(FORMAT3, tok, sfx);
+	    }
+	}
+	yyless(0);
+	multitoken = NORMAL;
+	BEGIN(INITIAL);
+}
+
+
+%%
+/* 
+ * Nyílt osztályba tartozó token mentése, majd kötõjelezett toldalék keresése
+ */
+int open_begin(int msd1, int msd2)
+{
+		msd[1] = msd1;
+		msd[2] = msd2;
+		sfx[0] = '\0';
+		if (strlen(yytext) < BUFSIZ) {
+			strcpy(tok, yytext);
+		} else {
+			strcpy(tok,"ERROR: TOO LONG TOKEN!");
+		}
+		BEGIN(OPEN_BEGIN);
+}
+
+int print_ana()
+{
+		switch (multitoken) {
+			case HOUR_DOT_MIN: // 10.32
+				msd[2] = 'd';
+				printf(FORMAT_ANAV, tok, msd);
+			case MON_SLASH_DAY: // 01/06
+			case NUM_DOT_NUM:  // 80.5
+				msd[1] = 'i';
+				msd[2] = '-';
+				printf(FORMAT_ANAV, tok, msd);
+				break;
+			case HOUR_COLON_MIN:  // 1:10
+				msd[2] = 'q';
+				printf(FORMAT_ANAV, tok, msd);
+			case NUM_COLON_NUM:  // 1:6
+				msd[2] = 'r';
+				printf(FORMAT_ANAV, tok, msd);
+				msd[2] = 'f';
+				printf(FORMAT_ANAV, tok, msd);
+				break;
+			case MON_DASH_DAY: // 10-15
+				msd[2] = 'r';
+				printf(FORMAT_ANAV, tok, msd);
+			case NUM_DASH_NUM: // 1-3
+				msd[2] = 'f';
+				printf(FORMAT_ANAV, tok, msd);
+				break;
+			case PATH_OR_WEB: // valami.comról
+				msd[2] = 'w';
+				printf(FORMAT_ANAV, tok, msd);
+				break;
+			case NUM_LETTER: // 2a
+			case PATH_OR_IDENT: // 1.a-ról
+				msd[1] = 'i';
+				msd[2] = '-';
+				printf(FORMAT_ANAV, tok, msd);
+				break;
+			case NUM_SLASH_NUM: // 3/4
+				msd[1] = 'n';
+				msd[2] = 'f';
+                                if ((strlen(msd)>=12) && (msd[11] == 's')) {
+				    msd[4] = '?';
+				    msd[5] = '?';
+                                    msd[6] = '\0';
+                                }
+				printf(FORMAT_ANAV, tok, msd);
+				break;
+		}		
+}

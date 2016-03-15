@@ -1,6 +1,7 @@
 # TOKEN dots_and_parentheses
 
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0. egyszeru szavak
 IN : N. kormányzósági
 IN : székhely.
@@ -8,6 +9,7 @@ OUT: <s><w>N.</w><ws> </ws><w>kormányzósági</w><ws>
 OUT: </ws><w>székhely</w><c>.</c></s>
 
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1. szavak pontokkal
 
 1.1 mondatkozi verziok
@@ -39,6 +41,7 @@ IN : A S.M.A.R.T.
 OUT: <s><w>A</w><ws> </ws><w>S.M.A.R.T</w><c>.</c></s>
 
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 2. zarojeles szavak
 
 2.1 mondatkozi verziok
@@ -90,3 +93,4 @@ IN :
 OUT: <s><w>Egy</w><ws> </ws><w>(zaro)jeles</w></s><ws>
 OUT: </ws>
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
