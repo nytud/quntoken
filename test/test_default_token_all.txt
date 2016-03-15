@@ -1,8 +1,59 @@
 # TOKEN all
 
-1. Mondathatár túllépés: mondatzáró után kis betű. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1. egyszeru mondat
 IN : N. kormányzósági
 IN : székhely.
 OUT: <s><w>N.</w><ws> </ws><w>kormányzósági</w><ws>
 OUT: </ws><w>székhely</w><c>.</c></s>
+
+2. zarojeles szavak
+
+2.1 mondatkozi verziok
+2.1.1 szovegi zarojel
+IN : Egy zaro(jeles) szo.
+OUT: <s><w>Egy</w><ws> </ws><w>zaro(jeles)</w><ws> </ws><w>szo</w><c>.</c></s>
+2.1.2 szobeli zarojel
+IN : Egy za(ro)jeles szo.
+OUT: <s><w>Egy</w><ws> </ws><w>za(ro)jeles</w><ws> </ws><w>szo</w><c>.</c></s>
+2.1.3 szoeleji zarojel
+IN : Egy (zaro)jeles szo.
+OUT: <s><w>Egy</w><ws> </ws><w>(zaro)jeles</w><ws> </ws><w>szo</w><c>.</c></s>
+
+2.2 mondatvegi verziok
+2.2.1 szovegi zarojel
+# ponttal
+IN : Egy zaro(jeles).
+OUT: <s><w>Egy</w><ws> </ws><w>zaro(jeles)</w><c>.</c></s>
+# nem ponttal
+IN : Egy zaro(jeles)?
+OUT: <s><w>Egy</w><ws> </ws><w>zaro(jeles)</w><c>?</c></s>
+# mondatzaro punktuacio (BOUNDARY) nelkul
+IN : Egy zaro(jeles)
+IN : 
+OUT: <s><w>Egy</w><ws> </ws><w>zaro(jeles)</w></s><ws>
+OUT: </ws>
+2.2.2 szobeli zarojel
+# ponttal
+IN : Egy za(ro)jeles.
+OUT: <s><w>Egy</w><ws> </ws><w>za(ro)jeles</w><c>.</c></s>
+# nem ponttal
+IN : Egy za(ro)jeles?
+OUT: <s><w>Egy</w><ws> </ws><w>za(ro)jeles</w><c>?</c></s>
+# mondatzaro punktuacio (BOUNDARY) nelkul
+IN : Egy za(ro)jeles
+IN : 
+OUT: <s><w>Egy</w><ws> </ws><w>za(ro)jeles</w></s><ws>
+OUT: </ws>
+2.2.3 szoeleji zarojel
+# ponttal
+IN : Egy (zaro)jeles.
+OUT: <s><w>Egy</w><ws> </ws><w>(zaro)jeles</w><c>.</c></s>
+# nem ponttal
+IN : Egy (zaro)jeles?
+OUT: <s><w>Egy</w><ws> </ws><w>(zaro)jeles</w><c>?</c></s>
+# mondatzaro punktuacio (BOUNDARY) nelkul
+IN : Egy (zaro)jeles
+IN : 
+OUT: <s><w>Egy</w><ws> </ws><w>(zaro)jeles</w></s><ws>
+OUT: </ws>
 

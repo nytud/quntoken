@@ -83,8 +83,9 @@ mode INSNT : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // words with parenthesis:
-    // examples: (zaro)jel or zaro(jel), or zar(o)jel, but not (zarojel)
-    "("{WORD}")"{WORD}"."{SNT_CLOSE_QX} {
+    // examples: (paren)thesis or paren(thesis), or par(en)thesis, but not (parenthesis)
+    // version for sentence ending
+    {WORD}?"("{WORD}")"{WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
         // delete dot and sentence close tag from the end of the Lexeme
         LEX.erase(LEX.end()-2, LEX.end());
@@ -94,23 +95,13 @@ mode INSNT : COMMON {
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }
-    // version for other cases:
+    // version for other cases :
     "("{WORD}")"{WORD} {
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
-    {WORD}"("{WORD}")"{SNT_CLOSE_QX} {
-        std::wstring LEX(Lexeme);
-        // delete only the sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-1, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
-    }
-    // version for other cases:
-    {WORD}"("{WORD}")" {
+    {WORD}"("{WORD}")"{WORD}? {
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());
