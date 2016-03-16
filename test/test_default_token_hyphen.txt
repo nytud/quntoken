@@ -1,4 +1,4 @@
-# TOKEN hyphenation_and_dashes
+# TOKEN hyphen
 
 -nak, -nek es ehhez hasonlok
 IN : Egy -nak, -jaiért, -magyar, bel- van.
@@ -8,28 +8,33 @@ kulonvalt '-e'
 IN : Ezen -e elcsatangolt.
 OUT: <s><w>Ezen</w><ws> </ws><w>-e</w><ws> </ws><w>elcsatangolt</w><c>.</c></s>
 
--e levagasa
+-e levagasa, zarojel nelkul
 IN : Lakik-e?
 OUT: <s><w>Lakik</w><w>-e</w><c>?</c></s>
 IN : Lakik-e.
 OUT: <s><w>Lakik</w><w>-e</w><c>.</c></s>
 IN : Lakik-e van?
 OUT: <s><w>Lakik</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
-# kontroll
-IN : Lakik-elem van?
-OUT: <s><w>Lakik-elem</w><ws> </ws><w>van</w><c>?</c></s>
-# zarojeles mondatkozi valtozatok
+
+zarojeles mondatkozi valtozatok
 IN : (La)kik-e van?
 OUT: <s><w>(La)kik</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
 IN : L(a)kik-e van?
 OUT: <s><w>L(a)kik</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
 IN : Lak(ik)-e van?
 OUT: <s><w>Lak(ik)</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
-# zarojeles mondatbeli valtozatok
+
+zarojeles mondatvegi valtozatok
 IN : (La)kik-e.
 OUT: <s><w>(La)kik</w><w>-e</w><c>.</c></s>
-IN : L(a)kik-e van?
-OUT: <s><w>L(a)kik</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
-IN : Lak(ik)-e van?
-OUT: <s><w>Lak(ik)</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
+IN : L(a)kik-e.
+OUT: <s><w>L(a)kik</w><w>-e</w><c>.</c></s>
+IN : Lak(ik)-e.
+OUT: <s><w>Lak(ik)</w><w>-e</w><c>.</c></s>
+
+kontroll
+IN : Lakik-elem van?
+OUT: <s><w>Lakik-elem</w><ws> </ws><w>van</w><c>?</c></s>
+IN : Van lakik-elem.
+OUT: <s><w>Van</w><ws> </ws><w>lakik-elem</w><c>.</c></s>
 

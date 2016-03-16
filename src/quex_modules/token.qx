@@ -61,11 +61,15 @@ mode INSNT : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // basic tokenizer rule: tokens can contain wordchars and dots, but dot can
-    // not follow another dot; dot at the end of the word belongs to the
-    // sentence, if it is followed by a snt close tag.
+    // basic tokenizer rules:
+    // - tokens can contain wordchars and dots, but dot can not follow another
+    //   dot
+    // - dot at the end of the word belongs to the sentence, if it is followed
+    //   by a snt close tag
+    // - words with parenthesis: (paren)thesis or paren(thesis), or
+    //   par(en)thesis, but not (parenthesis)
     // verision for words with "-e" at sentence ending
-    {WORD}"-e."{SNT_CLOSE_QX} {
+    ((({WORD}?"("{WORD}")")?{WORD})|({WORD}?"("{WORD}")"))"-e."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
         // delete dot and sentence close tag from the end of the Lexeme
         LEX.erase(LEX.end()-4, LEX.end());
@@ -77,7 +81,7 @@ mode INSNT : COMMON {
         self << PROGRAM;
     }
     // verision for words with "-e"
-    {WORD}"-e" {
+    ((("("{WORD}")")?{WORD})|({WORD}"("{WORD}")"{WORD}?))"-e" {
         std::wstring LEX(Lexeme);
         // delete "-e" from the end of the Lexeme
         LEX.erase(LEX.end()-2, LEX.end());
@@ -85,8 +89,8 @@ mode INSNT : COMMON {
               self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
-    // version for sentence endig:
-    {WORD}"."{SNT_CLOSE_QX} {
+    // version for words at sentence endig:
+    ({WORD}?"("{WORD}")")?{WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
         // delete dot and sentence close tag from the end of the Lexeme
         LEX.erase(LEX.end()-2, LEX.end());
@@ -97,7 +101,7 @@ mode INSNT : COMMON {
         self << PROGRAM;
     }
     // version for other cases:
-    {WORD} {
+    (("("{WORD}")")?{WORD})|({WORD}"("{WORD}")"{WORD}?) {
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());
@@ -108,58 +112,10 @@ mode INSNT : COMMON {
     // examples: (paren)thesis or paren(thesis), or par(en)thesis, but not (parenthesis)
     // versions for words with "-e"
     // sentence ending
-    {WORD}?"("{WORD}")"{WORD}"-e."{SNT_CLOSE_QX} {
-        std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-4, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
-    }
     // in-sentence versions
-    "("{WORD}")"{WORD}"-e" {
-        std::wstring LEX(Lexeme);
-        // delete "-e" from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-    {WORD}"("{WORD}")"{WORD}?"-e" {
-        std::wstring LEX(Lexeme);
-        // delete "-e" from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
     // version for other cases :
     // sentence ending
-    {WORD}?"("{WORD}")"{WORD}"."{SNT_CLOSE_QX} {
-        std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
-    }
     // in-sentence versions
-    "("{WORD}")"{WORD} {
-        std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-    {WORD}"("{WORD}")"{WORD}? {
-        std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // end of sentence: back to the basic mode (PROGRAM)
     {SNT_CLOSE_QX}   {
