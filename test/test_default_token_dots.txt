@@ -37,3 +37,13 @@ OUT: <s><w>A</w><ws> </ws><w>pl</w><c>.</c></s>
 IN : A S.M.A.R.T.
 OUT: <s><w>A</w><ws> </ws><w>S.M.A.R.T</w><c>.</c></s>
 
+
+2. tobb pont
+
+# TODO:
+# 2.1 ketto vagy tobb pont utan uj szo
+# IN : Egy..ket.
+# OUT: <s><w>Egy</w><c>..</c><w>ket</w><c>.</c></s>
+
+
+

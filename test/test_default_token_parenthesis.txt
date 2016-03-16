@@ -51,3 +51,9 @@ IN :
 OUT: <s><w>Egy</w><ws> </ws><w>(zaro)jeles</w></s><ws>
 OUT: </ws>
 
+3. kontroll
+IN : Ez (zarojelben) van.
+OUT: <s><w>Ez</w><ws> </ws><c>(</c><w>zarojelben</w><c>)</c><ws> </ws><w>van</w><c>.</c></s>
+IN : Ez (zarojel).
+OUT: <s><w>Ez</w><ws> </ws><c>(</c><w>zarojel</w><c>)</c><c>.</c></s>
+
