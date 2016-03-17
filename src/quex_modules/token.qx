@@ -35,7 +35,7 @@ define {
     DOMAIN              ({DOMAIN_FRAG}".")*{DOMAIN_FRAG}
     HOST                {IP}|{DOMAIN}
     PORT                ":"[0-9]{2,5}
-    PATH_FRAG           [a-zA-Z0-9_\-\/]
+    PATH_FRAG           [a-zA-Z0-9_\-\/]+
     PATH                "/"(({PATH_FRAG}".")*{PATH_FRAG})?
     QUERY               "?"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
     FRAGMENT            "#"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
@@ -134,8 +134,8 @@ mode INSNT : COMMON {
     /* {URL}"-"?{WORD}? { */
     {URL} {
         std::wstring LEX(Lexeme);
-        /* LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP; */
-        LEX = L"<u>" + LEX + L"</u>";
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        /* LEX = L"<u>" + LEX + L"</u>"; */
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
