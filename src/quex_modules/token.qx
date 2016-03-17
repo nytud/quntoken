@@ -33,9 +33,10 @@ define {
     // TODO: internationalized domain name
     DOMAIN_FRAG         [a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?
     DOMAIN              ({DOMAIN_FRAG}".")*{DOMAIN_FRAG}
+    // TODO: IPv6
     HOST                {IP}|{DOMAIN}
     PORT                ":"[0-9]{2,5}
-    PATH_FRAG           [a-zA-Z0-9_\-\/]+
+    PATH_FRAG           [a-zA-Z0-9_\-\/()]+
     PATH                "/"(({PATH_FRAG}".")*{PATH_FRAG})?
     QUERY               "?"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
     FRAGMENT            "#"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
@@ -130,13 +131,27 @@ mode INSNT : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // url-s
-    /* {URL}"-"?{WORD}? { */
+    // url
     {URL} {
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         /* LEX = L"<u>" + LEX + L"</u>"; */
         self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+    {URL}"-"?{WORD} {
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+    {URL}"-"?{WORD}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme);
+        // delete dot and sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-2, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+              self.SNT_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+        self << PROGRAM;
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

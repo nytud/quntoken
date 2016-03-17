@@ -25,4 +25,8 @@ IN : A http://142.42.1.1/.
 OUT: <s><w>A</w><ws> </ws><w>http://142.42.1.1/</w><c>.</c></s>
 IN : A http://example.com/.
 OUT: <s><w>A</w><ws> </ws><w>http://example.com/</w><c>.</c></s>
+IN : A http://foo.com/blah_(wikipedia)#cite-1.
+OUT: <s><w>A</w><ws> </ws><w>http://foo.com/blah_(wikipedia)#cite-1</w><c>.</c></s>
+IN : A http://foo.com/blah_(wikipedia)#cite-1 van.
+OUT: <s><w>A</w><ws> </ws><w>http://foo.com/blah_(wikipedia)#cite-1</w><ws> </ws><w>van</w><c>.</c></s>
 
