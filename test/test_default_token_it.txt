@@ -1,0 +1,28 @@
+# TOKEN it
+
+tartomanynevek
+ IN : .edu, .hu.
+ OUT: <s><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><c>.</c></s>
+
+url-ek
+ IN : red-stars.com.
+ OUT: <s><w>red-stars.com</w><c>.</c></s>
+ IN : www.valami.com.
+ OUT: <s><w>www.valami.com</w><c>.</c></s>
+
+url-ek toldalekolva
+ IN : www.valami.com-ról.
+ OUT: <s><w>www.valami.com-ról</w><c>.</c></s>
+ IN : www.valami.comról.
+ OUT: <s><w>www.valami.comról</w><c>.</c></s>
+
+osszetettebb url-ek
+ IN : A https://www.valami.com/index.html van.
+ OUT: <s><w>A</w><ws> </ws><w>https://www.valami.com/index.html</w><ws> </ws><w>van</w><c>.</c></s>
+ IN : A http://142.42.1.1/ van.
+ OUT: <s><w>A</w><ws> </ws><w>http://142.42.1.1/</w><ws> </ws><w>van</w><c>.</c></s>
+ IN : A http://142.42.1.1/.
+ OUT: <s><w>A</w><ws> </ws><w>http://142.42.1.1/</w><c>.</c></s>
+IN : A http://example.com/.
+OUT: <s><w>A</w><ws> </ws><u>http://example.com/</u><c>.</c></s>
+
