@@ -179,9 +179,16 @@ CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
 CMD_UPDATE_GTEST = cd $(GTEST_DIR) ; git pull
 QUEX_STABLE_VERSION = quex-0.65.4
 QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_STABLE_VERSION).tar.gz
-CMD_INSTALL_QUEX = cd $(TMP_DIR) ; \
-				   svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
-                   mv trunk/ ../$(QUEX_DIR)
+# CMD_INSTALL_QUEX = cd $(TMP_DIR) ; \
+# 				   svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
+#                    mv trunk/ ../$(QUEX_DIR)
+CMD_INSTALL_QUEX = \
+	rm -rvf $(QUEX_DIR) ; \
+	cd $(TMP_DIR) ; \
+	wget $(QUEX_LINK) ; \
+	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
+	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX_DIR) ; \
+	rm $(QUEX_STABLE_VERSION).tar.gz
 CMD_UPDATE_QUEX = cd $(QUEX_DIR) ; svn up
 
 prepare:
@@ -202,14 +209,14 @@ install_quex:
 
 .PHONY: install_quex
 
-# Ez csak egy biztonsagi lehetoseg. Utana nem lesz frissitheto a quex (TODO).
-downgrade_quex:
-	rm -rf $(QUEX_DIR) ; \
-	cd $(TMP_DIR) ; \
-	wget $(QUEX_LINK) ; \
-	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
-	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX_DIR) ; \
-	rm $(QUEX_STABLE_VERSION).tar.gz
+# # Ez csak egy biztonsagi lehetoseg. Utana nem lesz frissitheto a quex (TODO).
+# downgrade_quex:
+# 	rm -rf $(QUEX_DIR) ; \
+# 	cd $(TMP_DIR) ; \
+# 	wget $(QUEX_LINK) ; \
+# 	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
+# 	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX_DIR) ; \
+# 	rm $(QUEX_STABLE_VERSION).tar.gz
 
 .PHONY: downgrade_quex
 
