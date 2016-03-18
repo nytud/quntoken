@@ -2,6 +2,8 @@
 
 New Hungarian tokenizer based on quex and huntoken.
 
+Verison: pre-alpha
+
 ## Requirements
 
 * linux
