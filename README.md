@@ -6,6 +6,7 @@ New Hungarian tokenizer based on quex, huntoken
 
 * linux
 * python 2.x as default python
+* python 3.x
 * g++ >= 4.8.2
 * libicuXX, libicu-dev
 
