@@ -8,6 +8,7 @@ include $(CONFIG_FILE)
 
 # konyvatarak
 TARGET_DIR		= bin
+LIB_DIR			= lib
 TMP_DIR			= tmp
 SOURCE_DIR		= src
 CPP_DIR			= $(SOURCE_DIR)/cpp
@@ -99,6 +100,10 @@ $(TARGET_DIR)/quntoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o 
 $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a
 	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
+### libraries
+$(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o
+	mkdir -p $(LIB_DIR)
+	$(AR) $(ARFLAGS) $@ $^
 
 ### object files
 $(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
