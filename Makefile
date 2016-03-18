@@ -63,13 +63,13 @@ QUEXFLAGS =	-i $^ \
 
 
 #####  M A I N   T A R G E T S  ###############################################
-all: qtoken test
+all: quntoken test
 
 .PHONY: all
 
-qtoken: $(TARGET_DIR)/qtoken
+quntoken: $(TARGET_DIR)/quntoken
 
-.PHONY: qtoken
+.PHONY: quntoken
 
 test: $(TARGET_DIR)/test
 	./$(TARGET_DIR)/test 2>/dev/null
@@ -93,7 +93,7 @@ clean:
 
 ######  A U X I L I A R Y   T A R G E T S  ####################################
 ### binaries
-$(TARGET_DIR)/qtoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o $(TMP_DIR)/main.o
+$(TARGET_DIR)/quntoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o $(TMP_DIR)/main.o
 	$(CXX) $^ `icu-config --ldflags` -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o $(TMP_DIR)/test.o $(TMP_DIR)/gtest.a

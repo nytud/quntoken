@@ -15,4 +15,9 @@ New Hungarian tokenizer based on quex, huntoken
 * git clone https://github.com/dlt-rilmta/quntoken.git
 * make install
 
+## Usage
+
+* ./quntoken inputfile
+
+
 
