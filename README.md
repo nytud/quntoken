@@ -1,6 +1,6 @@
 # quntoken
 
-New Hungarian tokenizer based on quex, huntoken
+New Hungarian tokenizer based on quex and huntoken.
 
 ## Requirements
 
