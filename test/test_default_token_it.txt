@@ -84,3 +84,11 @@ OUT: <s><w>Az</w><ws> </ws><w>ADMIN$-nak</w><ws> </ws><w>van</w><c>.</c></s>
 IN : Az ADMIN$-nak.
 OUT: <s><w>Az</w><ws> </ws><w>ADMIN$-nak</w><c>.</c></s>
 
+legfelso tartomanynevek
+IN : A .edu, .hu vannak.
+OUT: <s><w>A</w><ws> </ws><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><ws> </ws><w>vannak</w><c>.</c></s>
+IN : A .edu, .hu.
+OUT: <s><w>A</w><ws> </ws><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><c>.</c></s>
+
+
+
