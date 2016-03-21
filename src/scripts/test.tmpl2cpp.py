@@ -58,7 +58,6 @@ def process_lines(lines):
             continue
         line = line[len(INP_PREFIX):] # feltesszük, hogy a két prefix hossza
                                       # megegyezik
-        line = line.replace('"', '\\"')
         if inp_line:
             if not flipflop:
                 if inp or out: # előző kör kiírása
@@ -66,13 +65,13 @@ def process_lines(lines):
                 flipflop = True
                 inp = line
             else:
-                inp += '\\n' + line
+                inp += '\n' + line
         elif out_line:
             if flipflop:
                 flipflop = False
                 out = line
             else:
-                out += '\\n' + line
+                out += '\n' + line
     if inp or out: # utolsó kör kiírása
         res.append(EXPECT_TEMPLATE.safe_substitute(INP=inp, OUT=out))
     return '\n    '.join(res)
@@ -134,8 +133,8 @@ if __name__ == "__main__":
     ${EXPECTATIONS}\n}""")
     EXPECT_TEMPLATE = Template("""
     EXPECT_EQ(
-        std::string("${OUT}"),
-        ${FUNCTION}("${INP}"));""")
+        std::string(R"(${OUT})"),
+        ${FUNCTION}(R"(${INP})"));""")
     ERROR_MSG = '''
     Rosszul formalt teszt fajl.
 
