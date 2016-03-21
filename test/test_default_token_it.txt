@@ -90,5 +90,10 @@ OUT: <s><w>A</w><ws> </ws><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><ws> </ws><w>va
 IN : A .edu, .hu.
 OUT: <s><w>A</w><ws> </ws><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><c>.</c></s>
 
+perjel
+IN : A / van.
+OUT: <s><w>A</w><ws> </ws><w>/</w><ws> </ws><w>van</w><c>.</c></s>
+
+
 
 
