@@ -138,6 +138,16 @@ mode INSNT : COMMON {
         /* LEX = L"<u>" + LEX + L"</u>"; */
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
+    {URL}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme);
+        // delete dot and sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-2, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+              self.SNT_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+        self << PROGRAM;
+    }
     {URL}"-"?{WORD} {
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
@@ -153,6 +163,30 @@ mode INSNT : COMMON {
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // email
+    // ugy tunik, ez ennyivel kesz is :)
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // windows halozati szolgaltatas
+    [a-zA-Z]+"$"{WORD}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme);
+        // delete dot and sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-2, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+              self.SNT_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+        self << PROGRAM;
+    }
+    [a-zA-Z]+"$"{WORD}? {
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // end of sentence: back to the basic mode (PROGRAM)

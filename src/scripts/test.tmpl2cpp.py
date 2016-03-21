@@ -95,8 +95,8 @@ def generate_tests(test_file):
     testname = fst_line[1]
     expectations = process_lines(lines)
     expectations = Template(expectations)
-    expectations = expectations.substitute(FUNCTION=MODULES2FUNCTIONS[testcase])
-    res = TEST_TEMPLATE.substitute(TESTCASE=testcase+'_TEST',
+    expectations = expectations.safe_substitute(FUNCTION=MODULES2FUNCTIONS[testcase])
+    res = TEST_TEMPLATE.safe_substitute(TESTCASE=testcase+'_TEST',
                                    TESTNAME=testname,
                                    EXPECTATIONS=expectations)
     return res
@@ -106,7 +106,7 @@ def generate_cpp(tmpl, tests):
     """Behelyettesiti a template-be az osszegyujtott testeseteket.
     """
     tmpl = Template(tmpl.read())
-    return tmpl.substitute(TESTS=tests)
+    return tmpl.safe_substitute(TESTS=tests)
 
 
 def main():

@@ -25,8 +25,62 @@ IN : A http://142.42.1.1/.
 OUT: <s><w>A</w><ws> </ws><w>http://142.42.1.1/</w><c>.</c></s>
 IN : A http://example.com/.
 OUT: <s><w>A</w><ws> </ws><w>http://example.com/</w><c>.</c></s>
+IN : A http://example.com/ van.
+OUT: <s><w>A</w><ws> </ws><w>http://example.com/</w><ws> </ws><w>van</w><c>.</c></s>
 IN : A http://foo.com/blah_(wikipedia)#cite-1.
 OUT: <s><w>A</w><ws> </ws><w>http://foo.com/blah_(wikipedia)#cite-1</w><c>.</c></s>
 IN : A http://foo.com/blah_(wikipedia)#cite-1 van.
 OUT: <s><w>A</w><ws> </ws><w>http://foo.com/blah_(wikipedia)#cite-1</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A http://foo.com/blah_(wikipedia).
+OUT: <s><w>A</w><ws> </ws><w>http://foo.com/blah_(wikipedia)</w><c>.</c></s>
+IN : A http://foo.com/blah_(wikipedia) van.
+OUT: <s><w>A</w><ws> </ws><w>http://foo.com/blah_(wikipedia)</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A http://www.example.com/wpstyle/?bar=baz&inga=42&quux.
+OUT: <s><w>A</w><ws> </ws><w>http://www.example.com/wpstyle/?bar=baz&inga=42&quux</w><c>.</c></s>
+IN : A http://www.example.com/wpstyle/?bar=baz&inga=42&quux van.
+OUT: <s><w>A</w><ws> </ws><w>http://www.example.com/wpstyle/?bar=baz&inga=42&quux</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A http://example.com:8080.
+OUT: <s><w>A</w><ws> </ws><w>http://example.com:8080</w><c>.</c></s>
+IN : A http://example.com:8080 van.
+OUT: <s><w>A</w><ws> </ws><w>http://example.com:8080</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A http://foo.bar/?q=Test%20URL-encoded%20stuff.
+OUT: <s><w>A</w><ws> </ws><w>http://foo.bar/?q=Test%20URL-encoded%20stuff</w><c>.</c></s>
+IN : A http://foo.bar/?q=Test%20URL-encoded%20stuff van.
+OUT: <s><w>A</w><ws> </ws><w>http://foo.bar/?q=Test%20URL-encoded%20stuff</w><ws> </ws><w>van</w><c>.</c></s>
+
+email
+IN : A foo.bar@baz.com van.
+OUT: <s><w>A</w><ws> </ws><w>foo.bar@baz.com</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A foo.bar@baz.com.
+OUT: <s><w>A</w><ws> </ws><w>foo.bar@baz.com</w><c>.</c></s>
+IN : A foo.bar@baz.com-nak van.
+OUT: <s><w>A</w><ws> </ws><w>foo.bar@baz.com-nak</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A foo.bar@baz.com-nak.
+OUT: <s><w>A</w><ws> </ws><w>foo.bar@baz.com-nak</w><c>.</c></s>
+IN : A foo.bar@baz.comnak van.
+OUT: <s><w>A</w><ws> </ws><w>foo.bar@baz.comnak</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A foo.bar@baz.comnak.
+OUT: <s><w>A</w><ws> </ws><w>foo.bar@baz.comnak</w><c>.</c></s>
+IN : A mailto:foo.bar@baz.com van.
+OUT: <s><w>A</w><ws> </ws><w>mailto:foo.bar@baz.com</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A mailto:foo.bar@baz.com.
+OUT: <s><w>A</w><ws> </ws><w>mailto:foo.bar@baz.com</w><c>.</c></s>
+IN : A mailto:foo.bar@baz.com-nak van.
+OUT: <s><w>A</w><ws> </ws><w>mailto:foo.bar@baz.com-nak</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A mailto:foo.bar@baz.com-nak.
+OUT: <s><w>A</w><ws> </ws><w>mailto:foo.bar@baz.com-nak</w><c>.</c></s>
+IN : A mailto:foo.bar@baz.comnak van.
+OUT: <s><w>A</w><ws> </ws><w>mailto:foo.bar@baz.comnak</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A mailto:foo.bar@baz.comnak.
+OUT: <s><w>A</w><ws> </ws><w>mailto:foo.bar@baz.comnak</w><c>.</c></s>
+
+windows halozati szolgaltatas (vagy mi)
+IN : Az ADMIN$ van.
+OUT: <s><w>Az</w><ws> </ws><w>ADMIN$</w><ws> </ws><w>van</w><c>.</c></s>
+IN : Az ADMIN$.
+OUT: <s><w>Az</w><ws> </ws><w>ADMIN$</w><c>.</c></s>
+IN : Az ADMIN$-nak van.
+OUT: <s><w>Az</w><ws> </ws><w>ADMIN$-nak</w><ws> </ws><w>van</w><c>.</c></s>
+IN : Az ADMIN$-nak.
+OUT: <s><w>Az</w><ws> </ws><w>ADMIN$-nak</w><c>.</c></s>
 
