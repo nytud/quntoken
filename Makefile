@@ -105,6 +105,11 @@ $(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.
 	mkdir -p $(LIB_DIR)
 	$(AR) $(ARFLAGS) $@ $^
 
+# TODO: .o files should have been compiled using option -fpic for this
+#$(LIB_DIR)/libquntoken.so: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o
+#	mkdir -p $(LIB_DIR)
+#	$(CXX) -shared $^ -Wl,-soname,libquntoken.so -o $@
+
 ### object files
 $(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
