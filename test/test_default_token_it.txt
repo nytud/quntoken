@@ -94,6 +94,12 @@ perjel
 IN : A / van.
 OUT: <s><w>A</w><ws> </ws><w>/</w><ws> </ws><w>van</w><c>.</c></s>
 
+path
+ IN : C: es c:\ van.
+ OUT: <s><w>C:</w><ws> </ws><w>es</w><ws> </ws><w>c:\</w><ws> </ws><w>van</w><c>.</c></s>
+
+
+
 
 
 

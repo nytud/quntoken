@@ -6,6 +6,7 @@ token {
     WS;
 }
 
+
 define {
     // CHARACTERS CLASSES:
     SYMBOL              [: intersection( {BASE_CLASS}, \G{S} ) :]
@@ -36,11 +37,11 @@ define {
     // TODO: IPv6
     HOST                {IP}|{DOMAIN}
     PORT                ":"[0-9]{2,5}
-    PATH_FRAG           [a-zA-Z0-9_\-\/()]+
-    PATH                "/"(({PATH_FRAG}".")*{PATH_FRAG})?
+    URL_PATH_FRAG       [a-zA-Z0-9_\-\/()]+
+    URL_PATH            "/"(({URL_PATH_FRAG}".")*{URL_PATH_FRAG})?
     QUERY               "?"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
     FRAGMENT            "#"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
-    URL                 {PROTOKOLL}?{AUTH}?{HOST}{PORT}?{PATH}?{QUERY}?{FRAGMENT}?
+    URL                 {PROTOKOLL}?{AUTH}?{HOST}{PORT}?{URL_PATH}?{QUERY}?{FRAGMENT}?
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
@@ -49,14 +50,17 @@ define {
 // M O D E S
 start = PROGRAM;
 
-// alap feldolgozas
+// basic processing
 mode PROGRAM : COMMON {
+    // enter to INSNT mode
     {SNT_OPEN_QX}   {
         self_send1(TOKEN_ANYCHAR, Lexeme);
         self << INSNT;
     }
+    // intersentence white spaces
     {TAGGED_WS_SEQ} => TOKEN_WS(Lexeme);
 }
+
 
 // mondaton beluli feldolgozas
 mode INSNT : COMMON {
@@ -79,32 +83,20 @@ mode INSNT : COMMON {
     // verision for words with "-e" at sentence ending
     ((({WORD}?{WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}))"-e."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-4, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
+        self.word_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }
     // verision for words with "-e"
     ((({WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}{WORD}?))"-e" {
         std::wstring LEX(Lexeme);
-        // delete "-e" from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP;
+        self.word_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
     // version for words at sentence endig:
     ({WORD}?{WORD_IN_PAR})?{WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
+        self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }
@@ -132,19 +124,14 @@ mode INSNT : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // url
-    {URL} {
+    /* {URL} { */
+    /*     std::wstring LEX(Lexeme); */
+    /*     LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP; */
+    /*     self_send1(TOKEN_TOKEN, LEX.c_str()); */
+    /* } */
+    {URL}("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        /* LEX = L"<u>" + LEX + L"</u>"; */
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-    {URL}"."{SNT_CLOSE_QX} {
-        std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
+        self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }
@@ -155,28 +142,20 @@ mode INSNT : COMMON {
     }
     {URL}"-"?{WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
+        self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // email
-    // ugy tunik, ez ennyivel kesz is :)
+    // it seems, it's ready :)
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // windows halozati szolgaltatas
+    // windows network services (?)
     [a-zA-Z]+"$"{WORD}"."{SNT_CLOSE_QX} {
         std::wstring LEX(Lexeme);
-        // delete dot and sentence close tag from the end of the Lexeme
-        LEX.erase(LEX.end()-2, LEX.end());
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-              self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-              self.SNT_CLOSE_CPP;
+        self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
         self << PROGRAM;
     }

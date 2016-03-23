@@ -54,6 +54,41 @@ body {
         }
     }
 
+    // functions for TOKEN module:
+    //
+    // dot at the end of the senetence belong to sentence, not to word
+    void snt_end_corrig(std::wstring &LEX) {
+        if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
+            // delete dot and sentence close tag from the end of the Lexeme
+            LEX.erase(LEX.end()-2, LEX.end());
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+                  self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+                  self.SNT_CLOSE_CPP;
+        }
+        else {
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        }
+        return;
+    }
+    // "-e" at the end of word is treated as a new word
+    void word_end_corrig(std::wstring &LEX) {
+        if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
+            // delete "-e." and sentence close tag from the end of the Lexeme
+            LEX.erase(LEX.end()-4, LEX.end());
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+                  self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP +
+                  self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+                  self.SNT_CLOSE_CPP;
+        }
+        else {
+            // delete "-e" from the end of the Lexeme
+            LEX.erase(LEX.end()-2, LEX.end());
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+                  self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP;
+        }
+        return;
+    }
+
 }
 
 
@@ -151,6 +186,8 @@ define {
     SPACE       [: intersection( {BASE_CLASS}, union(difference(\P{White_Space}, {NEWLINE}), [­]) ) :]
 
     WSPACE      ({NEWLINE}|{SPACE})
+
+    NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
 
     WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
 
