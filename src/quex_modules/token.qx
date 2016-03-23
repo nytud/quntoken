@@ -54,8 +54,8 @@ start = PROGRAM;
 mode PROGRAM : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // beginning of sentence
-    {SNT_OPEN_QX}   => TOKEN_ANYCHAR(Lexeme);
+    // beginning / end of sentence
+    {SNT_OPEN_QX}|{SNT_CLOSE_QX}   => TOKEN_ANYCHAR(Lexeme);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // whitespaces (out sentence)
@@ -77,28 +77,22 @@ mode PROGRAM : COMMON {
     //   by a snt close tag
     // - words with parenthesis: (paren)thesis or paren(thesis), or
     //   par(en)thesis, but not (parenthesis)
-    // verision for words with "-e" at sentence ending
-    ((({WORD}?{WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}))"-e."{SNT_CLOSE_QX} {
-        std::wstring LEX(Lexeme);
-        self.word_end_corrig(LEX);
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
     // verision for words with "-e"
-    ((({WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}{WORD}?))"-e" {
+    ((({WORD}?{WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}))"-e"("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
         self.word_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
-    // version for words at sentence endig:
-    ({WORD}?{WORD_IN_PAR})?{WORD}"."{SNT_CLOSE_QX} {
+    /* // verision for words with "-e" */
+    /* ((({WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}{WORD}?))"-e" { */
+    /*     std::wstring LEX(Lexeme); */
+    /*     self.word_end_corrig(LEX); */
+    /*     self_send1(TOKEN_TOKEN, LEX.c_str()); */
+    /* } */
+    // version for other cases:
+    ((({WORD_IN_PAR})?{WORD})|({WORD}{WORD_IN_PAR}{WORD}?))("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-    // version for other cases:
-    (({WORD_IN_PAR})?{WORD})|({WORD}{WORD_IN_PAR}{WORD}?) {
-        std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -129,16 +123,8 @@ mode PROGRAM : COMMON {
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // end of sentence: back to the basic mode (PROGRAM)
-    {SNT_CLOSE_QX}   {
-        self_send1(TOKEN_ANYCHAR, Lexeme);
-        /* self << PROGRAM; */
-    }
 }
+
 
 // kozos dolgok
 mode COMMON : <inheritable: only> {
