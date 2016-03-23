@@ -52,20 +52,17 @@ start = PROGRAM;
 
 // basic processing
 mode PROGRAM : COMMON {
-    // enter to INSNT mode
-    {SNT_OPEN_QX}   {
-        self_send1(TOKEN_ANYCHAR, Lexeme);
-        self << INSNT;
-    }
-    // intersentence white spaces
-    {TAGGED_WS_SEQ} => TOKEN_WS(Lexeme);
-}
 
-
-// mondaton beluli feldolgozas
-mode INSNT : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // whitespaces:
+    // beginning of sentence
+    {SNT_OPEN_QX}   => TOKEN_ANYCHAR(Lexeme);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // whitespaces (out sentence)
+    {TAGGED_WS_SEQ} => TOKEN_WS(Lexeme);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // whitespaces (in sentence)
     {WSPACE}+ {
         std::wstring LEX(Lexeme);
         LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
@@ -85,7 +82,6 @@ mode INSNT : COMMON {
         std::wstring LEX(Lexeme);
         self.word_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
     }
     // verision for words with "-e"
     ((({WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}{WORD}?))"-e" {
@@ -98,7 +94,6 @@ mode INSNT : COMMON {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
     }
     // version for other cases:
     (({WORD_IN_PAR})?{WORD})|({WORD}{WORD_IN_PAR}{WORD}?) {
@@ -109,14 +104,7 @@ mode INSNT : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // punctuations
-    // joinable punctuations:
-    {PUNCT_JOINABLE}+ {
-        std::wstring LEX(Lexeme);
-        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-        self_send1(TOKEN_PUNCT, LEX.c_str());
-    }
-    // other punctuations or symbols:
-    {PUNCT}|{SYMBOL} {
+    ({PUNCT_JOINABLE}+)|{PUNCT}|{SYMBOL} {
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
@@ -124,27 +112,10 @@ mode INSNT : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // url
-    /* {URL} { */
-    /*     std::wstring LEX(Lexeme); */
-    /*     LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP; */
-    /*     self_send1(TOKEN_TOKEN, LEX.c_str()); */
-    /* } */
-    {URL}("."{SNT_CLOSE_QX})? {
+    {URL}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
-    }
-    {URL}"-"?{WORD} {
-        std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-    {URL}"-"?{WORD}"."{SNT_CLOSE_QX} {
-        std::wstring LEX(Lexeme);
-        self.snt_end_corrig(LEX);
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,15 +124,9 @@ mode INSNT : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // windows network services (?)
-    [a-zA-Z]+"$"{WORD}"."{SNT_CLOSE_QX} {
+    [a-zA-Z]+"$"{WORD}?("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-        self << PROGRAM;
-    }
-    [a-zA-Z]+"$"{WORD}? {
-        std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -171,7 +136,7 @@ mode INSNT : COMMON {
     // end of sentence: back to the basic mode (PROGRAM)
     {SNT_CLOSE_QX}   {
         self_send1(TOKEN_ANYCHAR, Lexeme);
-        self << PROGRAM;
+        /* self << PROGRAM; */
     }
 }
 
