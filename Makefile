@@ -94,15 +94,15 @@ clean:
 
 ######  A U X I L I A R Y   T A R G E T S  ####################################
 ### binaries
-$(TARGET_DIR)/quntoken: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
-	$(CXX) $^ `icu-config --ldflags` -o $@
+$(TARGET_DIR)/quntoken: $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
+	$(CXX) $< -L$(LIB_DIR) -lquntoken `icu-config --ldflags` -o $@
 
-$(TARGET_DIR)/test: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.a
+$(TARGET_DIR)/test: $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.a
 	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 ### libraries
 $(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o
-	$(AR) $(ARFLAGS) $@ $^
+	$(AR) rscv $@ $^
 
 # TODO: .o files should have been compiled using option -fpic for this
 #$(LIB_DIR)/libquntoken.so: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o
