@@ -119,6 +119,12 @@ $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer
 $(TMP_DIR)/quntoken_api.o: $(CPP_DIR)/quntoken_api.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(TMP_DIR)/qx_module_queue.o: $(CPP_DIR)/qx_module_queue.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(TMP_DIR)/qx_module.o: $(CPP_DIR)/qx_module.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 $(TMP_DIR)/printer.o: $(CPP_DIR)/printer.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
