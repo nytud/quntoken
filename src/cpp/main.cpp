@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
-#include "qtoken_api.h"
+#include "quntoken_api.h"
 
 
 int main(int argc, char** argv)
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     std::stringstream fst_input;
     fst_input << in.rdbuf();
 
-    qtoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &fst_input, XML);
+    quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &fst_input, XML);
 
     std::cout << std::endl;
 

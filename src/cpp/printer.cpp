@@ -1,4 +1,5 @@
 #include "printer.h"
+#include <iostream>
 
 // konstansok
 const std::string SNT_OPEN("🀰");
