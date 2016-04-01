@@ -148,6 +148,8 @@ QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
 
 quex_cpp_files: $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(TMP_DIR)/token_token_lexer.cpp
 
+.PHONY: quex_cpp_files
+
 $(TMP_DIR)/prep_prep_lexer.cpp: $(DEFINITIONS) $(PREP_MODULE)
 	$(QUEX_CMD)	$(QUEXFLAGS) \
 				-o prep::prep_lexer \
