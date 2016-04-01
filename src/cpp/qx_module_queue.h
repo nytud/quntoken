@@ -1,19 +1,20 @@
 #ifndef QX_MODULE_QUEUE_H
 #define QX_MODULE_QUEUE_H
 
+
+#include <sstream>
+#include <string>
 #include <vector>
-#include "qx_module.h"
 #include "printer.h"
+#include "qx_module.h"
+#include "quntoken_api.h"
+
 
 // type definitions
-typedef std::vector<MODULE_TYPE> TYPE_VECTOR;
 typedef std::vector<QxModule> MODULE_VECTOR;
 
-class QxModuleQueue {
 
-// friendship
-friend void qtoken_print(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
-friend void qtoken_get_str(std::string& result, TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
+class QxModuleQueue {
 
 // class members
 private:
@@ -23,59 +24,22 @@ private:
     bool processed;
 
 // constructors & destructors
-private:
+public:
     // constructor:
-    QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type)
-    : types(types), modules(MODULE_VECTOR(types.size())), printer(Printer(out_type)), processed(false) {
-        // empty queue, do nothing
-        if(types.empty()) {
-            return;
-        }
-        // fill the modules vector
-        std::stringstream* ss_p = nullptr;
-        MODULE_VECTOR::iterator it = modules.begin();
-        for (auto type : types) {
-            it->set_type(type);
-            // setup input pointers
-            if(ss_p) {
-                it->input_p = ss_p;
-            }
-            ss_p = &(it->output);
-            ++it;
-        }
-        // setup input pointer of the first module
-        modules.front().input_p = fst_input_p;
-    }
+    QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
 
     // destructor:
-public:
-    ~QxModuleQueue() { }
+    ~QxModuleQueue();
 
 // private functions:
 private:
-    void process() {
-        for(MODULE_VECTOR::iterator it = modules.begin();
-            it != modules.end();
-            ++it) {
-            it->using_module();
-        }
-        processed = true;
-    }
+    void process();
     
-    void get_result(std::string& result) {
-        if(!processed) {
-            process();
-        }
-        result = modules.back().output.str();
-        printer.convert_tags(result);
-    }
+// public functions:
+public:
+    void get_result(std::string& result);
 
-    void print_result() {
-        if(!processed) {
-            process();
-        }
-        printer << modules.back().output.str();
-    }
+    void print_result();
 
 };
 

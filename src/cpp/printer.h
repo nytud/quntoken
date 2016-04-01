@@ -21,13 +21,7 @@
 
 #include <map>
 #include <string>
-#include <iostream>
-
-enum OUTPUT_TYPE {
-    XML = 0,
-    JSON,
-    TSV
-};
+#include "quntoken_api.h"
 
 class Printer {
     // friendship

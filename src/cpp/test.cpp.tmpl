@@ -2,13 +2,13 @@
 #include <string>
 #include <sstream>
 #include <gtest/gtest.h>
-#include "qtoken_api.h"
+#include "quntoken_api.h"
 
 
 std::string prepTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    qtoken_get_str(result, {PREP}, &inp, XML);
+    quntoken_get_str(result, {PREP}, &inp, XML);
     return result;
 }
 
@@ -16,7 +16,7 @@ std::string prepTest(std::string text) {
 std::string sntTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    qtoken_get_str(result, {PREP, SNT}, &inp, XML);
+    quntoken_get_str(result, {PREP, SNT}, &inp, XML);
     return result;
 }
 
@@ -24,14 +24,14 @@ std::string sntTest(std::string text) {
 std::string sntcorrTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    qtoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR}, &inp, XML);
+    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR}, &inp, XML);
     return result;
 }
 
 std::string tokenTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    qtoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &inp, XML);
+    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &inp, XML);
     return result;
 }
 

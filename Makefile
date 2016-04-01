@@ -29,13 +29,13 @@ CXXFLAGS +=	-Wall \
 			-Wconversion \
 			-std=c++11 \
 			-I$(CPP_DIR) \
+			-I$(TMP_DIR) \
 			-Werror \
 			# -g
 
 # g++ kapcsoloi quex-es fajlokhoz
 CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-I$(QUEX_DIR) \
-				-I$(TMP_DIR) \
 				-I./ \
 				-DQUEX_OPTION_ASSERTS_DISABLED \
 				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
@@ -87,6 +87,7 @@ update: update_gtest update_quex
 
 clean:
 	rm -rfv $(TARGET_DIR)/*
+	rm -rfv $(LIB_DIR)/*
 	rm -rfv $(TMP_DIR)/*
 
 .PHONY: clean
@@ -101,7 +102,7 @@ $(TARGET_DIR)/test: $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.
 	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 ### libraries
-$(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o
+$(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/printer.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o
 	$(AR) rscv $@ $^
 
 # TODO: .o files should have been compiled using option -fpic for this
@@ -110,22 +111,22 @@ $(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.
 #	$(CXX) -shared $^ -Wl,-soname,libquntoken.so -o $@
 
 ### object files
-$(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
+$(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(CPP_DIR)/quntoken_api.h
 	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(GTEST_HEADERS)
+$(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h quex_cpp_files
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/quntoken_api.o: $(CPP_DIR)/quntoken_api.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TMP_DIR)/quntoken_api.o: $(CPP_DIR)/quntoken_api.cpp $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/qx_module_queue.h
+	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/qx_module_queue.o: $(CPP_DIR)/qx_module_queue.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TMP_DIR)/qx_module_queue.o: $(CPP_DIR)/qx_module_queue.cpp $(CPP_DIR)/qx_module_queue.h $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/printer.h $(CPP_DIR)/qx_module.h quex_cpp_files
+	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/qx_module.o: $(CPP_DIR)/qx_module.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TMP_DIR)/qx_module.o: $(CPP_DIR)/qx_module.cpp $(CPP_DIR)/qx_module.h $(CPP_DIR)/quntoken_api.h quex_cpp_files
+	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
 
-$(TMP_DIR)/printer.o: $(CPP_DIR)/printer.cpp
+$(TMP_DIR)/printer.o: $(CPP_DIR)/printer.cpp $(CPP_DIR)/printer.h $(CPP_DIR)/quntoken_api.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
@@ -144,6 +145,8 @@ $(TMP_DIR)/token.o: $(TMP_DIR)/token_token_lexer.cpp
 ### quex
 # parancsok
 QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
+
+quex_cpp_files: $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(TMP_DIR)/token_token_lexer.cpp
 
 $(TMP_DIR)/prep_prep_lexer.cpp: $(DEFINITIONS) $(PREP_MODULE)
 	$(QUEX_CMD)	$(QUEXFLAGS) \
