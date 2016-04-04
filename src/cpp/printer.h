@@ -19,7 +19,8 @@
 //    template-elessel (es functor-ral) lehet megcsinalni. (Nem biztos, hogy
 //    kell!)
 
-#include <map>
+#include <vector>
+#include <utility>
 #include <string>
 #include "quntoken_api.h"
 
@@ -28,7 +29,7 @@ class Printer {
     friend class QxModuleQueue;
 
     // type definitions
-    typedef std::map<std::string, std::string> ConversionMap;
+    typedef std::vector<std::pair<std::string, std::string> > ConversionMap;
 
     // private members
     private:

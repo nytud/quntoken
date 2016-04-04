@@ -60,20 +60,42 @@ std::string& Printer::convert_tags(std::string &text) {
 // xml:
 Printer::ConversionMap Printer::createXmlMap() {
     ConversionMap xml_map;
-    xml_map[SNT_OPEN] = "<s>";
-    xml_map[SNT_CLOSE] = "</s>";
-    xml_map[WS_OPEN] = "<ws>";
-    xml_map[WS_CLOSE] = "</ws>";
-    xml_map[WORD_OPEN] = "<w>";
-    xml_map[WORD_CLOSE] = "</w>";
-    xml_map[PUNCT_OPEN] = "<c>";
-    xml_map[PUNCT_CLOSE] = "</c>";
+    xml_map.push_back(std::make_pair(SNT_OPEN, "<s>"));
+    xml_map.push_back(std::make_pair(SNT_CLOSE, "</s>"));
+    xml_map.push_back(std::make_pair(WS_OPEN, "<ws>"));
+    xml_map.push_back(std::make_pair(WS_CLOSE, "</ws>"));
+    xml_map.push_back(std::make_pair(WORD_OPEN, "<w>"));
+    xml_map.push_back(std::make_pair(WORD_CLOSE, "</w>"));
+    xml_map.push_back(std::make_pair(PUNCT_OPEN, "<c>"));
+    xml_map.push_back(std::make_pair(PUNCT_CLOSE, "</c>"));
     return xml_map;
 }
 
 // json:
 Printer::ConversionMap Printer::createJsonMap() {
     ConversionMap json_map;
+    // close json items with comma and open another
+    json_map.push_back(std::make_pair(SNT_CLOSE+WS_OPEN, "],\n\"ws\": \""));
+    json_map.push_back(std::make_pair(SNT_CLOSE+SNT_OPEN, "],\n\"s\": [\n"));
+    json_map.push_back(std::make_pair(WS_CLOSE+SNT_OPEN, "\",\n\"s\": [\n"));
+    json_map.push_back(std::make_pair(WS_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
+    json_map.push_back(std::make_pair(WS_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
+    json_map.push_back(std::make_pair(WORD_CLOSE+WS_OPEN, "\",\n\"ws\": \""));
+    json_map.push_back(std::make_pair(WORD_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
+    json_map.push_back(std::make_pair(WORD_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
+    json_map.push_back(std::make_pair(PUNCT_CLOSE+WS_OPEN, "\",\n\"ws\": \""));
+    json_map.push_back(std::make_pair(PUNCT_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
+    json_map.push_back(std::make_pair(PUNCT_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
+    // open json items
+    json_map.push_back(std::make_pair(SNT_OPEN, "\"s\": [\n"));
+    json_map.push_back(std::make_pair(WS_OPEN, "\"ws\": \""));
+    json_map.push_back(std::make_pair(WORD_OPEN, "\"w\": \""));
+    json_map.push_back(std::make_pair(PUNCT_OPEN, "\"c\": \""));
+    // close json items
+    json_map.push_back(std::make_pair(SNT_CLOSE, "]\n"));
+    json_map.push_back(std::make_pair(WS_CLOSE, "\"\n"));
+    json_map.push_back(std::make_pair(WORD_CLOSE, "\"\n"));
+    json_map.push_back(std::make_pair(PUNCT_CLOSE, "\"\n"));
     return json_map;
 }
 

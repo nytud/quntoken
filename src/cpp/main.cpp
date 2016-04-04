@@ -21,6 +21,7 @@ int main(int argc, char** argv)
     fst_input << in.rdbuf();
 
     quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &fst_input, XML);
+    /* quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &fst_input, JSON); */
 
     std::cout << std::endl;
 
