@@ -56,7 +56,6 @@ int main(int argc, char** argv) {
     inp_sstream << inp_fstream.rdbuf();
 
     quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &inp_sstream, out_type);
-
     std::cout << std::endl;
 
     return 0;
