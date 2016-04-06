@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
     std::ifstream inp_fstream(input_file);
     std::stringstream inp_sstream;
     inp_sstream << inp_fstream.rdbuf();
-
     quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &inp_sstream, out_type);
+
     std::cout << std::endl;
 
     return 0;
