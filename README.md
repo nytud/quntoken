@@ -14,15 +14,19 @@ Verison: pre-alpha
 
 ## Install
 
-    cd path/to/install/dir/
-    git clone https://github.com/dlt-rilmta/quntoken.git
-    cd quntoken
-    make install
-    make all
+```
+cd path/to/install/dir/
+git clone https://github.com/dlt-rilmta/quntoken.git
+cd quntoken
+make install
+make all
+```
 
 ## Usage
 
-    ./quntoken inputfile
-
-
+```
+./quntoken [-f FORMAT] FILE
+```
+Valid formats: `xml`, `json`  
+Default format: `xml`
 
