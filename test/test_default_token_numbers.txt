@@ -1,2 +1,30 @@
 # TOKEN numbers
 
+szam es betu
+IN : A 2b van.
+OUT: <s><w>A</w><ws> </ws><w>2b</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2b-ben van.
+OUT: <s><w>A</w><ws> </ws><w>2b-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2b.
+OUT: <s><w>A</w><ws> </ws><w>2b</w><c>.</c></s>
+IN : A 2b-ben.
+OUT: <s><w>A</w><ws> </ws><w>2b-ben</w><c>.</c></s>
+IN : A 3.b van.
+OUT: <s><w>A</w><ws> </ws><w>3.b</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 3.b-ben van.
+OUT: <s><w>A</w><ws> </ws><w>3.b-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 3.b.
+OUT: <s><w>A</w><ws> </ws><w>3.b</w><c>.</c></s>
+IN : A 3.b-ben.
+OUT: <s><w>A</w><ws> </ws><w>3.b-ben</w><c>.</c></s>
+
+    MINTA
+    IN : A  van.
+    OUT: <s><w>A</w><ws> </ws><w></w><ws> </ws><w>van</w><c>.</c></s>
+    IN : A -ben van.
+    OUT: <s><w>A</w><ws> </ws><w>-ben</w><ws> </ws><w>van</w><c>.</c></s>
+    IN : A .
+    OUT: <s><w>A</w><ws> </ws><w></w><c>.</c></s>
+    IN : A -ben.
+    OUT: <s><w>A</w><ws> </ws><w>-ben</w><c>.</c></s>
+
