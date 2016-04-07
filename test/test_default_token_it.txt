@@ -144,19 +144,3 @@ OUT: <s><w>A</w><ws> </ws><w>teszt.txt-ben</w><c>.</c></s>
 IN : A .txt van.
 OUT: <s><w>A</w><ws> </ws><w>.txt</w><ws> </ws><w>van</w><c>.</c></s>
 
-
-
-
-    MINTA
-    IN : A  van.
-    OUT: <s><w>A</w><ws> </ws><w></w><ws> </ws><w>van</w><c>.</c></s>
-    IN : A -ben van.
-    OUT: <s><w>A</w><ws> </ws><w>-ben</w><ws> </ws><w>van</w><c>.</c></s>
-    IN : A  .
-    OUT: <s><w>A</w><ws> </ws><w></w><c>.</c></s>
-    IN : A  -ben.
-    OUT: <s><w>A</w><ws> </ws><w>-ben</w><c>.</c></s>
-
-
-
-
