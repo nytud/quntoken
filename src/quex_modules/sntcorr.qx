@@ -157,7 +157,17 @@ mode PROGRAM {
         self_send1(SNTCORR_SNTFRAG, LEX.c_str());
     }
 
-    // 8. Romai szamok (VI. Lajos), kiveve CD.
+    // 8. .* kozti mondathatar korrigalasa (pl. *.*, huntoken.*, stb) /M.I./
+    // BE: A .* van.
+    // KI: <s>A .* van</s>
+    // problema: ha a romai szamos szabalyban nem kellen hack-elni, akkor itt
+    // sem kellene a base_class.
+    ({BASE_CLASS}|{SNT_OPEN_QX}){DOT_SENTENCE_BOUNDARY}"*" {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme));
+        self_send1(SNTCORR_SNTFRAG, LEX.c_str());
+    }
+
+    // 9. Romai szamok (VI. Lajos), kiveve CD.
     // BE: XIV.</s> <s>Lajos.
     // KI: XIV. Lajos.
     // BE: Ott a CD.</s> <s>Hallod?
@@ -165,7 +175,9 @@ mode PROGRAM {
     // eredeti: {NONWORDCHAR}"CD"{BOUNDARY} - ez csak ECHO-zva van!
     // eredeti: {NONWORDCHAR}[IVXLCMD]+{BOUNDARY}
     // Problema: ROMAN_NUM illeszkedik empty string-re is. Ilyenkor modositas
-    // nelkul tovabb kuldjuk az illeszkedo karaktereket.
+    // nelkul tovabb kuldjuk az illeszkedo karaktereket. Emiatt viszont ez a
+    // szabaly elobb illeszkedik, mint a .*-ra vonatkozo, ezert azt is hack-elni
+    // kell.
     ({NONWORDCHAR}|{SNT_OPEN_QX})"CD"{DOT_SENTENCE_BOUNDARY} {
         self_send1(SNTCORR_SNTFRAG, Lexeme);
     }
@@ -186,7 +198,7 @@ mode PROGRAM {
         self_send1(SNTCORR_SNTFRAG, LEX.c_str());
     }
 
-    // 9. Monogramok.
+    // 10. Monogramok.
     // BE: B.</s> <s>Jenõ.
     // KI: B. Jenõ.
     // BE: A.</s> <s>E.</s> <s>X.</s> <s>Wilson.
@@ -205,8 +217,8 @@ mode PROGRAM {
         self_send1(SNTCORR_SNTFRAG, LEX.c_str());
     }
 
-    // 10. Rovidites es kettospont kozti mondathatar (csaba fele 'huje string').
-    // Megj.: Ha a roviditesekkel (10.) fel van cserelve, akkor segfault lehet.
+    // 11. Rovidites es kettospont kozti mondathatar (csaba fele 'huje string').
+    // Megj.: Ha a roviditesekkel (12.) fel van cserelve, akkor segfault lehet.
     // Megj.: Elvileg nem fut le, nem kell.
     // eredeti: {ALL_ABBREV}"."")"?"</s><s>:"
     /* {NONWORDCHAR}{ALLABBREV}"."")"?{SENTENCE_BOUNDARY}":" { */
@@ -219,7 +231,7 @@ mode PROGRAM {
     /*     self_send1(SNTCORR_SNTFRAG, LEX.c_str()); */
     /* } */
 
-    // 11. Roviditesek.
+    // 12. Roviditesek.
     // BE: Pl.</s> <s>Jani szerint ápr.</s> <s>Kati kedvenc hónapja.
     // KI: Pl. Jani szerint ápr. Kati kedvenc hónapja.
     // eredeti: {NONWORDCHAR}({ABBREV}{BOUNDARY}|{UPPER}{BOUNDARY})+

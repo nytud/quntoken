@@ -238,7 +238,7 @@ define {
     // megtag-gelt ws_seq
     TAGGED_WS_SEQ_INSNT     ({WS_OPEN_QX}{WS_SEQ_INSNT}{WS_CLOSE_QX})
     // mondathatar: mondatzaro tag + taggelt space-sorozat + mondatnyito tag
-    SENTENCE_BOUNDARY       ({SNT_CLOSE_QX}{TAGGED_WS_SEQ_INSNT}{SNT_OPEN_QX})
+    SENTENCE_BOUNDARY       ({SNT_CLOSE_QX}{TAGGED_WS_SEQ_INSNT}?{SNT_OPEN_QX})
     // ugyan ez "." utan
     DOT_SENTENCE_BOUNDARY   ("."{SENTENCE_BOUNDARY})
     // megtag-gelt ws_seq, benne barhany sortores (mondatkozi)

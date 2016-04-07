@@ -90,9 +90,11 @@ OUT: <s><w>A</w><ws> </ws><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><ws> </ws><w>va
 IN : A .edu, .hu.
 OUT: <s><w>A</w><ws> </ws><w>.edu</w><c>,</c><ws> </ws><w>.hu</w><c>.</c></s>
 
-perjel
+slash, backslash
 IN : A / van.
-OUT: <s><w>A</w><ws> </ws><w>/</w><ws> </ws><w>van</w><c>.</c></s>
+OUT: <s><w>A</w><ws> </ws><c>/</c><ws> </ws><w>van</w><c>.</c></s>
+IN : A \ van.
+OUT: <s><w>A</w><ws> </ws><c>\</c><ws> </ws><w>van</w><c>.</c></s>
 
 windows path
 IN : C:, \ es c:\ van.
@@ -132,6 +134,55 @@ OUT: <s><w>A</w><ws> </ws><w>/valami/valami.txt</w><c>.</c></s>
 IN : A /valami/valami.txt-ben.
 OUT: <s><w>A</w><ws> </ws><w>/valami/valami.txt-ben</w><c>.</c></s>
 
+Huntokenes tesztek vegyesen
+1.
+IN : A C:\DINNYE\MACSKA.JPG van.
+OUT: <s><w>A</w><ws> </ws><w>C:\DINNYE\MACSKA.JPG</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A C:\DINNYE\MACSKA.JPG-ben van.
+OUT: <s><w>A</w><ws> </ws><w>C:\DINNYE\MACSKA.JPG-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A C:\DINNYE\MACSKA.JPG.
+OUT: <s><w>A</w><ws> </ws><w>C:\DINNYE\MACSKA.JPG</w><c>.</c></s>
+IN : A C:\DINNYE\MACSKA.JPG-ben.
+OUT: <s><w>A</w><ws> </ws><w>C:\DINNYE\MACSKA.JPG-ben</w><c>.</c></s>
+2.
+IN : A \\SZERVER\SZOLGALTATAS$ van.
+OUT: <s><w>A</w><ws> </ws><w>\\SZERVER\SZOLGALTATAS$</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A \\SZERVER\SZOLGALTATAS$-ben van.
+OUT: <s><w>A</w><ws> </ws><w>\\SZERVER\SZOLGALTATAS$-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A \\SZERVER\SZOLGALTATAS$.
+OUT: <s><w>A</w><ws> </ws><w>\\SZERVER\SZOLGALTATAS$</w><c>.</c></s>
+IN : A \\SZERVER\SZOLGALTATAS$-ben.
+OUT: <s><w>A</w><ws> </ws><w>\\SZERVER\SZOLGALTATAS$-ben</w><c>.</c></s>
+3.
+IN : A /etc/.././home/ van.
+OUT: <s><w>A</w><ws> </ws><w>/etc/.././home/</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A /etc/.././home/-ben van.
+OUT: <s><w>A</w><ws> </ws><w>/etc/.././home/-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A /etc/.././home/.
+OUT: <s><w>A</w><ws> </ws><w>/etc/.././home/</w><c>.</c></s>
+IN : A /etc/.././home/-ben.
+OUT: <s><w>A</w><ws> </ws><w>/etc/.././home/-ben</w><c>.</c></s>
+4.
+IN : A *.doc van.
+OUT: <s><w>A</w><ws> </ws><w>*.doc</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A *.doc-ben van.
+OUT: <s><w>A</w><ws> </ws><w>*.doc-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A *.doc.
+OUT: <s><w>A</w><ws> </ws><w>*.doc</w><c>.</c></s>
+IN : A *.doc-ben.
+OUT: <s><w>A</w><ws> </ws><w>*.doc-ben</w><c>.</c></s>
+5.
+    IN : A *.* van.
+    OUT: <s><w>A</w><ws> </ws><w>*.*</w><ws> </ws><w>van</w><c>.</c></s>
+    IN : A *.*-ben van.
+    OUT: <s><w>A</w><ws> </ws><w>*.*-ben</w><ws> </ws><w>van</w><c>.</c></s>
+    IN : A *.*.
+    OUT: <s><w>A</w><ws> </ws><w>*.*</w><c>.</c></s>
+    IN : A *.*-ben.
+    OUT: <s><w>A</w><ws> </ws><w>*.*-ben</w><c>.</c></s>
+
+
+
 fajlnevek
 IN : A teszt.txt van.
 OUT: <s><w>A</w><ws> </ws><w>teszt.txt</w><ws> </ws><w>van</w><c>.</c></s>
@@ -143,4 +194,30 @@ IN : A teszt.txt-ben.
 OUT: <s><w>A</w><ws> </ws><w>teszt.txt-ben</w><c>.</c></s>
 IN : A .txt van.
 OUT: <s><w>A</w><ws> </ws><w>.txt</w><ws> </ws><w>van</w><c>.</c></s>
+
+
+/* BE: <s>txt .AVI .bmp.zip */
+/* BE: <s>*.doc *.* */
+
+    MINTA
+    IN : A  van.
+    OUT: <s><w>A</w><ws> </ws><w></w><ws> </ws><w>van</w><c>.</c></s>
+    IN : A -ben van.
+    OUT: <s><w>A</w><ws> </ws><w>-ben</w><ws> </ws><w>van</w><c>.</c></s>
+    IN : A .
+    OUT: <s><w>A</w><ws> </ws><w></w><c>.</c></s>
+    IN : A -ben.
+    OUT: <s><w>A</w><ws> </ws><w>-ben</w><c>.</c></s>
+
+
+
+
+
+
+
+
+
+
+
+
 

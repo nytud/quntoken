@@ -51,7 +51,7 @@ define {
     WIN_PATH        ({WIN_PATH_SHORT})|({WIN_PATH_INIT}{WIN_PATH_FRAG}*)
     // unix
     UNIX_PATH_INIT  "."{0,2}
-    UNIX_PATH_FRAG  "/"([a-zA-z0-9]|"\\ ")*
+    UNIX_PATH_FRAG  "/"([a-zA-z0-9.]|"\\ ")*
     UNIX_PATH       {UNIX_PATH_INIT}{UNIX_PATH_FRAG}+
     // path
     PATH            {UNIX_PATH}|{WIN_PATH}
@@ -82,6 +82,14 @@ mode PROGRAM : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // punctuations
+    ({PUNCT_JOINABLE}+)|{PUNCT}|{SYMBOL} {
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic tokenizer rules:
     // - tokens can contain wordchars and dots, but dot can not follow another
     //   dot
@@ -95,6 +103,8 @@ mode PROGRAM : COMMON {
         self.word_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
+    // TODO: megnezni ezt, es vagy elesiteni, vagy torolni!!! (ha lehet kell,
+    // akkor tesztet is irni!!!!)
     /* // verision for words with "-e" */
     /* ((({WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}{WORD}?))"-e" { */
     /*     std::wstring LEX(Lexeme); */
@@ -106,14 +116,6 @@ mode PROGRAM : COMMON {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
-
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // punctuations
-    ({PUNCT_JOINABLE}+)|{PUNCT}|{SYMBOL} {
-        std::wstring LEX(Lexeme);
-        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-        self_send1(TOKEN_PUNCT, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,9 +137,18 @@ mode PROGRAM : COMMON {
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
+
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // path
     {PATH}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+        std::wstring LEX(Lexeme);
+        self.snt_end_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // filename with wildcard characters
+    {PATH}?[?.*]{2,}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
