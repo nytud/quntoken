@@ -82,8 +82,9 @@ mode PROGRAM : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // punctuations
-    ({PUNCT_JOINABLE}+)|{PUNCT}|{SYMBOL} {
+    // single punctuations
+    /* ({PUNCT_JOINABLE}+)|{PUNCT}|{SYMBOL} { */
+    {PUNCT}|{SYMBOL} {
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(TOKEN_PUNCT, LEX.c_str());
@@ -152,6 +153,15 @@ mode PROGRAM : COMMON {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // joinable punctuations
+    /* ({PUNCT_JOINABLE}+)|{PUNCT}|{SYMBOL} { */
+    {PUNCT_JOINABLE}+ {
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
     }
 }
 

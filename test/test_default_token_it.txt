@@ -172,15 +172,23 @@ OUT: <s><w>A</w><ws> </ws><w>*.doc</w><c>.</c></s>
 IN : A *.doc-ben.
 OUT: <s><w>A</w><ws> </ws><w>*.doc-ben</w><c>.</c></s>
 5.
-    IN : A *.* van.
-    OUT: <s><w>A</w><ws> </ws><w>*.*</w><ws> </ws><w>van</w><c>.</c></s>
-    IN : A *.*-ben van.
-    OUT: <s><w>A</w><ws> </ws><w>*.*-ben</w><ws> </ws><w>van</w><c>.</c></s>
-    IN : A *.*.
-    OUT: <s><w>A</w><ws> </ws><w>*.*</w><c>.</c></s>
-    IN : A *.*-ben.
-    OUT: <s><w>A</w><ws> </ws><w>*.*-ben</w><c>.</c></s>
-
+IN : A *.* van.
+OUT: <s><w>A</w><ws> </ws><w>*.*</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A *.*-ben van.
+OUT: <s><w>A</w><ws> </ws><w>*.*-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A *.*.
+OUT: <s><w>A</w><ws> </ws><w>*.*</w><c>.</c></s>
+IN : A *.*-ben.
+OUT: <s><w>A</w><ws> </ws><w>*.*-ben</w><c>.</c></s>
+6.
+IN : A .bmp.zip van.
+OUT: <s><w>A</w><ws> </ws><w>.bmp.zip</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A .bmp.zip-ben van.
+OUT: <s><w>A</w><ws> </ws><w>.bmp.zip-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A .bmp.zip.
+OUT: <s><w>A</w><ws> </ws><w>.bmp.zip</w><c>.</c></s>
+IN : A .bmp.zip-ben.
+OUT: <s><w>A</w><ws> </ws><w>.bmp.zip-ben</w><c>.</c></s>
 
 
 fajlnevek
@@ -195,9 +203,6 @@ OUT: <s><w>A</w><ws> </ws><w>teszt.txt-ben</w><c>.</c></s>
 IN : A .txt van.
 OUT: <s><w>A</w><ws> </ws><w>.txt</w><ws> </ws><w>van</w><c>.</c></s>
 
-
-/* BE: <s>txt .AVI .bmp.zip */
-/* BE: <s>*.doc *.* */
 
     MINTA
     IN : A  van.
