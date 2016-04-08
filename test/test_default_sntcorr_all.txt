@@ -123,7 +123,7 @@ IN : 2002. IV. havában.
 OUT: <s>2002. IV. havában.</s>
 
 
-7. Teljes datum romai honappal.
+7.1. Teljes datum romai honappal.
 # {INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}
 IN : A 2001. XII. 10-en tortentek megraztak a vilagot.
 OUT: <s>A 2001. XII. 10-en tortentek megraztak a vilagot.</s>
@@ -139,6 +139,17 @@ OUT: <s>2001. XII. 10.</s>
 # Ennek nem szabadna illeszkednie, de valami megis kiveszi a mondathatart:
 # IN : A 2001. XIII. 10-en tortentek megraztak a vilagot.
 # OUT: <s>A 2001.</s><ws> </ws><s>XIII. 10-en tortentek megraztak a vilagot.</s>
+
+7.2. Teljes datum arab honappal.
+IN : A 2001. 12. 10-en tortentek megraztak a vilagot.
+OUT: <s>A 2001. 12. 10-en tortentek megraztak a vilagot.</s>
+IN : A 2001. 12. 10.
+OUT: <s>A 2001. 12. 10.</s>
+Mondatkezdo verziok:
+IN : 2001. 12. 10-en tortentek megraztak a vilagot.
+OUT: <s>2001. 12. 10-en tortentek megraztak a vilagot.</s>
+IN : 2001. 12. 10.
+OUT: <s>2001. 12. 10.</s>
 
 
 8. Romai szamok (VI. Lajos), kiveve CD.
