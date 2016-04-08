@@ -147,11 +147,65 @@ OUT: <s><w>A</w><ws> </ws><w>+12.500.000</w><c>.</c></s>
 IN : A +12.500.000-ben.
 OUT: <s><w>A</w><ws> </ws><w>+12.500.000-ben</w><c>.</c></s>
 
+datumok
+IN : A 2003. I. 06. van.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>I.</w><ws> </ws><w>06.</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003. I. 06-ben van.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>I.</w><ws> </ws><w>06-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003. I. 06.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>I.</w><ws> </ws><w>06</w><c>.</c></s>
+IN : A 2003. I. 06-ben.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>I.</w><ws> </ws><w>06-ben</w><c>.</c></s>
+
+IN : A 2003. 01. 06. van.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>01.</w><ws> </ws><w>06.</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003. 01. 06-ben van.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>01.</w><ws> </ws><w>06-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003. 01. 06.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>01.</w><ws> </ws><w>06</w><c>.</c></s>
+IN : A 2003. 01. 06-ben.
+OUT: <s><w>A</w><ws> </ws><w>2003.</w><ws> </ws><w>01.</w><ws> </ws><w>06-ben</w><c>.</c></s>
+
+IN : A IV. 12. van.
+OUT: <s><w>A</w><ws> </ws><w>IV.</w><ws> </ws><w>12.</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A IV. 12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>IV.</w><ws> </ws><w>12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A IV. 12.
+OUT: <s><w>A</w><ws> </ws><w>IV.</w><ws> </ws><w>12</w><c>.</c></s>
+IN : A IV. 12-ben.
+OUT: <s><w>A</w><ws> </ws><w>IV.</w><ws> </ws><w>12-ben</w><c>.</c></s>
+
+IN : A 2003.01.06. van.
+OUT: <s><w>A</w><ws> </ws><w>2003.01.06.</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003.01.06-ben van.
+OUT: <s><w>A</w><ws> </ws><w>2003.01.06-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003.01.06.
+OUT: <s><w>A</w><ws> </ws><w>2003.01.06</w><c>.</c></s>
+IN : A 2003.01.06-ben.
+OUT: <s><w>A</w><ws> </ws><w>2003.01.06-ben</w><c>.</c></s>
+
+IN : A 2003/01/06 van.
+OUT: <s><w>A</w><ws> </ws><w>2003/01/06</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003/01/06-ben van.
+OUT: <s><w>A</w><ws> </ws><w>2003/01/06-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 2003/01/06.
+OUT: <s><w>A</w><ws> </ws><w>2003/01/06</w><c>.</c></s>
+IN : A 2003/01/06-ben.
+OUT: <s><w>A</w><ws> </ws><w>2003/01/06-ben</w><c>.</c></s>
+
+IN : A IV.12. van.
+OUT: <s><w>A</w><ws> </ws><w>IV.12.</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A IV.12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>IV.12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A IV.12.
+OUT: <s><w>A</w><ws> </ws><w>IV.12</w><c>.</c></s>
+IN : A IV.12-ben.
+OUT: <s><w>A</w><ws> </ws><w>IV.12-ben</w><c>.</c></s>
 
 
 
 
-	/* BE: <s>-23,12, +12 500, +12.500.000 */
+
 
 
     MINTA
