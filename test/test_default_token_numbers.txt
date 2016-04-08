@@ -18,6 +18,142 @@ OUT: <s><w>A</w><ws> </ws><w>3.b</w><c>.</c></s>
 IN : A 3.b-ben.
 OUT: <s><w>A</w><ws> </ws><w>3.b-ben</w><c>.</c></s>
 
+IN : A 1:20:36.7 van.
+OUT: <s><w>A</w><ws> </ws><w>1:20:36.7</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 1:20:36.7-ben van.
+OUT: <s><w>A</w><ws> </ws><w>1:20:36.7-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 1:20:36.7.
+OUT: <s><w>A</w><ws> </ws><w>1:20:36.7</w><c>.</c></s>
+IN : A 1:20:36.7-ben.
+OUT: <s><w>A</w><ws> </ws><w>1:20:36.7-ben</w><c>.</c></s>
+
+IN : A 1:35 van.
+OUT: <s><w>A</w><ws> </ws><w>1:35</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 1:35-ben van.
+OUT: <s><w>A</w><ws> </ws><w>1:35-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 1:35.
+OUT: <s><w>A</w><ws> </ws><w>1:35</w><c>.</c></s>
+IN : A 1:35-ben.
+OUT: <s><w>A</w><ws> </ws><w>1:35-ben</w><c>.</c></s>
+
+IN : A 1.35 van.
+OUT: <s><w>A</w><ws> </ws><w>1.35</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 1.35-ben van.
+OUT: <s><w>A</w><ws> </ws><w>1.35-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 1.35.
+OUT: <s><w>A</w><ws> </ws><w>1.35</w><c>.</c></s>
+IN : A 1.35-ben.
+OUT: <s><w>A</w><ws> </ws><w>1.35-ben</w><c>.</c></s>
+
+IN : A 4:01,95 van.
+OUT: <s><w>A</w><ws> </ws><w>4:01,95</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 4:01,95-ben van.
+OUT: <s><w>A</w><ws> </ws><w>4:01,95-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 4:01,95.
+OUT: <s><w>A</w><ws> </ws><w>4:01,95</w><c>.</c></s>
+IN : A 4:01,95-ben.
+OUT: <s><w>A</w><ws> </ws><w>4:01,95-ben</w><c>.</c></s>
+
+// DASH
+hyphen minus
+IN : A 10-12 van.
+OUT: <s><w>A</w><ws> </ws><w>10-12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10-12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10-12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10-12.
+OUT: <s><w>A</w><ws> </ws><w>10-12</w><c>.</c></s>
+IN : A 10-12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10-12-ben</w><c>.</c></s>
+hyphen
+IN : A 10‐12 van.
+OUT: <s><w>A</w><ws> </ws><w>10‐12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10‐12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10‐12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10‐12.
+OUT: <s><w>A</w><ws> </ws><w>10‐12</w><c>.</c></s>
+IN : A 10‐12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10‐12-ben</w><c>.</c></s>
+non-breaking hyphen
+IN : A 10‑12 van.
+OUT: <s><w>A</w><ws> </ws><w>10‑12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10‑12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10‑12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10‑12.
+OUT: <s><w>A</w><ws> </ws><w>10‑12</w><c>.</c></s>
+IN : A 10‑12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10‑12-ben</w><c>.</c></s>
+figure dash
+IN : A 10‒12 van.
+OUT: <s><w>A</w><ws> </ws><w>10‒12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10‒12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10‒12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10‒12.
+OUT: <s><w>A</w><ws> </ws><w>10‒12</w><c>.</c></s>
+IN : A 10‒12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10‒12-ben</w><c>.</c></s>
+en dash
+IN : A 10–12 van.
+OUT: <s><w>A</w><ws> </ws><w>10–12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10–12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10–12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10–12.
+OUT: <s><w>A</w><ws> </ws><w>10–12</w><c>.</c></s>
+IN : A 10–12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10–12-ben</w><c>.</c></s>
+em dash
+IN : A 10—12 van.
+OUT: <s><w>A</w><ws> </ws><w>10—12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10—12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10—12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10—12.
+OUT: <s><w>A</w><ws> </ws><w>10—12</w><c>.</c></s>
+IN : A 10—12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10—12-ben</w><c>.</c></s>
+horizontal bar
+IN : A 10―12 van.
+OUT: <s><w>A</w><ws> </ws><w>10―12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10―12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>10―12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A 10―12.
+OUT: <s><w>A</w><ws> </ws><w>10―12</w><c>.</c></s>
+IN : A 10―12-ben.
+OUT: <s><w>A</w><ws> </ws><w>10―12-ben</w><c>.</c></s>
+
+// tagolt szamok
+IN : A -23,12 van.
+OUT: <s><w>A</w><ws> </ws><w>-23,12</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A -23,12-ben van.
+OUT: <s><w>A</w><ws> </ws><w>-23,12-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A -23,12.
+OUT: <s><w>A</w><ws> </ws><w>-23,12</w><c>.</c></s>
+IN : A -23,12-ben.
+OUT: <s><w>A</w><ws> </ws><w>-23,12-ben</w><c>.</c></s>
+
+IN : A +12 500 van.
+OUT: <s><w>A</w><ws> </ws><w>+12 500</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A +12 500-ben van.
+OUT: <s><w>A</w><ws> </ws><w>+12 500-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A +12 500.
+OUT: <s><w>A</w><ws> </ws><w>+12 500</w><c>.</c></s>
+IN : A +12 500-ben.
+OUT: <s><w>A</w><ws> </ws><w>+12 500-ben</w><c>.</c></s>
+
+IN : A +12.500.000 van.
+OUT: <s><w>A</w><ws> </ws><w>+12.500.000</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A +12.500.000-ben van.
+OUT: <s><w>A</w><ws> </ws><w>+12.500.000-ben</w><ws> </ws><w>van</w><c>.</c></s>
+IN : A +12.500.000.
+OUT: <s><w>A</w><ws> </ws><w>+12.500.000</w><c>.</c></s>
+IN : A +12.500.000-ben.
+OUT: <s><w>A</w><ws> </ws><w>+12.500.000-ben</w><c>.</c></s>
+
+
+
+
+
+	/* BE: <s>-23,12, +12 500, +12.500.000 */
+
+
     MINTA
     IN : A  van.
     OUT: <s><w>A</w><ws> </ws><w></w><ws> </ws><w>van</w><c>.</c></s>

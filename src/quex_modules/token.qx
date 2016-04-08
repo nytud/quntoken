@@ -55,6 +55,13 @@ define {
     UNIX_PATH       {UNIX_PATH_INIT}{UNIX_PATH_FRAG}+
     // path
     PATH            {UNIX_PATH}|{WIN_PATH}
+
+    // N U M B E R S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // numbers with punctuations
+    // Megj: a kotojelet felesleges belevenni, ugyis a word fog ra illeszkedni
+    NUM_WITH_PUNCT  [+\-]?([0-9]([.,:;]|\P{Dash})?)*[0-9]
+    // numbers with spaces
+    NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+
 }
 
 
@@ -150,6 +157,22 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // filename with wildcard characters
     {PATH}?[?.*]{2,}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+        std::wstring LEX(Lexeme);
+        self.snt_end_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // numbers with punctuations
+    {NUM_WITH_PUNCT}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+        std::wstring LEX(Lexeme);
+        self.snt_end_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // numbers with spaces
+    {NUM_WITH_SPACE}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
