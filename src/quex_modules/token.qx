@@ -59,13 +59,23 @@ define {
     // N U M B E R S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with punctuations
     // Megj: a kotojelet felesleges belevenni, ugyis a word fog ra illeszkedni
-    NUM_WITH_PUNCT  ([+\-]|\G{Sc})?([0-9]([.,:;]|\P{Dash})?)*[0-9]
+    NUM_WITH_PUNCT  ([+\-]|\G{Sc})?([0-9]([.,:;]|{DASH})?)*[0-9]
     // numbers with spaces
     NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]*)?
 
     // ID-s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // <S>{LETTERS}+(("-"|"&ndash;")[0-9]+)+{LETTERS}*"."? {
-    ID              (\G{Ll}|\G{Lu})+(\P{Dash}[0-9]+)+(\G{Ll}|\G{Lu})*"."?
+    ID              (\G{Ll}|\G{Lu})+({DASH}[0-9]+)+(\G{Ll}|\G{Lu})*"."?
+
+    // ENUMERATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // enumerations with parenthesis e.g. a), viii), 12), a)-d), 4)-6)
+    // note: ROMAN_NUMBER matches empty string, recusive form forbidden
+    ENUMERATION_WITH_LETTER_FRAG (\G{Lowercase_Letter}|\G{Uppercase_Letter})")"
+    ENUMERATION_WITH_NUMBER_FRAG [0-9]+")"
+    ENUMERATION_WITH_ROMANNUM {ROMAN_NUMBER}")"
+    ENUMERATION_WITH_LETTER {ENUMERATION_WITH_LETTER_FRAG}({DASH}{ENUMERATION_WITH_LETTER_FRAG})*
+    ENUMERATION_WITH_NUMBER {ENUMERATION_WITH_NUMBER_FRAG}({DASH}{ENUMERATION_WITH_NUMBER_FRAG})*
+    ENUMERATION {ENUMERATION_WITH_LETTER}|{ENUMERATION_WITH_NUMBER}|{ENUMERATION_WITH_ROMANNUM}
 
 }
 
@@ -194,7 +204,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumeration with parenthesis
     // note: roman_number matches empty string!
-    (\G{Lowercase_Letter}|\G{Uppercase_Letter}|[0-9]*|{ROMAN_NUMBER})")" {
+    {ENUMERATION} {
         std::wstring LEX(Lexeme);
         if(LEX.front() != L')'){
             LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;

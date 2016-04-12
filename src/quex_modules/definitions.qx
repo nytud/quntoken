@@ -213,6 +213,8 @@ define {
 
     COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
 
+    DASH        [: intersection( {BASE_CLASS}, \G{Dash_Punctuation} ) :]
+
 
     // A szovegben a feldolgozas soran hasznalt tag-ek quex-es (pattern)
     // definicioja:
