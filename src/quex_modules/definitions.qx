@@ -230,7 +230,9 @@ define {
     INT             [\-+]?[0-9]+
     // romai szamok (http://stackoverflow.com/a/267405 felhasznalasaval)
     // Megj: ures stringre is illeszkedik, hasznalatanal ezt ellenorizni kell!
-    ROMAN_NUM       "M"{0,4}("CM"|"CD"|("D"?"C"{0,3}))("XC"|"XL"|("L"?"X"{0,3}))("IX"|"IV"|("V"?"I"{0,3}))
+    LOWERCASE_ROMAN_NUMBER  "m"{0,4}("cm"|"cd"|("d"?"c"{0,3}))("xc"|"xl"|("l"?"x"{0,3}))("ix"|"iv"|("v"?"i"{0,3}))
+    UPPERCASE_ROMAN_NUMBER  "M"{0,4}("CM"|"CD"|("D"?"C"{0,3}))("XC"|"XL"|("L"?"X"{0,3}))("IX"|"IV"|("V"?"I"{0,3}))
+    ROMAN_NUMBER            {LOWERCASE_ROMAN_NUMBER}|{UPPERCASE_ROMAN_NUMBER}
     // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
     /* REPLACEMENTCHAR_QX "�" */
 

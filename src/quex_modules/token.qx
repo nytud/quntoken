@@ -59,9 +59,14 @@ define {
     // N U M B E R S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with punctuations
     // Megj: a kotojelet felesleges belevenni, ugyis a word fog ra illeszkedni
-    NUM_WITH_PUNCT  [+\-]?([0-9]([.,:;]|\P{Dash})?)*[0-9]
+    NUM_WITH_PUNCT  ([+\-]|\G{Sc})?([0-9]([.,:;]|\P{Dash})?)*[0-9]
     // numbers with spaces
-    NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+
+    NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]*)?
+
+    // ID-s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // <S>{LETTERS}+(("-"|"&ndash;")[0-9]+)+{LETTERS}*"."? {
+    ID              (\G{Ll}|\G{Lu})+(\P{Dash}[0-9]+)+(\G{Ll}|\G{Lu})*"."?
+
 }
 
 
@@ -176,6 +181,29 @@ mode PROGRAM : COMMON {
         std::wstring LEX(Lexeme);
         self.snt_end_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ID
+    {ID}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+        std::wstring LEX(Lexeme);
+        self.snt_end_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // enumeration with parenthesis
+    // note: roman_number matches empty string!
+    (\G{Lowercase_Letter}|\G{Uppercase_Letter}|[0-9]*|{ROMAN_NUMBER})")" {
+        std::wstring LEX(Lexeme);
+        if(LEX.front() != L')'){
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+            self_send1(TOKEN_TOKEN, LEX.c_str());
+        }
+        else {
+            LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+            self_send1(TOKEN_PUNCT, LEX.c_str());
+        }
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

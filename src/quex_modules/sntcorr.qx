@@ -167,14 +167,14 @@ mode PROGRAM {
     // KI: Ott a CD.</s> <s>Hallod?
     // eredeti: {NONWORDCHAR}"CD"{BOUNDARY} - ez csak ECHO-zva van!
     // eredeti: {NONWORDCHAR}[IVXLCMD]+{BOUNDARY}
-    // Problema: ROMAN_NUM illeszkedik empty string-re is. Ilyenkor modositas
+    // Problema: ROMAN_NUMBER illeszkedik empty string-re is. Ilyenkor modositas
     // nelkul tovabb kuldjuk az illeszkedo karaktereket. Emiatt viszont ez a
     // szabaly elobb illeszkedik, mint a .*-ra vonatkozo, ezert azt is hack-elni
     // kell.
     ({NONWORDCHAR}|{SNT_OPEN_QX})"CD"{DOT_SENTENCE_BOUNDARY} {
         self_send1(SNTCORR_SNTFRAG, Lexeme);
     }
-    {NONWORDCHAR}{ROMAN_NUM}{DOT_SENTENCE_BOUNDARY} {
+    {NONWORDCHAR}{ROMAN_NUMBER}{DOT_SENTENCE_BOUNDARY} {
         if(Lexeme[1]==L'.'){
             self_send1(SNTCORR_SNTFRAG, Lexeme);
         }
@@ -186,7 +186,7 @@ mode PROGRAM {
     // Mondatkezdo verzio:
     // Itt elvileg nem lehet baj az ures romai szambol, mert az ures mondatot
     // feltetelez, azt meg nem kaphatunk.
-    {SNT_OPEN_QX}{ROMAN_NUM}{DOT_SENTENCE_BOUNDARY} {
+    {SNT_OPEN_QX}{ROMAN_NUMBER}{DOT_SENTENCE_BOUNDARY} {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(SNTCORR_SNTFRAG, LEX.c_str());
     }
