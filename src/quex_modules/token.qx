@@ -77,6 +77,23 @@ define {
     ENUMERATION_WITH_NUMBER {ENUMERATION_WITH_NUMBER_FRAG}({DASH}{ENUMERATION_WITH_NUMBER_FRAG})*
     ENUMERATION {ENUMERATION_WITH_LETTER}|{ENUMERATION_WITH_NUMBER}|{ENUMERATION_WITH_ROMANNUM}
 
+    // SMILEY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // smiley0: :smiley:
+    // smiley1: :-)
+    // smiley2: (-:
+    // smiley3: <3
+    // smiley4: :DDDDD
+    SMILEY1_FRONT   [;:=B8]
+    SMILEY1_BACK    [()3DoOpP\|\/\\$*@]
+    SMILEY2_FRONT   [()$*D\\\|]
+    SMILEY2_BACK    [;:=]
+    SMILEY0     ":"[a-zA-Z]+":"
+    SMILEY1     {SMILEY1_FRONT}[\-^]?{SMILEY1_BACK}
+    SMILEY2     {SMILEY2_FRONT}[\-^]?{SMILEY2_BACK}
+    SMILEY3     "<"[\/\\]?"3"
+    SMILEY4     ":"[()D]+
+    SMILEY      {SMILEY0}|{SMILEY1}|{SMILEY2}|{SMILEY3}|{SMILEY4}
+
 }
 
 
@@ -214,6 +231,14 @@ mode PROGRAM : COMMON {
             LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
             self_send1(TOKEN_PUNCT, LEX.c_str());
         }
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // smiley
+    {SMILEY} {
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -29,4 +29,5 @@ TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
              $(MYTEST_DIR)/test_default_token_it.txt \
              $(MYTEST_DIR)/test_default_token_numbers.txt \
              $(MYTEST_DIR)/test_default_token_quote.txt \
+             $(MYTEST_DIR)/test_default_token_smiley.txt \
 
