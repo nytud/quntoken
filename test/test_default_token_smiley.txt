@@ -16,3 +16,19 @@ OUT: <s><w>A</w><ws> </ws><w>)-:</w><ws> </ws><w>van</w><c>.</c></s>
 IN : A :smiley: van.
 OUT: <s><w>A</w><ws> </ws><w>:smiley:</w><ws> </ws><w>van</w><c>.</c></s>
 
+ mondat vegen
+IN : A :).
+OUT: <s><w>A</w><ws> </ws><w>:)</w><c>.</c></s>
+IN : A :-).
+OUT: <s><w>A</w><ws> </ws><w>:-)</w><c>.</c></s>
+IN : A :))))).
+OUT: <s><w>A</w><ws> </ws><w>:)))))</w><c>.</c></s>
+IN : A :D.
+OUT: <s><w>A</w><ws> </ws><w>:D</w><c>.</c></s>
+IN : A <3.
+OUT: <s><w>A</w><ws> </ws><w><3</w><c>.</c></s>
+IN : A )-:.
+OUT: <s><w>A</w><ws> </ws><w>)-:</w><c>.</c></s>
+IN : A :smiley:.
+OUT: <s><w>A</w><ws> </ws><w>:smiley:</w><c>.</c></s>
+

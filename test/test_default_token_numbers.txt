@@ -54,7 +54,7 @@ OUT: <s><w>A</w><ws> </ws><w>4:01,95</w><c>.</c></s>
 IN : A 4:01,95-ben.
 OUT: <s><w>A</w><ws> </ws><w>4:01,95-ben</w><c>.</c></s>
 
-// DASH
+DASH
 hyphen minus
 IN : A 10-12 van.
 OUT: <s><w>A</w><ws> </ws><w>10-12</w><ws> </ws><w>van</w><c>.</c></s>
@@ -119,7 +119,7 @@ OUT: <s><w>A</w><ws> </ws><w>10―12</w><c>.</c></s>
 IN : A 10―12-ben.
 OUT: <s><w>A</w><ws> </ws><w>10―12-ben</w><c>.</c></s>
 
-// tagolt szamok
+tagolt szamok
 IN : A -23,12 van.
 OUT: <s><w>A</w><ws> </ws><w>-23,12</w><ws> </ws><w>van</w><c>.</c></s>
 IN : A -23,12-ben van.
@@ -250,7 +250,7 @@ OUT: <s><w>A</w><ws> </ws><w>3,14</w><c>.</c></s>
 IN : A 3,14-ben.
 OUT: <s><w>A</w><ws> </ws><w>3,14-ben</w><c>.</c></s>
 
-tizedestortek vesszovel
+tizedestortek ponttal
 IN : A 3.14 van.
 OUT: <s><w>A</w><ws> </ws><w>3.14</w><ws> </ws><w>van</w><c>.</c></s>
 IN : A 3.14-ben van.
@@ -359,7 +359,7 @@ OUT: <s><w>A</w><ws> </ws><w>100°C</w><c>.</c></s>
 IN : A 100°C-ben.
 OUT: <s><w>A</w><ws> </ws><w>100°C-ben</w><c>.</c></s>
 
-euroz dollaz yeniz
+euroz, dollaz, yeniz
 IN : A $1,000 van.
 OUT: <s><w>A</w><ws> </ws><w>$1,000</w><ws> </ws><w>van</w><c>.</c></s>
 IN : A $1,000-ben van.
@@ -523,9 +523,6 @@ IN : A BDE/2000/01/0983/0010.
 OUT: <s><w>A</w><ws> </ws><w>BDE/2000/01/0983/0010</w><c>.</c></s>
 IN : A BDE/2000/01/0983/0010-ben.
 OUT: <s><w>A</w><ws> </ws><w>BDE/2000/01/0983/0010-ben</w><c>.</c></s>
-	
-
-
 
 
     MINTA

@@ -38,7 +38,7 @@ OUT: <s><w>Lakik-elem</w><ws> </ws><w>van</w><c>?</c></s>
 IN : Van lakik-elem.
 OUT: <s><w>Van</w><ws> </ws><w>lakik-elem</w><c>.</c></s>
 
-problemas eset
+problemas eset, megengedjuk
 IN : Ez (lakik)-e?
 OUT: <s><w>Ez</w><ws> </ws><w>(lakik)</w><w>-e</w><c>?</c></s>
 

@@ -43,7 +43,8 @@ OUT: <s><w>A</w><ws> </ws><w>S.M.A.R.T</w><c>.</c></s>
 2.1 ketto vagy tobb pont utan uj szo
 IN : Egy..ket.
 OUT: <s><w>Egy</w><c>..</c><w>ket</w><c>.</c></s>
-
 IN : Valami... van.
 OUT: <s><w>Valami</w><c>...</c><ws> </ws><w>van</w><c>.</c></s>
+IN : Valami ...van...
+OUT: <s><w>Valami</w><ws> </ws><c>...</c><w>van</w><c>...</c></s>
 
