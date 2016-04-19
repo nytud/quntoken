@@ -1,6 +1,9 @@
 // a modulok kozos definicioi
 
 body {
+
+    #include <string>
+
     //TAG DEFINICIOK
 
     // A szovegben a feldolgozas soran hasznalt tag-ek C++-os (wstring)
@@ -57,7 +60,7 @@ body {
     // functions for TOKEN module:
     //
     // dot at the end of the senetence belong to sentence, not to word
-    void snt_end_corrig(std::wstring &LEX) {
+    void sntend_corrig(std::wstring &LEX) {
         if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
             // delete dot and sentence close tag from the end of the Lexeme
             LEX.erase(LEX.end()-2, LEX.end());
@@ -70,8 +73,52 @@ body {
         }
         return;
     }
+	// correct snt ending, more dots in LEX separate tokens
+    void basic_token_corrig(std::wstring &LEX) {
+        std::wstring res;
+        for(size_t pos = LEX.find(L".."), prev_pos = 0; ; prev_pos = pos, pos = LEX.find(L"..", pos+1)) {
+            // res-t bovitjuk nem-pontokkal ...
+            // ... LEX belsejeben
+            if(pos != std::string::npos) {
+                res.append(pos!=prev_pos ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.WORD_CLOSE_CPP : L"");
+            }
+            // ... LEX vegen
+            else {
+                // korrigalni kell mondatzaro jel miatt
+                if (LEX.back() == self.SNT_CLOSE_CPP.front()) {
+                    // res vegen pontok voltak, mar csak a mondatzarot kell hozzacsapni
+                    if(res.back() == self.PUNCT_CLOSE_CPP.front()) {
+                        res.append((prev_pos != LEX.size()-1 ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP : L"") + self.SNT_CLOSE_CPP);
+                    }
+                    // res vegen csak egy pont volt, a pont nem a szohoz tartozik, hanem kulon punktuacio
+                    else {
+                        res.append(self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP);
+                    }
+                }
+                // nem kell korrigalni
+                else {
+                    res.append(self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos) + self.WORD_CLOSE_CPP);
+                }
+                break;
+            }
+            // res-t bovitjuk pontokkal ...
+            prev_pos = pos;
+            pos = LEX.find_first_not_of(L".", pos+2);
+            // ... LEX belsejeben
+            if(pos != std::string::npos) {
+                res.append(self.PUNCT_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.PUNCT_CLOSE_CPP);
+            }
+            // ... LEX vegen
+            else {
+                res.append(self.PUNCT_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos) + self.PUNCT_CLOSE_CPP);
+                break;
+            }
+        }
+        LEX = res;
+        return;
+    }
     // "-e" at the end of word is treated as a new word
-    void word_end_corrig(std::wstring &LEX) {
+    void particula_token_corrig(std::wstring &LEX) {
         if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
             // delete "-e." and sentence close tag from the end of the Lexeme
             LEX.erase(LEX.end()-4, LEX.end());

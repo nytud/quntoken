@@ -58,7 +58,6 @@ IN : Ez (zarojel).
 OUT: <s><w>Ez</w><ws> </ws><c>(</c><w>zarojel</w><c>)</c><c>.</c></s>
 
 zarojel felsorolasban: a), 1.)
-	/* BE: <s>a)-d)] */
 IN : Egy a) van.
 OUT: <s><w>Egy</w><ws> </ws><w>a)</w><ws> </ws><w>van</w><c>.</c></s>
 IN : Egy 12) van.
@@ -67,8 +66,8 @@ IN : Egy vii) van.
 OUT: <s><w>Egy</w><ws> </ws><w>vii)</w><ws> </ws><w>van</w><c>.</c></s>
 IN : Egy a)-d) van.
 OUT: <s><w>Egy</w><ws> </ws><w>a)-d)</w><ws> </ws><w>van</w><c>.</c></s>
-    IN : Egy 1)-4) van.
-    OUT: <s><w>Egy</w><ws> </ws><w>1)-4)</w><ws> </ws><w>van</w><c>.</c></s>
+IN : Egy 1)-4) van.
+OUT: <s><w>Egy</w><ws> </ws><w>1)-4)</w><ws> </ws><w>van</w><c>.</c></s>
 
 kontroll
 IN : Egy ab) van.
