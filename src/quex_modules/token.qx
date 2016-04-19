@@ -203,9 +203,18 @@ mode PROGRAM : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Uppercase letters with '&'
+    // uppercase letters with '&'
     \G{Uppercase_Letter}+"&"\G{Uppercase_Letter}+("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << L"uppercase with &! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // words with apostroph
+    \G{Letter}+"'"\G{Letter}+ {
+        /* std::wcout << L"words with apostroph! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());

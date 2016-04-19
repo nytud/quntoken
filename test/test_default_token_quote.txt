@@ -16,3 +16,7 @@ magaban
 IN : Egy 24"-os monitor.
 OUT: <s><w>Egy</w><ws> </ws><w>24</w><c>"</c><w>-os</w><ws> </ws><w>monitor</w><c>.</c></s>
 
+aposztrof
+IN : A don't van.
+OUT: <s><w>A</w><ws> </ws><w>don't</w><ws> </ws><w>van</w><c>.</c></s>
+
