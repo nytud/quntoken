@@ -10,7 +10,7 @@ body {
     // definicioja. Ezeket a C++ kodok hasznaljak, ezt jeloli a _CPP vegzodes.
     // A veluk parhuzamos, a quex altal pattern-kent hasznalt definiciokat a
     // 'define' szekcio tartalmazza. Modositasnal es uj tag/karkter
-    // felvetelenel a megfelelo _QX vegzodesu definiciokat is cserelni vagy 
+    // felvetelenel a megfelelo _QX vegzodesu definiciokat is cserelni vagy
     // felvenni kell. Ezeket a definiciokat hasznalja tovabba a printer.cpp
     // fajl is, csak wstring helyett sima string-kent. Modositasnal vagy
     // kiegeszitesnel azt a fajlt is modositani vagy kiegesziteni kell.
@@ -73,7 +73,7 @@ body {
         }
         return;
     }
-	// correct snt ending, more dots in LEX separate tokens
+    // correct snt ending, more dots in LEX separate tokens
     void basic_token_corrig(std::wstring &LEX) {
         std::wstring res;
         for(size_t pos = LEX.find(L".."), prev_pos = 0; ; prev_pos = pos, pos = LEX.find(L"..", pos+1)) {
@@ -119,20 +119,9 @@ body {
     }
     // "-e" at the end of word is treated as a new word
     void particula_token_corrig(std::wstring &LEX) {
-        if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
-            // delete "-e." and sentence close tag from the end of the Lexeme
-            LEX.erase(LEX.end()-4, LEX.end());
-            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-                  self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP +
-                  self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
-                  self.SNT_CLOSE_CPP;
-        }
-        else {
-            // delete "-e" from the end of the Lexeme
-            LEX.erase(LEX.end()-2, LEX.end());
-            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
-                  self.WORD_OPEN_CPP + L"-e" + self.WORD_CLOSE_CPP;
-        }
+        self.basic_token_corrig(LEX);
+        size_t pos = LEX.find_last_of(self.WORD_CLOSE_CPP);
+        LEX.replace(pos-2, 2, self.WORD_CLOSE_CPP+self.WORD_OPEN_CPP+L"-e");
         return;
     }
 
