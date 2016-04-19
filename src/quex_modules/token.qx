@@ -9,9 +9,9 @@ token {
 
 define {
     // CHARACTERS CLASSES:
-    SYMBOL              [: intersection( {BASE_CLASS}, \G{S} ) :]
+    SYMBOL              [: intersection( {BASE_CLASS}, \G{Symbol} ) :]
     // punctuations (all):
-    PUNCT               [: intersection( {BASE_CLASS}, \G{P} ) :]
+    PUNCT               [: intersection( {BASE_CLASS}, \G{Punctuation} ) :]
     // joinable punctuations:
     PUNCT_JOINABLE_CHAR [.?!~@#$%^*+=<>_¢¤§·×÷°,:;\-]
 
@@ -60,13 +60,13 @@ define {
     // N U M B E R S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with punctuations
     // Megj: a kotojelet felesleges belevenni, ugyis a word fog ra illeszkedni
-    NUM_WITH_PUNCT  ([+\-]|\G{Sc})?([0-9]([.,:;]|{DASH})?)*[0-9]
+    NUM_WITH_PUNCT  ([+\-]|\G{Currency_Symbol})?([0-9]([.,:;]|{DASH})?)*[0-9]
     // numbers with spaces
     NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]*)?
 
     // ID-s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // <S>{LETTERS}+(("-"|"&ndash;")[0-9]+)+{LETTERS}*"."? {
-    ID              (\G{Ll}|\G{Lu})+({DASH}[0-9]+)+(\G{Ll}|\G{Lu})*"."?
+    ID              (\G{Lowercase_Letter}|\G{Uppercase_Letter})+({DASH}[0-9]+)+(\G{Lowercase_Letter}|\G{Uppercase_Letter})*"."?
 
     // ENUMERATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumerations with parenthesis e.g. a), viii), 12), a)-d), 4)-6)
@@ -177,7 +177,7 @@ mode PROGRAM : COMMON {
     {URL}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "url! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -190,7 +190,7 @@ mode PROGRAM : COMMON {
     [a-zA-Z]+"$"{WORD}?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "wns! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -199,7 +199,7 @@ mode PROGRAM : COMMON {
     {PATH}?[?.*]{2,}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "filename! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -208,7 +208,7 @@ mode PROGRAM : COMMON {
     {NUM_WITH_PUNCT}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with punct! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -217,7 +217,7 @@ mode PROGRAM : COMMON {
     {NUM_WITH_SPACE}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with spaces! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
