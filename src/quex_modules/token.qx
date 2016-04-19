@@ -189,7 +189,7 @@ mode PROGRAM : COMMON {
     [a-zA-Z]+"$"{WORD_WITHOUT_DOTS}?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "wns! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -216,7 +216,7 @@ mode PROGRAM : COMMON {
     {NUM_WITH_PUNCT}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with punct! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -225,7 +225,7 @@ mode PROGRAM : COMMON {
     {NUM_WITH_SPACE}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with spaces! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
@@ -234,7 +234,7 @@ mode PROGRAM : COMMON {
     {ID}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "id! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.basic_token_corrig(LEX);
+        self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
