@@ -203,6 +203,15 @@ mode PROGRAM : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Uppercase letters with '&'
+    \G{Uppercase_Letter}+"&"\G{Uppercase_Letter}+("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcout << "uppercase with &! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with punctuations
     {NUM_WITH_PUNCT}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with punct! " << Lexeme << std::endl; */

@@ -27,6 +27,7 @@ TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
              $(MYTEST_DIR)/test_default_token_dots.txt \
              $(MYTEST_DIR)/test_default_token_parenthesis.txt \
              $(MYTEST_DIR)/test_default_token_hyphen.txt \
+             $(MYTEST_DIR)/test_default_token_misc.txt \
              $(MYTEST_DIR)/test_default_token_numbers.txt \
              $(MYTEST_DIR)/test_default_token_quote.txt \
              $(MYTEST_DIR)/test_default_token_smiley.txt \
