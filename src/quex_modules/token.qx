@@ -18,9 +18,9 @@ define {
 
     // RULE FRAGMENTS
     // W O R D ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    /* WORD                "."?({WORDCHAR2}+"."?)+ */
-    WORD                {WORDCHAR}*{WORDCHAR2}{WORDCHAR}*
-    WORD_IN_PAR         "("{WORD}")"
+    WORD_WITHOUT_DOTS   "."?({WORDCHAR2}+"."?)+
+    WORDS_WITH_DOTS     {WORDCHAR}*{WORDCHAR2}{WORDCHAR}*
+    WORD_IN_PAR         "("{WORD_WITHOUT_DOTS}")"
 
     // U R L ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     PROTOKOLL           [a-zA-Z][a-zA-Z0-9+.\-]+"://"
@@ -65,18 +65,17 @@ define {
     NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]*)?
 
     // ID-s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // <S>{LETTERS}+(("-"|"&ndash;")[0-9]+)+{LETTERS}*"."? {
     ID              (\G{Lowercase_Letter}|\G{Uppercase_Letter})+({DASH}[0-9]+)+(\G{Lowercase_Letter}|\G{Uppercase_Letter})*"."?
 
     // ENUMERATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumerations with parenthesis e.g. a), viii), 12), a)-d), 4)-6)
     // note: ROMAN_NUMBER matches empty string, recusive form forbidden
-    ENUMERATION_WITH_LETTER_FRAG (\G{Lowercase_Letter}|\G{Uppercase_Letter})")"
-    ENUMERATION_WITH_NUMBER_FRAG [0-9]+")"
-    ENUMERATION_WITH_ROMANNUM {ROMAN_NUMBER}")"
-    ENUMERATION_WITH_LETTER {ENUMERATION_WITH_LETTER_FRAG}({DASH}{ENUMERATION_WITH_LETTER_FRAG})*
-    ENUMERATION_WITH_NUMBER {ENUMERATION_WITH_NUMBER_FRAG}({DASH}{ENUMERATION_WITH_NUMBER_FRAG})*
-    ENUMERATION {ENUMERATION_WITH_LETTER}|{ENUMERATION_WITH_NUMBER}|{ENUMERATION_WITH_ROMANNUM}
+    ENUMERATION_WITH_LETTER_FRAG    (\G{Lowercase_Letter}|\G{Uppercase_Letter})")"
+    ENUMERATION_WITH_NUMBER_FRAG    [0-9]+")"
+    ENUMERATION_WITH_ROMANNUM       {ROMAN_NUMBER}")"
+    ENUMERATION_WITH_LETTER         {ENUMERATION_WITH_LETTER_FRAG}({DASH}{ENUMERATION_WITH_LETTER_FRAG})*
+    ENUMERATION_WITH_NUMBER         {ENUMERATION_WITH_NUMBER_FRAG}({DASH}{ENUMERATION_WITH_NUMBER_FRAG})*
+    ENUMERATION                     {ENUMERATION_WITH_LETTER}|{ENUMERATION_WITH_NUMBER}|{ENUMERATION_WITH_ROMANNUM}
 
     // SMILEY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // smiley0: :smiley:
@@ -141,7 +140,7 @@ mode PROGRAM : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // path
-    {PATH}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+    {PATH}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "path! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
@@ -158,14 +157,14 @@ mode PROGRAM : COMMON {
     // - words with parenthesis: (paren)thesis or paren(thesis), or
     //   par(en)thesis, but not (parenthesis)
     // verision for words with "-e"
-    ((({WORD}?{WORD_IN_PAR})?{WORD})|({WORD}?{WORD_IN_PAR}))"-e"("."+{SNT_CLOSE_QX})? {
+    ((({WORDS_WITH_DOTS}?{WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}?{WORD_IN_PAR}))"-e"("."+{SNT_CLOSE_QX})? {
         /* std::wcout << "basic with -e! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.particula_token_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
     // version for other cases:
-    ((({WORD_IN_PAR})?{WORD})|({WORD}{WORD_IN_PAR}{WORD}?))("."+{SNT_CLOSE_QX})? {
+    ((({WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
         /* std::wcout << "basic! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.basic_token_corrig(LEX);
@@ -174,7 +173,7 @@ mode PROGRAM : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // url
-    {URL}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+    {URL}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "url! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
@@ -183,20 +182,20 @@ mode PROGRAM : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // email
-    // it seems, it's ready :)
+    // it's ready :)
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // windows network services (?)
-    [a-zA-Z]+"$"{WORD}?("."{SNT_CLOSE_QX})? {
+    [a-zA-Z]+"$"{WORD_WITHOUT_DOTS}?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "wns! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.sntend_corrig(LEX);
+        self.basic_token_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // filename with wildcard characters
-    {PATH}?[?.*]{2,}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+    {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "filename! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
@@ -205,25 +204,25 @@ mode PROGRAM : COMMON {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with punctuations
-    {NUM_WITH_PUNCT}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+    {NUM_WITH_PUNCT}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with punct! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.sntend_corrig(LEX);
+        self.basic_token_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // numbers with spaces
-    {NUM_WITH_SPACE}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+    {NUM_WITH_SPACE}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "nums with spaces! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
-        self.sntend_corrig(LEX);
+        self.basic_token_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ID
-    {ID}("-"?{WORD})?("."{SNT_CLOSE_QX})? {
+    {ID}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
         /* std::wcout << "id! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.basic_token_corrig(LEX);
