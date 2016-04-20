@@ -238,63 +238,6 @@ mode PROGRAM {
         self_send1(SNTCORR_SNTFRAG, LEX.c_str());
     }
 
-
-    ///////////////////////////////////////////////////////////////////////////
-    // TODO: Az alabbiakat a posttokenizalashoz felhasznalni! Ha megvan,
-    //      torolhetok.
-    // -----------------------------------------------
-    // tokenizálás után mondatvégirövidítés-javítás
-    // nem mukodnek az uj kimenetformatum miatt, at kell oket
-    // alakitani, ha kellenek egyaltalan
-    // -----------------------------------------------
-    //
-    // 13. pont visszaragasztasa a roviditesre, romai szamra, monogramra,
-    //      kiveve a CD-t
-    // Megj.: tokenizalas utan kell jojjon
-    // eredeti:
-    // "<w>CD\n</w>\n<c>.</c>" { ECHO; }
-    // "<w>"({ABBREV}|[A-Z]|[IVXLCMD]+)"\n</w>\n<c>.</c>" {
-    // 	strcpy(yytext + (yyleng - 14), ".\n</w>");
-    // 	printf("%s", yytext);
-    // }
-    //
-    // 14. ez teszi vissza a pontot a megadott elemek vegere (O.Cs. ???)
-    // Megj.: tokenizalas utan kell jojjon
-    // eredeti:
-    // ^{ALL_ABBREV}"\tTOK\n.\tWPUNCT\n" {
-    //     char c[10];
-    //     int l  = yyleng - 14;
-    //     strncpy(c, yytext, l);
-    //     c[l] = '.';
-    //     c[l + 1] = '\0';
-    //     printf("%s\t%s[:Oyo-sn:]", c, c);
-    //     yyless(yyleng - 1);
-    // }
-    //
-    // 15. ??? (O.Cs.)
-    // Megj.: tokenizalas utan kell jojjon
-    // eredeti:
-    // ^([A-Z]|[IVXLCMD]+)"\tTOK\n.\tWPUNCT" {
-    //     strcpy(yytext + (yyleng - 13), ".\tTOK");
-    //     printf("%s", yytext);
-    // }
-    //
-    // 16. ???
-    // Megj.: tokenizalas utan kell jojjon
-    // eredeti:
-    // "WPUNCT"[\n]+"</s>" {
-    //     printf("SPUNCT\n</s>");
-    // }
-    //
-    // 17. hun_sentclean kiegészítése
-    // Megj.: tokenizalas utan kell jojjon
-    // eredeti:
-    // [\n]+"</s>" {
-    //     printf("\n</s>");
-    // }
-    ///////////////////////////////////////////////////////////////////////////
-
-
     // Mondatkozi whitespace-ek kiirasa:
     {TAGGED_WS_SEQ}     => SNTCORR_WHITESPACE(Lexeme);
     // Ami nem illeszkedik, azt siman tovabbkuldjuk:
