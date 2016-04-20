@@ -121,7 +121,7 @@ body {
     void particula_token_corrig(std::wstring &LEX) {
         self.basic_token_corrig(LEX);
         size_t pos = LEX.find_last_of(self.WORD_CLOSE_CPP);
-        LEX.replace(pos-2, 2, self.WORD_CLOSE_CPP+self.WORD_OPEN_CPP+L"-e");
+        LEX.insert(pos-2, self.WORD_CLOSE_CPP+self.WORD_OPEN_CPP);
         return;
     }
 
