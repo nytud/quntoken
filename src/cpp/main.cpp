@@ -8,6 +8,10 @@
 #include "quntoken_api.h"
 
 
+// globals:
+const std::string HELP_STR = "Usage:\n\t./quntoken [-f FORMAT] FILE\n";
+
+// functions:
 std::map<std::string, OUTPUT_TYPE> create_format_map();
 
 
@@ -17,11 +21,15 @@ int main(int argc, char** argv) {
     int c;
     int format_flag = 0;
     std::string format;
-    while( (c = getopt(argc, argv, "f:")) != -1 ) {
+    while( (c = getopt(argc, argv, "hf:")) != -1 ) {
         switch (c) {
             case 'f':
                 format_flag = 1;
                 format = optarg;
+                break;
+            case 'h':
+                std::cout << HELP_STR << std::endl;
+                exit(0);
                 break;
             default:
                 exit(1);
