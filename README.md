@@ -15,7 +15,6 @@ Verison: pre-alpha
 ## Install
 
 ```
-cd path/to/install/dir/
 git clone https://github.com/dlt-rilmta/quntoken.git
 cd quntoken
 make install
