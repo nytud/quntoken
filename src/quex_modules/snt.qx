@@ -16,7 +16,7 @@ define {
     // Szabályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // CHARINSNTN: két CHARINSNT (mondaton belüli egyéb karkater), köztük egy
     //             opcionális sortöréssel (a mondatrész-szabályok használják)
-    // SNTBEGIN: mondatkazdő karakter, eredetiben utána esetleges sortörés
+    // SNTBEGIN: mondatkezdő karakter, eredetiben utána esetleges sortörés
     //      Eredeti: {SNTBEGINCHR}{NEWLINE}?
     // SIMPLESNT: egyszerű mondat, nem tapadó írásjellel ("Szép az idő !" is jó)
     //       Eredeti: ({SNTCHAR}{NEWLINE}?)*{BOUNDARY}*
@@ -48,7 +48,7 @@ define {
 	// KI: <s>A kutya ugat.</s> <s>Jó
 	// KI: lenne, ha abbahagyná!</s>
 	// BE: Ez itt már
-	// BE: 
+	// BE:
 	// BE: külön bekezdés!
 	// KI: <s>Ez itt már
 	// KI: </s>
@@ -112,7 +112,7 @@ mode PROGRAM {
                |{WORDCHAR_PART}
                |{COMMA_PART}
                |{BRACKET_PART}
-               ){NEWLINE}?)*{SIMPLESNT}{SNTEND} 
+               ){NEWLINE}?)*{SIMPLESNT}{SNTEND}
     {
         std::wstring LEX(Lexeme);
         LEX = self.SNT_OPEN_CPP + LEX + self.SNT_CLOSE_CPP;

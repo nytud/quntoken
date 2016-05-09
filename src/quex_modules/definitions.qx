@@ -166,7 +166,8 @@ define {
     //      Megj.: a szón belüli pont máshogy van kezelve.
     // SNTCHAR: nem mondathatároló karakter ami nem is sortörés
     // SNTBEGINCHR: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
-    //           neten.")
+    //      neten.")
+    //      TODO: whitespace karaktereket megadni rendesen!!!
     // ENDQUOPAR: záró záró- és idézőjelek
     //      Ez a régi: ("\""|"''"|"'"|")"|"]")
     //      Megj.: mondathatár (BOUNDARY) után is következhetnek (l. SNTEND)

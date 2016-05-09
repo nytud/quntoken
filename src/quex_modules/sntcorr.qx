@@ -37,7 +37,7 @@ mode PROGRAM {
     }
 
     // 2. Zarojelezett datum (mondatveg is lehet utana).
-    // BE: <s>A 2002.</s><w> </w><s>(IV.</s><w> </w><s>25.)</s>
+    // BE: <s>A 2002.</s><ws> </ws><s>(IV.</s><ws> </ws><s>25.)</s>
     // KI: <s>A 2002. (IV. 25.)</s>
     // BE: <s>A 2002.</s> <s>(IV. 25.) van.
     // KI: <s>A 2002. (IV. 25.) van.

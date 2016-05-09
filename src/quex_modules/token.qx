@@ -13,7 +13,7 @@ define {
     // punctuations (all):
     PUNCT               [: intersection( {BASE_CLASS}, \G{Punctuation} ) :]
     // joinable punctuations:
-    PUNCT_JOINABLE_CHAR [.?!~@#$%^*+=<>_¢¤§·×÷°,:;\-]
+    PUNCT_JOINABLE_CHAR [�.?!~@#$%^*+=<>_¢¤§·×÷°,:;\-]
 
 
     // RULE FRAGMENTS
