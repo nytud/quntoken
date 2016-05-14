@@ -69,9 +69,9 @@ define {
 
     // ENUMERATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumerations with parenthesis e.g. a), viii), 12), a)-d), 4)-6)
-    // note: ROMAN_NUMBER matches empty string, recusive form forbidden
+    // note: ROMAN_NUMBER matches empty string, recusive form is forbidden
     ENUMERATION_WITH_LETTER_FRAG    (\G{Lowercase_Letter}|\G{Uppercase_Letter})")"
-    ENUMERATION_WITH_NUMBER_FRAG    [0-9]+")"
+    ENUMERATION_WITH_NUMBER_FRAG    [0-9]+"."?")"
     ENUMERATION_WITH_ROMANNUM       {ROMAN_NUMBER}")"
     ENUMERATION_WITH_LETTER         {ENUMERATION_WITH_LETTER_FRAG}({DASH}{ENUMERATION_WITH_LETTER_FRAG})*
     ENUMERATION_WITH_NUMBER         {ENUMERATION_WITH_NUMBER_FRAG}({DASH}{ENUMERATION_WITH_NUMBER_FRAG})*
