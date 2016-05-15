@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "printer.h"
+#include "converter.h"
 #include "qx_module.h"
 #include "quntoken_api.h"
 
@@ -20,7 +20,7 @@ class QxModuleQueue {
 private:
     TYPE_VECTOR types;
     MODULE_VECTOR modules;
-    Printer printer;
+    Converter converter;
     bool processed;
 
 // constructors & destructors

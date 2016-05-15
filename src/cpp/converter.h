@@ -1,11 +1,11 @@
-#ifndef PRINTER_H
-#define PRINTER_H
+#ifndef CONVERTER_H
+#define CONVERTER_H
 
 // quex modulok belso formatumanak atalakitasa a vegso kimeneti formatumra
 // Felulet:
 //      convert_tags(string& text);
 //          Kapott szovegben lecsereli a quex modulokban hasznalt belso
-//          tag-eket a Printer tipusanak megfelelo stringekre (xml. json, tsv)
+//          tag-eket a Converter tipusanak megfelelo stringekre (xml. json, tsv)
 //      operator<<();
 //          Kapott stringre meghivja a sajat convert_tags metodusat es az
 //          eredmenyt kitolja a cout-ra.
@@ -14,7 +14,7 @@
 //    szotaras modszer jo lesz azokhoz is!
 //  - legyen kapcsolo a main-hez, amivel megadhato a kivant kimeneti formatum
 //  - C++11-esiteni a statikus ertekadast (http://stackoverflow.com/a/6219450)
-//  - Megoldani, hogy eleve csak a Printer obj. sajat szotara jojjon letre, a
+//  - Megoldani, hogy eleve csak a Converter obj. sajat szotara jojjon letre, a
 //    tobbi inicializalo fv ne fusson le! ezt ertelmesen valoszinuleg csak
 //    template-elessel (es functor-ral) lehet megcsinalni. (Nem biztos, hogy
 //    kell!)
@@ -24,7 +24,7 @@
 #include <string>
 #include "quntoken_api.h"
 
-class Printer {
+class Converter {
     // friendship
     friend class QxModuleQueue;
 
@@ -37,8 +37,8 @@ class Printer {
 
     // konstruktor, destruktor
     private:
-        Printer(OUTPUT_TYPE type);
-        ~Printer() {}
+        Converter(OUTPUT_TYPE type);
+        ~Converter() {}
 
     // static members and their functions
     private:
@@ -57,5 +57,5 @@ class Printer {
 };
 
 
-#endif // PRINTER_H
+#endif // CONVERTER_H
 

@@ -1,4 +1,4 @@
-#include "printer.h"
+#include "converter.h"
 #include <iostream>
 
 // konstansok
@@ -12,7 +12,7 @@ const std::string PUNCT_OPEN("🀶");
 const std::string PUNCT_CLOSE("🀷");
 
 // konstruktor
-Printer::Printer(OUTPUT_TYPE type) {
+Converter::Converter(OUTPUT_TYPE type) {
     switch(type) {
         case XML:
             myConversionMap = xml_map;
@@ -29,7 +29,7 @@ Printer::Printer(OUTPUT_TYPE type) {
 
 // atvett szoveg konvertalasa es kiirasa
 // TODO: valamiert nem megy referenciaval, pedig az hatekonyabb lenne
-void Printer::operator<<(std::string text) {
+void Converter::operator<<(std::string text) {
     convert_tags(text);
     std::cout << text;
 }
@@ -37,7 +37,7 @@ void Printer::operator<<(std::string text) {
 
 // vesz egy szoveget, egy 'valamit' es egy 'valamire'-t, majd a szovegben a
 // 'valami' osszes elofordulasat lecsereli 'valamire'
-void Printer::replace_tag(std::string &text, const std::string &what, const std::string &for_what) {
+void Converter::replace_tag(std::string &text, const std::string &what, const std::string &for_what) {
     for(size_t pos = text.find(what);
         pos != std::string::npos;
         pos = text.find(what, pos+1)) {
@@ -48,7 +48,7 @@ void Printer::replace_tag(std::string &text, const std::string &what, const std:
 
 // vesz egy szotarat es egy szoveget, a szovegben lecsereli a szotar minden
 // tetelenek minden elofordulasat a szotarban megadott megfelelojere
-std::string& Printer::convert_tags(std::string &text) {
+std::string& Converter::convert_tags(std::string &text) {
     for(auto it = myConversionMap.begin(); it != myConversionMap.end(); ++it) {
         replace_tag(text, it->first, it->second);
     }
@@ -58,7 +58,7 @@ std::string& Printer::convert_tags(std::string &text) {
 
 // szotarak feltoltese
 // xml:
-Printer::ConversionMap Printer::createXmlMap() {
+Converter::ConversionMap Converter::createXmlMap() {
     ConversionMap xml_map;
     xml_map.push_back(std::make_pair(SNT_OPEN, "<s>"));
     xml_map.push_back(std::make_pair(SNT_CLOSE, "</s>"));
@@ -72,7 +72,7 @@ Printer::ConversionMap Printer::createXmlMap() {
 }
 
 // json:
-Printer::ConversionMap Printer::createJsonMap() {
+Converter::ConversionMap Converter::createJsonMap() {
     ConversionMap json_map;
     // close json items with comma and open another
     json_map.push_back(std::make_pair(SNT_CLOSE+WS_OPEN, "],\n\"ws\": \""));
@@ -100,13 +100,13 @@ Printer::ConversionMap Printer::createJsonMap() {
 }
 
 // tsv:
-Printer::ConversionMap Printer::createTsvMap() {
+Converter::ConversionMap Converter::createTsvMap() {
     ConversionMap tsv_map;
     /* tsv_map["n"] = "X"; */
     return tsv_map;
 }
 
-Printer::ConversionMap Printer::xml_map = Printer::createXmlMap();
-Printer::ConversionMap Printer::json_map = Printer::createJsonMap();
-Printer::ConversionMap Printer::tsv_map = Printer::createTsvMap();
+Converter::ConversionMap Converter::xml_map = Converter::createXmlMap();
+Converter::ConversionMap Converter::json_map = Converter::createJsonMap();
+Converter::ConversionMap Converter::tsv_map = Converter::createTsvMap();
 
