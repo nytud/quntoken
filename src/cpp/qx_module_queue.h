@@ -20,7 +20,7 @@ class QxModuleQueue {
 private:
     TYPE_VECTOR types;
     MODULE_VECTOR modules;
-    Converter converter;
+    Converter* converter_p;
     bool processed;
 
 // constructors & destructors
