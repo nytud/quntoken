@@ -1,5 +1,4 @@
 #include "converter.h"
-#include <iostream>
 
 // konstansok
 const std::string SNT_OPEN("🀰");
@@ -18,14 +17,6 @@ Converter::Converter() {
 
 // destruktor
 Converter::~Converter() {}
-
-
-// atvett szoveg konvertalasa es kiirasa
-// TODO: valamiert nem megy referenciaval, pedig az hatekonyabb lenne
-void Converter::operator<<(std::string text) {
-    convert_tags(text);
-    std::cout << text;
-}
 
 
 // vesz egy szoveget, egy 'valamit' es egy 'valamire'-t, majd a szovegben a
@@ -49,7 +40,7 @@ std::string& Converter::convert_tags(std::string &text) {
 }
 
 
-// szotarak feltoltese
+// szarmaztatott osztalyok konstruktorai: konverzios szotarak feltoltese
 // xml:
 XmlConverter::XmlConverter() {
     myConversionMap.push_back(std::make_pair(SNT_OPEN, "<s>"));

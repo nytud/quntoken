@@ -6,9 +6,6 @@
 //      convert_tags(string& text);
 //          Kapott szovegben lecsereli a quex modulokban hasznalt belso
 //          tag-eket a Converter tipusanak megfelelo stringekre (xml. json, tsv)
-//      operator<<();
-//          Kapott stringre meghivja a sajat convert_tags metodusat es az
-//          eredmenyt kitolja a cout-ra.
 // TODO:
 //  - kitalalni, a tsv kimenettel, nem biztos, hogy a szotaras modszer
 //    jo lesz ahoz is!
@@ -39,7 +36,6 @@ class Converter {
     // public functions
     public:
         std::string& convert_tags(std::string &text);
-        void operator<<(std::string text);
 
 };
 

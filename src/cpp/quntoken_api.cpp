@@ -1,3 +1,4 @@
+#include <iostream>
 #include "quntoken_api.h"
 #include "qx_module_queue.h"
 #include <quex/code_base/multi.i> // több quex modulhoz osszekapcsolasahoz
@@ -7,7 +8,8 @@
 // functions to print result
 void quntoken_print(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {
     QxModuleQueue qx_queue(TYPE_VECTOR(types), fst_input_p, out_type);
-    qx_queue.print_result();
+    std::string result;
+    std::cout << qx_queue.get_result(result);
 }
 
 void full_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {

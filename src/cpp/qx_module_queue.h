@@ -37,9 +37,7 @@ private:
 
 // public functions:
 public:
-    void get_result(std::string& result);
-
-    void print_result();
+    std::string& get_result(std::string& result);
 
 };
 

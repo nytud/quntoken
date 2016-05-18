@@ -54,18 +54,12 @@ void QxModuleQueue::process() {
     processed = true;
 }
 
-void QxModuleQueue::get_result(std::string& result) {
+std::string& QxModuleQueue::get_result(std::string& result) {
     if(!processed) {
         process();
     }
     result = modules.back().get_output_p()->str();
     converter_p->convert_tags(result);
-}
-
-void QxModuleQueue::print_result() {
-    if(!processed) {
-        process();
-    }
-    *converter_p << modules.back().get_output_p()->str();
+    return result;
 }
 
