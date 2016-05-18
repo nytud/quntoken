@@ -12,19 +12,12 @@ const std::string PUNCT_OPEN("🀶");
 const std::string PUNCT_CLOSE("🀷");
 
 // konstruktor
-Converter::Converter(OUTPUT_TYPE type) {
-    switch(type) {
-        case XML:
-            myConversionMap = xml_map;
-            break;
-        case JSON:
-            myConversionMap = json_map;
-            break;
-        case TSV:
-            myConversionMap = tsv_map;
-            break;
-    }
+Converter::Converter() {
+    myConversionMap = ConversionMap();
 }
+
+// destruktor
+Converter::~Converter() {}
 
 
 // atvett szoveg konvertalasa es kiirasa
@@ -58,55 +51,40 @@ std::string& Converter::convert_tags(std::string &text) {
 
 // szotarak feltoltese
 // xml:
-Converter::ConversionMap Converter::createXmlMap() {
-    ConversionMap xml_map;
-    xml_map.push_back(std::make_pair(SNT_OPEN, "<s>"));
-    xml_map.push_back(std::make_pair(SNT_CLOSE, "</s>"));
-    xml_map.push_back(std::make_pair(WS_OPEN, "<ws>"));
-    xml_map.push_back(std::make_pair(WS_CLOSE, "</ws>"));
-    xml_map.push_back(std::make_pair(WORD_OPEN, "<w>"));
-    xml_map.push_back(std::make_pair(WORD_CLOSE, "</w>"));
-    xml_map.push_back(std::make_pair(PUNCT_OPEN, "<c>"));
-    xml_map.push_back(std::make_pair(PUNCT_CLOSE, "</c>"));
-    return xml_map;
+XmlConverter::XmlConverter() {
+    myConversionMap.push_back(std::make_pair(SNT_OPEN, "<s>"));
+    myConversionMap.push_back(std::make_pair(SNT_CLOSE, "</s>"));
+    myConversionMap.push_back(std::make_pair(WS_OPEN, "<ws>"));
+    myConversionMap.push_back(std::make_pair(WS_CLOSE, "</ws>"));
+    myConversionMap.push_back(std::make_pair(WORD_OPEN, "<w>"));
+    myConversionMap.push_back(std::make_pair(WORD_CLOSE, "</w>"));
+    myConversionMap.push_back(std::make_pair(PUNCT_OPEN, "<c>"));
+    myConversionMap.push_back(std::make_pair(PUNCT_CLOSE, "</c>"));
 }
 
 // json:
-Converter::ConversionMap Converter::createJsonMap() {
-    ConversionMap json_map;
+JsonConverter::JsonConverter() {
     // close json items with comma and open another
-    json_map.push_back(std::make_pair(SNT_CLOSE+WS_OPEN, "],\n\"ws\": \""));
-    json_map.push_back(std::make_pair(SNT_CLOSE+SNT_OPEN, "],\n\"s\": [\n"));
-    json_map.push_back(std::make_pair(WS_CLOSE+SNT_OPEN, "\",\n\"s\": [\n"));
-    json_map.push_back(std::make_pair(WS_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
-    json_map.push_back(std::make_pair(WS_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
-    json_map.push_back(std::make_pair(WORD_CLOSE+WS_OPEN, "\",\n\"ws\": \""));
-    json_map.push_back(std::make_pair(WORD_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
-    json_map.push_back(std::make_pair(WORD_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
-    json_map.push_back(std::make_pair(PUNCT_CLOSE+WS_OPEN, "\",\n\"ws\": \""));
-    json_map.push_back(std::make_pair(PUNCT_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
-    json_map.push_back(std::make_pair(PUNCT_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
+    myConversionMap.push_back(std::make_pair(SNT_CLOSE+WS_OPEN, "],\n\"ws\": \""));
+    myConversionMap.push_back(std::make_pair(SNT_CLOSE+SNT_OPEN, "],\n\"s\": [\n"));
+    myConversionMap.push_back(std::make_pair(WS_CLOSE+SNT_OPEN, "\",\n\"s\": [\n"));
+    myConversionMap.push_back(std::make_pair(WS_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
+    myConversionMap.push_back(std::make_pair(WS_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
+    myConversionMap.push_back(std::make_pair(WORD_CLOSE+WS_OPEN, "\",\n\"ws\": \""));
+    myConversionMap.push_back(std::make_pair(WORD_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
+    myConversionMap.push_back(std::make_pair(WORD_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
+    myConversionMap.push_back(std::make_pair(PUNCT_CLOSE+WS_OPEN, "\",\n\"ws\": \""));
+    myConversionMap.push_back(std::make_pair(PUNCT_CLOSE+WORD_OPEN, "\",\n\"w\": \""));
+    myConversionMap.push_back(std::make_pair(PUNCT_CLOSE+PUNCT_OPEN, "\",\n\"c\": \""));
     // open json items
-    json_map.push_back(std::make_pair(SNT_OPEN, "\"s\": [\n"));
-    json_map.push_back(std::make_pair(WS_OPEN, "\"ws\": \""));
-    json_map.push_back(std::make_pair(WORD_OPEN, "\"w\": \""));
-    json_map.push_back(std::make_pair(PUNCT_OPEN, "\"c\": \""));
+    myConversionMap.push_back(std::make_pair(SNT_OPEN, "\"s\": [\n"));
+    myConversionMap.push_back(std::make_pair(WS_OPEN, "\"ws\": \""));
+    myConversionMap.push_back(std::make_pair(WORD_OPEN, "\"w\": \""));
+    myConversionMap.push_back(std::make_pair(PUNCT_OPEN, "\"c\": \""));
     // close json items
-    json_map.push_back(std::make_pair(SNT_CLOSE, "]\n"));
-    json_map.push_back(std::make_pair(WS_CLOSE, "\"\n"));
-    json_map.push_back(std::make_pair(WORD_CLOSE, "\"\n"));
-    json_map.push_back(std::make_pair(PUNCT_CLOSE, "\"\n"));
-    return json_map;
+    myConversionMap.push_back(std::make_pair(SNT_CLOSE, "]\n"));
+    myConversionMap.push_back(std::make_pair(WS_CLOSE, "\"\n"));
+    myConversionMap.push_back(std::make_pair(WORD_CLOSE, "\"\n"));
+    myConversionMap.push_back(std::make_pair(PUNCT_CLOSE, "\"\n"));
 }
-
-// tsv:
-Converter::ConversionMap Converter::createTsvMap() {
-    ConversionMap tsv_map;
-    /* tsv_map["n"] = "X"; */
-    return tsv_map;
-}
-
-Converter::ConversionMap Converter::xml_map = Converter::createXmlMap();
-Converter::ConversionMap Converter::json_map = Converter::createJsonMap();
-Converter::ConversionMap Converter::tsv_map = Converter::createTsvMap();
 

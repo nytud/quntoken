@@ -30,22 +30,13 @@ class Converter {
     typedef std::vector<std::pair<std::string, std::string> > ConversionMap;
 
     // private members
-    private:
+    protected:
         ConversionMap myConversionMap;
 
     // konstruktor, destruktor
     public:
-        Converter(OUTPUT_TYPE type);
-        ~Converter() {}
-
-    // static members and their functions
-    private:
-        static ConversionMap xml_map;
-        static ConversionMap json_map;
-        static ConversionMap tsv_map;
-        static ConversionMap createXmlMap();
-        static ConversionMap createJsonMap();
-        static ConversionMap createTsvMap();
+        Converter();
+        virtual ~Converter() = 0;
 
     // private functions
     private:
@@ -58,6 +49,19 @@ class Converter {
 
 };
 
+
+class XmlConverter : public Converter {
+    public:
+        XmlConverter();
+        ~XmlConverter() {}
+};
+
+
+class JsonConverter : public Converter {
+    public:
+        JsonConverter();
+        ~JsonConverter() {}
+};
 
 #endif // CONVERTER_H
 

@@ -7,10 +7,21 @@
 
 // constructor:
 QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type)
-: types(types), modules(MODULE_VECTOR(types.size())), converter(Converter(out_type)), processed(false) {
+: types(types), modules(MODULE_VECTOR(types.size())), processed(false) {
     // empty queue, do nothing
     if(types.empty()) {
         return;
+    }
+    switch(out_type) {
+        case XML:
+            converter_p = new XmlConverter();
+            break;
+        case JSON:
+            converter_p = new JsonConverter();
+            break;
+        default:
+            // TODO!
+            break;
     }
     // fill the modules vector
     std::stringstream* ss_p = nullptr;
@@ -29,7 +40,9 @@ QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, 
 }
 
 // destructor:
-QxModuleQueue::~QxModuleQueue() { }
+QxModuleQueue::~QxModuleQueue() {
+    delete converter_p;
+}
 
 // private functions:
 void QxModuleQueue::process() {
@@ -46,13 +59,13 @@ void QxModuleQueue::get_result(std::string& result) {
         process();
     }
     result = modules.back().get_output_p()->str();
-    converter.convert_tags(result);
+    converter_p->convert_tags(result);
 }
 
 void QxModuleQueue::print_result() {
     if(!processed) {
         process();
     }
-    converter << modules.back().get_output_p()->str();
+    *converter_p << modules.back().get_output_p()->str();
 }
 
