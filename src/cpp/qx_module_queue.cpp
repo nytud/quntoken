@@ -19,13 +19,13 @@ QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, 
         it->set_type(type);
         // setup input pointers
         if(ss_p) {
-            it->input_p = ss_p;
+            it->set_input_p(ss_p);
         }
-        ss_p = &(it->output);
+        ss_p = it->get_output_p();
         ++it;
     }
     // setup input pointer of the first module
-    modules.front().input_p = fst_input_p;
+    modules.front().set_input_p(fst_input_p);
 }
 
 // destructor:
@@ -45,7 +45,7 @@ void QxModuleQueue::get_result(std::string& result) {
     if(!processed) {
         process();
     }
-    result = modules.back().output.str();
+    result = modules.back().get_output_p()->str();
     converter.convert_tags(result);
 }
 
@@ -53,6 +53,6 @@ void QxModuleQueue::print_result() {
     if(!processed) {
         process();
     }
-    converter << modules.back().output.str();
+    converter << modules.back().get_output_p()->str();
 }
 

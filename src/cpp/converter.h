@@ -25,8 +25,6 @@
 #include "quntoken_api.h"
 
 class Converter {
-    // friendship
-    friend class QxModuleQueue;
 
     // type definitions
     typedef std::vector<std::pair<std::string, std::string> > ConversionMap;
@@ -36,7 +34,7 @@ class Converter {
         ConversionMap myConversionMap;
 
     // konstruktor, destruktor
-    private:
+    public:
         Converter(OUTPUT_TYPE type);
         ~Converter() {}
 
@@ -51,9 +49,13 @@ class Converter {
 
     // private functions
     private:
+        void replace_tag(std::string &text, const std::string &what, const std::string &for_what);
+
+    // public functions
+    public:
         std::string& convert_tags(std::string &text);
         void operator<<(std::string text);
-        void replace_tag(std::string &text, const std::string &what, const std::string &for_what);
+
 };
 
 

@@ -34,7 +34,7 @@ public:
 // private functions:
 private:
     void process();
-    
+
 // public functions:
 public:
     void get_result(std::string& result);

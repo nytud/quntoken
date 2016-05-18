@@ -14,6 +14,15 @@ void QxModule::set_type(MODULE_TYPE t) {
     type = t;
 }
 
+void QxModule::set_input_p(std::stringstream * inp_p) {
+    input_p = inp_p;
+}
+
+std::stringstream* QxModule::get_output_p() {
+    return &output;
+}
+
+
 void QxModule::using_module() {
     switch(type) {
         case PREP:

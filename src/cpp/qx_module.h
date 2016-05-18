@@ -11,9 +11,6 @@
 
 class QxModule {
 
-// friendship
-friend class QxModuleQueue;
-
 // private members
 private:
     MODULE_TYPE type;
@@ -30,12 +27,15 @@ public:
 
 // private functions
 private:
-    void set_type(MODULE_TYPE t);
-
-    void using_module();
-
     template <class LEXER, class TOKEN>
     void module(QUEX_TYPE_TOKEN_ID termination);
+
+// public functions
+public:
+    void set_type(MODULE_TYPE t);
+    void set_input_p(std::stringstream* inp_p);
+    std::stringstream* get_output_p();
+    void using_module();
 
 };
 
