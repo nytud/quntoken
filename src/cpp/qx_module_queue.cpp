@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <iostream>
 #include "qx_module_queue.h"
 #include "qx_module.h"
 #include <sstream>
@@ -10,7 +12,8 @@ QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, 
 : types(types), modules(MODULE_VECTOR(types.size())), processed(false) {
     // empty queue, do nothing
     if(types.empty()) {
-        return;
+        std::cerr << "Empty module vector!" << std::endl;
+        exit(1);
     }
     switch(out_type) {
         case XML:
