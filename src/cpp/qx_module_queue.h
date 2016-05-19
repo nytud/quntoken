@@ -18,7 +18,6 @@ class QxModuleQueue {
 
 // class members
 private:
-    TYPE_VECTOR types;
     MODULE_VECTOR modules;
     Converter* converter_p;
     bool processed;

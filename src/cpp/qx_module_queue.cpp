@@ -9,7 +9,7 @@
 
 // constructor:
 QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type)
-: types(types), modules(MODULE_VECTOR(types.size())), processed(false) {
+: modules(MODULE_VECTOR(types.size())), processed(false) {
     // empty queue, do nothing
     if(types.empty()) {
         std::cerr << "Empty module vector!" << std::endl;
