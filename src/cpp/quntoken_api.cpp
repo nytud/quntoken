@@ -16,9 +16,9 @@ void full_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {
     quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, fst_input_p, out_type);
 }
 
-void tkn_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {
-    quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, fst_input_p, out_type);
-}
+/* void tkn_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type) { */
+/*     quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, fst_input_p, out_type); */
+/* } */
 
 void snt_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {
     quntoken_print({PREP, SNT, SNTCORR, SNTCORR}, fst_input_p, out_type);
@@ -35,9 +35,9 @@ void full_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, 
     quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, fst_input_p, out_type);
 }
 
-void tkn_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {
-    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, fst_input_p, out_type);
-}
+/* void tkn_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type) { */
+/*     quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, fst_input_p, out_type); */
+/* } */
 
 void snt_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type) {
     quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR}, fst_input_p, out_type);

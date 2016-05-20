@@ -29,13 +29,13 @@ typedef std::vector<MODULE_TYPE> TYPE_VECTOR;
 // functions to print result
 void quntoken_print(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
 void full_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
-void tkn_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
+/* void tkn_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type); */
 void snt_quntoken_print(std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
 
 // functions to get results as stirng
 void quntoken_get_str(std::string& result, TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
 void full_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
-void tkn_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
+/* void tkn_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type); */
 void snt_quntoken_get_str(std::string& result, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
 
 
