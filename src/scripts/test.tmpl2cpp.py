@@ -145,6 +145,7 @@ if __name__ == "__main__":
           xml tag-ek kezelese
         - SNT: alap mondatra bontas
         - SNTCORR: mondatrabontas hibainak korrigalasa (roviditesek, datumok)
+        - TOKEN: szavakra bontás
 
     Pelda: '# SNT sortores'
     '''

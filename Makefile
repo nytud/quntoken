@@ -244,7 +244,7 @@ install_gtest:
 
 .PHONY: install_gtest
 
-# TODO: a jelenlegi verzioval nem fordul, de nem fut a quex. 0.65.4 az utolso
+# TODO: a jelenlegi verzioval nem fordul a quex. A 0.65.4-os az utolso
 # hasznalhato verzio. Csak a downgrade utan lesz jo.
 install_quex:
 	if ! [ -d $(QUEX_DIR) ] ; then $(CMD_INSTALL_QUEX) ; fi
