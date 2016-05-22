@@ -9,7 +9,7 @@ token {
 
 define {
     // CHARACTERS CLASSES:
-    SYMBOL              [: intersection( {BASE_CLASS}, \G{Symbol} ) :]
+    SYMBOL              [: intersection( {BASE_CLASS}, union(\G{Symbol}, {EMOTICONS}) ) :]
     // punctuations (all):
     PUNCT               [: intersection( {BASE_CLASS}, \G{Punctuation} ) :]
     // joinable punctuations:
@@ -147,11 +147,29 @@ mode PROGRAM : COMMON {
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // filename with wildcard characters
+    {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcout << L"filename! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(TOKEN_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // joinable punctuations
+    {PUNCT_JOINABLE_CHAR}+ {
+        /* std::wcout << L"joinable punct! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
+    }
+
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic tokenizer rules:
-    /* // - tokens can contain wordchars and dots, but dot can not follow another */
-    /* //   dot */
+    // - tokens can contain wordchars and dots, but dot can not follow another
+    //   dot
     // - dot at the end of the word belongs to the sentence, if it is followed
     //   by a snt close tag
     // - words with parenthesis: (paren)thesis or paren(thesis), or
@@ -193,14 +211,14 @@ mode PROGRAM : COMMON {
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // filename with wildcard characters
-    {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
-        /* std::wcout << L"filename! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
-        self.sntend_corrig(LEX);
-        self_send1(TOKEN_TOKEN, LEX.c_str());
-    }
+    /* // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+    /* // filename with wildcard characters */
+    /* {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? { */
+    /*     /1* std::wcout << L"filename! " << Lexeme << std::endl; *1/ */
+    /*     std::wstring LEX(Lexeme); */
+    /*     self.sntend_corrig(LEX); */
+    /*     self_send1(TOKEN_TOKEN, LEX.c_str()); */
+    /* } */
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // uppercase letters with '&'
@@ -272,14 +290,14 @@ mode PROGRAM : COMMON {
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // joinable punctuations
-    {PUNCT_JOINABLE_CHAR}+ {
-        /* std::wcout << L"joinable punct! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
-        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-        self_send1(TOKEN_PUNCT, LEX.c_str());
-    }
+    /* // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+    /* // joinable punctuations */
+    /* {PUNCT_JOINABLE_CHAR}+ { */
+    /*     /1* std::wcout << L"joinable punct! " << Lexeme << std::endl; *1/ */
+    /*     std::wstring LEX(Lexeme); */
+    /*     LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP; */
+    /*     self_send1(TOKEN_PUNCT, LEX.c_str()); */
+    /* } */
 }
 
 

@@ -178,7 +178,7 @@ define {
 
     EMOTICONS   [\U1F600-\U1F915]
 
-    BASE_CLASS  [: union( \P{Block=Basic_Latin},
+    BASE_CLASS  [: union(difference(union( \P{Block=Basic_Latin},
                           \P{Block=Latin-1_Supplement},
                           \P{Block=Latin_Extended-A},
                           \P{Block=Latin_Extended-B},
@@ -200,9 +200,6 @@ define {
                           \P{Block=Arrows},
                           \P{Block=Supplemental_Arrows-A},
                           \P{Block=Supplemental_Arrows-B},
-                          /* \P{Block=Private_Use_Area}, */
-                          /* \P{Block=Supplementary_Private_Use_Area-A}, */
-                          /* \P{Block=Supplementary_Private_Use_Area-B}, */
                           \P{Block=Spacing_Modifier_Letters},
                           \P{Block=Alphabetic_Presentation_Forms},
                           \P{Block=Phonetic_Extensions},
@@ -215,8 +212,8 @@ define {
                           \P{Block=Miscellaneous_Symbols_and_Arrows},
                           \P{Block=Miscellaneous_Technical},
                           \P{Block=Musical_Symbols},
-                          \P{Block=Miscellaneous_Symbols},
-                          {EMOTICONS} ) :]
+                          \P{Block=Miscellaneous_Symbols}
+                          ), \G{Other}), [\n\r\f\v\t ], {EMOTICONS}) :]
 
     NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
 
@@ -226,9 +223,9 @@ define {
 
     NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
 
-    WORDCHAR    [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
 
-    WORDCHAR2   [: intersection( {BASE_CLASS}, union(\P{Alphabetic}, \G{Number},  [\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
+    WORDCHAR2   [: difference( {WORDCHAR}, [.]) :]
 
     NONWORDCHAR [: difference( {BASE_CLASS}, {WORDCHAR}) :]
 
