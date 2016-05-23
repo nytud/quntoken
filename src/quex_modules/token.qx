@@ -165,6 +165,15 @@ mode PROGRAM : COMMON {
         self_send1(TOKEN_PUNCT, LEX.c_str());
     }
 
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // smiley
+    {SMILEY} {
+        /* std::wcout << L"smiley! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(TOKEN_PUNCT, LEX.c_str());
+    }
+
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic tokenizer rules:
@@ -210,15 +219,6 @@ mode PROGRAM : COMMON {
         self.sntend_corrig(LEX);
         self_send1(TOKEN_TOKEN, LEX.c_str());
     }
-
-    /* // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-    /* // filename with wildcard characters */
-    /* {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? { */
-    /*     /1* std::wcout << L"filename! " << Lexeme << std::endl; *1/ */
-    /*     std::wstring LEX(Lexeme); */
-    /*     self.sntend_corrig(LEX); */
-    /*     self_send1(TOKEN_TOKEN, LEX.c_str()); */
-    /* } */
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // uppercase letters with '&'
@@ -281,34 +281,19 @@ mode PROGRAM : COMMON {
         }
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // smiley
-    {SMILEY} {
-        /* std::wcout << L"smiley! " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        self_send1(TOKEN_PUNCT, LEX.c_str());
-    }
-
-    /* // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-    /* // joinable punctuations */
-    /* {PUNCT_JOINABLE_CHAR}+ { */
-    /*     /1* std::wcout << L"joinable punct! " << Lexeme << std::endl; *1/ */
-    /*     std::wstring LEX(Lexeme); */
-    /*     LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP; */
-    /*     self_send1(TOKEN_PUNCT, LEX.c_str()); */
-    /* } */
 }
 
 
 // kozos dolgok
 mode COMMON : <inheritable: only> {
     /* {NEWLINE}       => TOKEN_NEWLINE(Lexeme); */
-    on_failure      => TOKEN_TERMINATION;
-    /* on_failure      { */
-    /*     std::wcout << L"HIBA: >>" << Lexeme << L"<<\n"; */
-    /*     self_send1(TOKEN_ANYCHAR, Lexeme); */
-    /* } */
+    on_failure      {
+        std::wcerr << L"TOKEN-ERROR ("
+                   << self.line_number() << L", "
+                   << self.column_number() << L"): "
+                   << Lexeme << std::endl;
+        self_send1(TOKEN_ANYCHAR, Lexeme);
+    }
     <<EOF>>         => TOKEN_TERMINATION;
 }
 
