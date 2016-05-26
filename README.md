@@ -10,7 +10,6 @@ Verison: pre-alpha
 * python 2.x as default python
 * python 3.x
 * g++ >= 4.8.2
-* libicu-dev
 
 ## Install
 
