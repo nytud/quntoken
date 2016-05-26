@@ -31,6 +31,7 @@ CXXFLAGS +=	-Wall \
 			-I$(CPP_DIR) \
 			-I$(TMP_DIR) \
 			-Werror \
+			# -static \
 			# -g
 
 # g++ kapcsoloi quex-es fajlokhoz
@@ -40,7 +41,9 @@ CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-DQUEX_OPTION_ASSERTS_DISABLED \
 				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
 				-DENCODING_NAME='"UTF8"' \
-				-DQUEX_OPTION_MULTI
+				-DQUEX_OPTION_MULTI \
+				-static \
+				-liconv
 
 # g++ kapcsoloi gtest-es fajlokhoz
 CXXFLAGS_GTEST =	$(CXXFLAGS) \
@@ -51,7 +54,8 @@ QUEXFLAGS =	-i $^ \
 			-b 4 \
 			--bet wchar_t \
 			--odir $(TMP_DIR)/ \
-			--icu
+			--iconv
+			# --icu
 # Megj1: icu konverter használata:
 #   - telepíteni kell a libicu52-t és a libicu-dev-et
 #   - quex-nek kell az --icu kapcsoló
@@ -109,10 +113,12 @@ common:
 
 ### binaries
 $(TARGET_DIR)/quntoken: $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
-	$(CXX) $< -L$(LIB_DIR) -lquntoken `icu-config --ldflags` -o $@
+	$(CXX) $< -L$(LIB_DIR) -lquntoken -o $@
+	# $(CXX) $< -L$(LIB_DIR) -lquntoken `icu-config --ldflags` -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.a
-	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
+	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@
+	# $(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 ### libraries
 $(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/converter.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o
@@ -130,34 +136,34 @@ object_files: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)
 .PHONY: object_files
 
 $(TMP_DIR)/main.o: $(CPP_DIR)/main.cpp $(CPP_DIR)/*.h $(CPP_DIR)/quntoken_api.h
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h quex_files
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/quntoken_api.o: $(CPP_DIR)/quntoken_api.cpp $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/qx_module_queue.h
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/qx_module_queue.o: $(CPP_DIR)/qx_module_queue.cpp $(CPP_DIR)/qx_module_queue.h $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/converter.h $(CPP_DIR)/qx_module.h quex_files
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/qx_module.o: $(CPP_DIR)/qx_module.cpp $(CPP_DIR)/qx_module.h $(CPP_DIR)/quntoken_api.h quex_files
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/converter.o: $(CPP_DIR)/converter.cpp $(CPP_DIR)/converter.h $(CPP_DIR)/quntoken_api.h
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/snt.o: $(TMP_DIR)/snt_snt_lexer.cpp
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/token.o: $(TMP_DIR)/token_token_lexer.cpp
-	$(CXX) $(CXXFLAGS_QUEX) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 
 ### quex
