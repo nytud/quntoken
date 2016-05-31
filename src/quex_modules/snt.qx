@@ -125,6 +125,15 @@ mode PROGRAM {
         LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
         self_send1(SNT_WHITESPACE, LEX.c_str());
     }
+
+    // mondatkozi nem-mondatkezdo karakterek
+    [: difference( {BASE_CLASS}, {SNTBEGINCHR} ) :] {
+        std::wstring LEX(Lexeme);
+        LEX = self.SNT_OPEN_CPP + LEX + self.SNT_CLOSE_CPP;
+        self_send1(SNT_SENTENCE, LEX.c_str());
+    }
+
+
     on_failure  => SNT_TERMINATION;
     <<EOF>>     => SNT_TERMINATION;
 }

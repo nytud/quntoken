@@ -4,6 +4,18 @@ Egyszerű mondat.
 IN : Egy mondat.
 OUT: <s>Egy mondat.</s>
 
+Nem mondatkezdo karakter ket mondat kozott.
+IN : Egy mondat.
+IN :
+IN : !
+IN :
+IN : Uj mondat.
+OUT: <s>Egy mondat.</s><ws>
+OUT:
+OUT: </ws><s>!</s><ws>
+OUT:
+OUT: </ws><s>Uj mondat.</s>
+
 Egyszeres sortörés bárhol lehet a modatban.
 IN : A kutya ugat. Jo
 IN : lenne, ha abbahagyna!
