@@ -38,6 +38,10 @@ QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, 
         ss_p = it->get_output_p();
         ++it;
     }
+    // empty input stream:
+    if(fst_input_p->rdbuf()->in_avail() == 0) {
+        processed = true;
+    }
     // setup input pointer of the first module
     modules.front().set_input_p(fst_input_p);
 }
