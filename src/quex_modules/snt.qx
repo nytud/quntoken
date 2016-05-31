@@ -112,8 +112,7 @@ mode PROGRAM {
                |{WORDCHAR_PART}
                |{COMMA_PART}
                |{BRACKET_PART}
-               ){NEWLINE}?)*{SIMPLESNT}{SNTEND}
-    {
+               ){NEWLINE}?)*{SIMPLESNT}{SNTEND} {
         std::wstring LEX(Lexeme);
         LEX = self.SNT_OPEN_CPP + LEX + self.SNT_CLOSE_CPP;
         self_send1(SNT_SENTENCE, LEX.c_str());
