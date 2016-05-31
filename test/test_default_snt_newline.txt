@@ -1,5 +1,9 @@
 # SNT newline
 
+Ures bemenet.
+IN :
+OUT:
+
 Egyszerű mondat.
 IN : Egy mondat.
 OUT: <s>Egy mondat.</s>
