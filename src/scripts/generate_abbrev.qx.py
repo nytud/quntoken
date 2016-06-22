@@ -54,9 +54,9 @@ def main():
     DATA_FILE = args['data_file'][0]
     OUT_FILE  = args['output_file'][0]
 
-    with open(DATA_FILE, 'r') as data:
+    with open(DATA_FILE, 'r', encoding='utf-8') as data:
         qx = generate_qx(data)
-    with open(OUT_FILE, 'w') as out:
+    with open(OUT_FILE, 'w', encoding='utf-8') as out:
         out.write(qx)
 
 

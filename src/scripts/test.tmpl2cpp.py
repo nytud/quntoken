@@ -81,7 +81,7 @@ def generate_tests(test_file):
     """Visszater a kapott fajlbol kinyerheto testesthez tartozo koddal.
     """
     # TODO: atirni try-al!
-    with open(test_file) as file_:
+    with open(test_file, encoding='utf-8') as file_:
         fst_line = file_.readline()
         lines = file_.readlines()
     fst_line = fst_line.lstrip('#')
@@ -121,7 +121,7 @@ def main():
     with open(TMPL_FILE, 'r') as tmpl:
         cpp = generate_cpp(tmpl, tests)
     # kiiras
-    with open(OUT_FILE, 'w') as out:
+    with open(OUT_FILE, 'w', encoding='utf-8') as out:
         out.write(cpp)
 
 
