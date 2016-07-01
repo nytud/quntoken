@@ -31,7 +31,7 @@ CXXFLAGS +=	-Wall \
 			-I$(CPP_DIR) \
 			-I$(TMP_DIR) \
 			-Werror \
-			# -static \
+			-static-libstdc++ \
 			# -g
 
 # g++ kapcsoloi quex-es fajlokhoz
@@ -113,11 +113,11 @@ common:
 
 ### binaries
 $(TARGET_DIR)/quntoken: $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
-	$(CXX) $< -L$(LIB_DIR) -lquntoken -o $@
+	$(CXX) $< -L$(LIB_DIR) -static-libstdc++ -lquntoken -o $@
 	# $(CXX) $< -L$(LIB_DIR) -lquntoken `icu-config --ldflags` -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.a
-	$(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@
+	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^ -o $@
 	# $(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 ### libraries
