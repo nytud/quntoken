@@ -31,7 +31,6 @@ CXXFLAGS +=	-Wall \
 			-I$(CPP_DIR) \
 			-I$(TMP_DIR) \
 			-Werror \
-			-static-libstdc++ \
 			# -g
 
 # g++ kapcsoloi quex-es fajlokhoz
@@ -42,7 +41,6 @@ CXXFLAGS_QUEX =	$(CXXFLAGS) \
 				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
 				-DENCODING_NAME='"UTF8"' \
 				-DQUEX_OPTION_MULTI \
-				-static \
 				-liconv
 
 # g++ kapcsoloi gtest-es fajlokhoz
@@ -113,12 +111,10 @@ common:
 
 ### binaries
 $(TARGET_DIR)/quntoken: $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
-	$(CXX) $< -L$(LIB_DIR) -static-libstdc++ -lquntoken -o $@
-	# $(CXX) $< -L$(LIB_DIR) -lquntoken `icu-config --ldflags` -o $@
+	$(CXX) $< -L$(LIB_DIR) -static-libstdc++ -static -lquntoken -o $@
 
 $(TARGET_DIR)/test: $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.a
 	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^ -o $@
-	# $(CXX) $(CXXFLAGS_GTEST) -lpthread $^ -o $@ `icu-config --ldflags`
 
 ### libraries
 $(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/converter.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o
