@@ -134,9 +134,14 @@ define {
     //      megadni.
     // BASE_CLASS: Alap karakterosztály, minden más ennek részhalmaza kell
     //      legyen.
-    // NEWLINE: Újsor karakterek.
-    //      TODO: Legyen NEWLINE_CHAR es NEWLINE kulon, hogy az osszetettek is
-    //          egynek szamitsanak.
+    // NEWLINECHAR: Újsor karakterek.
+    //      \n: line feed (LF, U+000A)
+    //      \r: carriage return (CR, U+000D)
+    //      \v: vertical tab (U+000B)
+    //      \f: form feed (U+000C)
+    // NEWLINE: ujsor, de ebben az osszetett valtozatok is benne vannak (CR+LF)
+    //      TODO: tobbi unicode szerinti ujsort is belerakni (next line U+0085,
+    //          line separator U+2028, paragraph separator U+2029)
     // SPACE: Minden wspace a base_class-ból, az újsor karakterek kivételével.
     //      SOFT HYPHEN (00AD) is benne van.
     //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
@@ -215,11 +220,13 @@ define {
                           \P{Block=Miscellaneous_Symbols}
                           ), \G{Other}), [\n\r\f\v\t ], {EMOTICONS}) :]
 
-    NEWLINE     [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
+    NEWLINECHAR [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
 
-    SPACE       [: intersection( {BASE_CLASS}, union(difference(\P{White_Space}, {NEWLINE}), [­]) ) :]
+    NEWLINE     {NEWLINECHAR}|"\r\n"
 
-    WSPACE      ({NEWLINE}|{SPACE})
+    SPACE       [: intersection( {BASE_CLASS}, union(difference(\P{White_Space}, {NEWLINECHAR}), [­]) ) :]
+
+    WSPACE      ({NEWLINECHAR}|{SPACE})
 
     NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
 
@@ -243,7 +250,7 @@ define {
 
     ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :]
 
-    INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINE}) ) :]
+    INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINECHAR}) ) :]
 
     COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
 
