@@ -244,6 +244,7 @@ mode PROGRAM {
     on_failure      => SNTCORR_ANYCHAR(Lexeme);
     // Fajl vege:
     <<EOF>>         => SNTCORR_TERMINATION;
+    on_end_of_stream => SNTCORR_TERMINATION;
 }
 
 // vim:set syntax=cpp:

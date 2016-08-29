@@ -20,6 +20,7 @@ mode PREPROC {
     }
     on_failure      => PREP_TERMINATION;
     <<EOF>>         => PREP_TERMINATION;
+    on_end_of_stream => PREP_TERMINATION;
 }
 
 // vim:set syntax=cpp:

@@ -135,6 +135,7 @@ mode PROGRAM {
 
     on_failure  => SNT_TERMINATION;
     <<EOF>>     => SNT_TERMINATION;
+    on_end_of_stream => SNT_TERMINATION;
 }
 
 // vim:set syntax=cpp:

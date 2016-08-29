@@ -295,5 +295,6 @@ mode COMMON : <inheritable: only> {
         self_send1(TOKEN_ANYCHAR, Lexeme);
     }
     <<EOF>>         => TOKEN_TERMINATION;
+    on_end_of_stream => TOKEN_TERMINATION;
 }
 
