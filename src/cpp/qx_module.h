@@ -7,6 +7,8 @@
 #include "snt_snt_lexer"
 #include "sntcorr_sntcorr_lexer"
 #include "token_token_lexer"
+#include "convxml_convxml_lexer"
+#include "convjson_convjson_lexer"
 
 
 class QxModule {

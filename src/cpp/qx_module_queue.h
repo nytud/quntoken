@@ -5,7 +5,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "converter.h"
 #include "qx_module.h"
 #include "quntoken_api.h"
 
@@ -19,13 +18,14 @@ class QxModuleQueue {
 // class members
 private:
     MODULE_VECTOR modules;
-    Converter* converter_p;
+    /* Converter* converter_p; */
     bool processed;
 
 // constructors & destructors
 public:
     // constructor:
-    QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p, OUTPUT_TYPE out_type);
+    /* QxModuleQueue qx_queue(TYPE_VECTOR(types), fst_input_p, true); */
+    QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p);
 
     // destructor:
     ~QxModuleQueue();
@@ -37,6 +37,7 @@ private:
 // public functions:
 public:
     std::string& get_result(std::string& result);
+    void print_result();
 
 };
 

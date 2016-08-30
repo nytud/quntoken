@@ -37,6 +37,12 @@ void QxModule::using_module() {
         case TOKEN:
             module<token::token_lexer, token::Token>(TOKEN_TERMINATION);
             break;
+        case CONVXML:
+            module<convxml::convxml_lexer, convxml::Token>(CONVXML_TERMINATION);
+            break;
+        case CONVJSON:
+            module<convjson::convjson_lexer, convjson::Token>(CONVJSON_TERMINATION);
+            break;
         default:
             std::cerr << "Wrong module type!" << std::endl;
             exit(1);

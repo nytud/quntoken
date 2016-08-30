@@ -11,9 +11,6 @@
 // globals:
 const std::string HELP_STR = "Usage:\n\t./quntoken [-f FORMAT] FILE\n";
 
-// functions:
-std::map<std::string, OUTPUT_TYPE> create_format_map();
-
 
 int main(int argc, char** argv) {
 
@@ -44,37 +41,30 @@ int main(int argc, char** argv) {
     }
     else {
         std::cerr << "Missing file name!" << std::endl;
-        exit(0);
+        exit(1);
     }
 
     // output format
-    std::map<std::string, OUTPUT_TYPE> format_map = create_format_map();
-    OUTPUT_TYPE out_type;
-    try {
-        out_type = (format_flag ? format_map.at(format) : XML );
-    }
-    catch(const std::out_of_range & err) {
-        std::cerr << "Wrong format. Valid formats: xml, json" << std::endl;
-        exit(1);
+    MODULE_TYPE out_type = CONVXML;
+    if(format_flag)
+    {
+        if(format == "xml") {}
+        else if(format == "json") { out_type = CONVJSON; }
+        else
+        {
+            std::cerr << "Wrong format. Valid formats: xml, json" << std::endl;
+            exit(1);
+        }
     }
 
     // call quntoken
     std::ifstream inp_fstream(input_file);
     std::stringstream inp_sstream;
     inp_sstream << inp_fstream.rdbuf();
-    quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &inp_sstream, out_type);
+    quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
 
     std::cout << std::endl;
 
     return 0;
-}
-
-
-
-std::map<std::string, OUTPUT_TYPE> create_format_map() {
-    std::map<std::string, OUTPUT_TYPE> format_map;
-    format_map["json"] = JSON;
-    format_map["xml"] = XML;
-    return format_map;
 }
 

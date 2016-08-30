@@ -56,14 +56,7 @@ QUEXFLAGS =	-i $^ \
 			--odir $(TMP_DIR)/ \
 			--iconv
 			# --icu
-# Megj1: icu konverter használata:
-#   - telepíteni kell a libicu52-t és a libicu-dev-et
-#   - quex-nek kell az --icu kapcsoló
-#   - g++-nak linkelésnél kell a `icu-config --ldflags`, ami visszaadja a
-#     linkernek szánt paramétereket (valami érthetetlen oknál fogva nem mindegy
-#     az `icu-config --ldflags` helye a kapcsolók között!)
-#   - példa: ../quex/Demo/Cpp/003/-ban
-# Megj2: -b 2 is lehetne, de ekkor egyes unicode char. propert.-eket
+# Megj: -b 2 is lehetne, de ekkor egyes unicode char. propert.-eket
 # használó szabálynál pampog a quex, hogy 2 bájtba nem fér minden bele
 
 # parhuzamositas
@@ -111,6 +104,7 @@ common:
 	$(MAKE) quex_files
 	$(MAKE) object_files
 
+
 ### binaries
 $(TARGET_DIR)/quntoken: $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
 	$(CXX) $< -L$(LIB_DIR) -static-libstdc++ -static -lquntoken -o $@
@@ -118,18 +112,14 @@ $(TARGET_DIR)/quntoken: $(TMP_DIR)/main.o $(LIB_DIR)/libquntoken.a
 $(TARGET_DIR)/test: $(TMP_DIR)/test.o $(LIB_DIR)/libquntoken.a $(TMP_DIR)/gtest.a
 	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^ -o $@
 
-### libraries
-$(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/converter.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o
-	$(AR) rscv $@ $^
 
-# TODO: .o files should have been compiled using option -fpic for this
-#$(LIB_DIR)/libquntoken.so: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/converter.o
-#	mkdir -p $(LIB_DIR)
-#	$(CXX) -shared $^ -Wl,-soname,libquntoken.so -o $@
+### libraries
+$(LIB_DIR)/libquntoken.a: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/convxml.o $(TMP_DIR)/convjson.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o
+	$(AR) rscv $@ $^
 
 
 ### object files
-object_files: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/converter.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o $(TMP_DIR)/test.o $(TMP_DIR)/main.o
+object_files: $(TMP_DIR)/prep.o $(TMP_DIR)/snt.o $(TMP_DIR)/sntcorr.o $(TMP_DIR)/token.o $(TMP_DIR)/convxml.o $(TMP_DIR)/convjson.o $(TMP_DIR)/qx_module.o $(TMP_DIR)/qx_module_queue.o $(TMP_DIR)/quntoken_api.o $(TMP_DIR)/test.o $(TMP_DIR)/main.o
 
 .PHONY: object_files
 
@@ -142,14 +132,12 @@ $(TMP_DIR)/test.o: $(TMP_DIR)/test.cpp $(CPP_DIR)/*.h quex_files
 $(TMP_DIR)/quntoken_api.o: $(CPP_DIR)/quntoken_api.cpp $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/qx_module_queue.h
 	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
-$(TMP_DIR)/qx_module_queue.o: $(CPP_DIR)/qx_module_queue.cpp $(CPP_DIR)/qx_module_queue.h $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/converter.h $(CPP_DIR)/qx_module.h quex_files
+$(TMP_DIR)/qx_module_queue.o: $(CPP_DIR)/qx_module_queue.cpp $(CPP_DIR)/qx_module_queue.h $(CPP_DIR)/quntoken_api.h $(CPP_DIR)/qx_module.h quex_files
 	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
 $(TMP_DIR)/qx_module.o: $(CPP_DIR)/qx_module.cpp $(CPP_DIR)/qx_module.h $(CPP_DIR)/quntoken_api.h quex_files
 	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
-$(TMP_DIR)/converter.o: $(CPP_DIR)/converter.cpp $(CPP_DIR)/converter.h $(CPP_DIR)/quntoken_api.h
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP_DIR)/prep.o: $(TMP_DIR)/prep_prep_lexer.cpp
 	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
@@ -163,12 +151,18 @@ $(TMP_DIR)/sntcorr.o: $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp
 $(TMP_DIR)/token.o: $(TMP_DIR)/token_token_lexer.cpp
 	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
 
+$(TMP_DIR)/convxml.o: $(TMP_DIR)/convxml_convxml_lexer.cpp
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
+
+$(TMP_DIR)/convjson.o: $(TMP_DIR)/convjson_convjson_lexer.cpp
+	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
+
 
 ### quex
 # parancsok
 QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
 
-quex_files: $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(TMP_DIR)/token_token_lexer.cpp
+quex_files: $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(TMP_DIR)/token_token_lexer.cpp $(TMP_DIR)/convxml_convxml_lexer.cpp $(TMP_DIR)/convjson_convjson_lexer.cpp
 
 .PHONY: quex_files
 
@@ -191,6 +185,16 @@ $(TMP_DIR)/token_token_lexer.cpp: $(DEFINITIONS) $(TOKEN_MODULE)
 	$(QUEX_CMD)	$(QUEXFLAGS) \
 				-o token::token_lexer \
 				--token-id-prefix TOKEN_
+
+$(TMP_DIR)/convxml_convxml_lexer.cpp: $(DEFINITIONS) $(QMODULES_DIR)/convxml.qx
+	$(QUEX_CMD)	$(QUEXFLAGS) \
+				-o convxml::convxml_lexer \
+				--token-id-prefix CONVXML_
+
+$(TMP_DIR)/convjson_convjson_lexer.cpp: $(DEFINITIONS) $(QMODULES_DIR)/convjson.qx
+	$(QUEX_CMD)	$(QUEXFLAGS) \
+				-o convjson::convjson_lexer \
+				--token-id-prefix CONVJSON_
 
 # roviditeseket tartalmayo abbrev.qx generalasa
 $(TMP_DIR)/abbrev.qx: $(SCRIPTS_DIR)/generate_abbrev.qx.py $(ABBREVIATIONS)

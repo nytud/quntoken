@@ -8,7 +8,7 @@
 std::string prepTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP}, &inp, XML);
+    quntoken_get_str(result, {PREP, CONVXML}, &inp);
     return result;
 }
 
@@ -16,7 +16,7 @@ std::string prepTest(std::string text) {
 std::string sntTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, SNT}, &inp, XML);
+    quntoken_get_str(result, {PREP, SNT, CONVXML}, &inp);
     return result;
 }
 
@@ -24,14 +24,14 @@ std::string sntTest(std::string text) {
 std::string sntcorrTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR}, &inp, XML);
+    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, CONVXML}, &inp);
     return result;
 }
 
 std::string tokenTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN}, &inp, XML);
+    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN, CONVXML}, &inp);
     return result;
 }
 
