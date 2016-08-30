@@ -9,7 +9,13 @@
 
 
 // globals:
-const std::string HELP_STR = "Usage:\n\t./quntoken [-f FORMAT] FILE\n";
+const std::string HELP_STR = "Usage:\n"
+                             "\tquntoken [OPTION] FILE\n"
+                             "Options:\n"
+                             "\t-f FORMAT\toutput format; valid formats: xml, json\n"
+                             "\t-V\t\tdisplay version number\n"
+                             "\t-h\t\tdisplay this help and exit";
+const std::string VERSION  = "quntoken 0.2.0";
 
 
 int main(int argc, char** argv) {
@@ -18,7 +24,7 @@ int main(int argc, char** argv) {
     int c;
     int format_flag = 0;
     std::string format;
-    while( (c = getopt(argc, argv, "hf:")) != -1 ) {
+    while( (c = getopt(argc, argv, "hVf:")) != -1 ) {
         switch (c) {
             case 'f':
                 format_flag = 1;
@@ -26,6 +32,10 @@ int main(int argc, char** argv) {
                 break;
             case 'h':
                 std::cout << HELP_STR << std::endl;
+                exit(0);
+                break;
+            case 'V':
+                std::cout << VERSION << std::endl;
                 exit(0);
                 break;
             default:
