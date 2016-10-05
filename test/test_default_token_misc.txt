@@ -22,6 +22,10 @@ OUT: <s><w>AT&T</w><ws> </ws><w>van</w><c>.</c></s>
     OUT: <s><w>Lak(ik)</w><w>-e</w><ws> </ws><w>van</w><c>?</c></s>
 
 
+Combining diacritical marks
+IN : Áríztűrő cõmbïning diācritica̖l ma̗rks̱.
+OUT: <s><w>Áríztűrő</w><ws> </ws><w>cõmbïning</w><ws> </ws><w>diācritica̖l</w><ws> </ws><w>ma̗rks̱</w><c>.</c></s>
+
 
 
 
