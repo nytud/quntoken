@@ -8,6 +8,7 @@
 
 enum MODULE_TYPE {
         PREP = 0,
+        HYPHEN,
         SNT,
         SNTCORR,
         TOKEN,

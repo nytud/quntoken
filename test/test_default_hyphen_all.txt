@@ -1,0 +1,58 @@
+# HYPHEN all
+
+0.
+IN : Tél-
+IN : apó.
+OUT: Télapó.
+
+
+1. Sorvegi elvalasztas osszevonasa.
+IN : Az elválasztás nyelvi értelem-
+IN : ben azt jelenti, ha egy szót nyomtatott szövegben – rendszerint sor végén –
+IN : megszakítunk.
+OUT: Az elválasztás nyelvi értelemben azt jelenti, ha egy szót nyomtatott szövegben – rendszerint sor végén –
+OUT: megszakítunk.
+
+2. Uez rekurzivan.
+IN : Azelválasztás-
+IN : nyelviértelembenazt-
+IN : jelenti,haegyszót-
+IN : nyomtatottszövegben–rendszerint-
+IN : sorvégén–megszakítunk.
+OUT: Azelválasztásnyelviértelembenaztjelenti,haegyszótnyomtatottszövegben–rendszerintsorvégén–megszakítunk.
+
+3. Nem elvalasztojelnel semmit nem csinal.
+IN : Tél–
+IN : apó.
+OUT: Tél–
+OUT: apó.
+
+4. Nem betu utan semmit nem csinal.
+IN : Tél -
+IN : apó.
+OUT: Tél -
+OUT: apó.
+
+IN : Tél4-
+IN : apó.
+OUT: Tél4-
+OUT: apó.
+
+5. Nem betu elott semmit nem csinal.
+IN : Tél-
+IN :  apó.
+OUT: Tél-
+OUT:  apó.
+
+IN : Tél-
+IN : 4apó.
+OUT: Tél-
+OUT: 4apó.
+
+
+6. Combining diacritical marks
+IN : Té-
+IN : lapó.
+OUT: Télapó.
+
+

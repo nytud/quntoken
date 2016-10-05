@@ -4,6 +4,7 @@
 #include <sstream>
 #include "quntoken_api.h"
 #include "prep_prep_lexer"
+#include "hyphen_hyphen_lexer"
 #include "snt_snt_lexer"
 #include "sntcorr_sntcorr_lexer"
 #include "token_token_lexer"

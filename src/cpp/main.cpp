@@ -13,9 +13,10 @@ const std::string HELP_STR = "Usage:\n"
                              "\tquntoken [OPTION] FILE\n"
                              "Options:\n"
                              "\t-f FORMAT\toutput format; valid formats: xml, json\n"
+                             "\t-d\t\tremove division of words from end of the line\n"
                              "\t-V\t\tdisplay version number\n"
                              "\t-h\t\tdisplay this help and exit";
-const std::string VERSION  = "quntoken 0.2.0";
+const std::string VERSION  = "quntoken 0.3.0";
 
 
 int main(int argc, char** argv) {
@@ -23,12 +24,16 @@ int main(int argc, char** argv) {
     // commandline arguments
     int c;
     int format_flag = 0;
+    int hyphen_flag = 0;
     std::string format;
-    while( (c = getopt(argc, argv, "hVf:")) != -1 ) {
+    while( (c = getopt(argc, argv, "hVdf:")) != -1 ) {
         switch (c) {
             case 'f':
                 format_flag = 1;
                 format = optarg;
+                break;
+            case 'd':
+                hyphen_flag = 1;
                 break;
             case 'h':
                 std::cout << HELP_STR << std::endl;
@@ -71,9 +76,16 @@ int main(int argc, char** argv) {
     std::ifstream inp_fstream(input_file);
     std::stringstream inp_sstream;
     inp_sstream << inp_fstream.rdbuf();
-    quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+    if(hyphen_flag)
+    {
+        quntoken_print({PREP, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+    }
+    else
+    {
+        quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+    }
 
-    std::cout << std::endl;
+    /* std::cout << std::endl; */
 
     return 0;
 }

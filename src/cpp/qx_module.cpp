@@ -28,6 +28,9 @@ void QxModule::using_module() {
         case PREP:
             module<prep::prep_lexer, prep::Token>(PREP_TERMINATION);
             break;
+        case HYPHEN:
+            module<hyphen::hyphen_lexer, hyphen::Token>(HYPHEN_TERMINATION);
+            break;
         case SNT:
             module<snt::snt_lexer, snt::Token>(SNT_TERMINATION);
             break;

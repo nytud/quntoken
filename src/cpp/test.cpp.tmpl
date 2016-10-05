@@ -13,6 +13,14 @@ std::string prepTest(std::string text) {
 }
 
 
+std::string hyphenTest(std::string text) {
+    std::stringstream inp(text);
+    std::string result;
+    quntoken_get_str(result, {PREP, HYPHEN, CONVXML}, &inp);
+    return result;
+}
+
+
 std::string sntTest(std::string text) {
     std::stringstream inp(text);
     std::string result;

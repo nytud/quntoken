@@ -11,10 +11,7 @@ body {
     // A veluk parhuzamos, a quex altal pattern-kent hasznalt definiciokat a
     // 'define' szekcio tartalmazza. Modositasnal es uj tag/karkter
     // felvetelenel a megfelelo _QX vegzodesu definiciokat is cserelni vagy
-    // felvenni kell. Ezeket a definiciokat hasznalja tovabba a printer.cpp
-    // fajl is, csak wstring helyett sima string-kent. Modositasnal vagy
-    // kiegeszitesnel azt a fajlt is modositani vagy kiegesziteni kell.
-
+    // felvenni kell.
     // Az xml tag-ek helyett spec. karakterek vannak a későbbi feldolgozást
     // megkönnyítendő.
     const std::wstring SNT_OPEN_CPP     = L"🀰";
@@ -31,22 +28,24 @@ body {
 
 
     // FUGGVENYEK
+    // Megj.: Az itt levo fuggvenyeknek az egyes modulokban lenne a helye,
+    //      de ha azokban van 'body' szekcio, akkor az felulirja az ittenit,
+    //      igy ezekben nem lenne hasznalhato a tobbi, itt deklaralt dolog sem.
+    //      Szoval ezek itt vannak es kesz.
 
-    // Az SNT es WS tag-ek osszes elofordulasanak torlese a kapott lexeme-bol,
-    // javitott szoveg visszaadasa wstring-kent.
-    // Megj.: Az sntcorr.qx-ben lenne a helye, de ha abban van 'body' szekcio,
-    //      akkor az felulirja az ittenit, igy az sntcorr.qx-ben nem lenne
-    //      hasznalhato a tobbi, itt deklaralt dolog sem. Szoval itt van, a
-    //      tobbi modul meg nem hasznalja es kesz.
-    std::wstring snt_boundary_correction(const wchar_t* lexeme) {
+    // modul: HYPHEN
+    /* NEWLINECHAR [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :] */
+    /* NEWLINE     "\r\n"|{NEWLINECHAR} */
+    std::wstring hyphenation(const wchar_t* lexeme) {
         std::wstring text(lexeme);
-        delete_str(text, SNT_OPEN_CPP);
-        delete_str(text, SNT_CLOSE_CPP);
-        delete_str(text, WS_OPEN_CPP);
-        delete_str(text, WS_CLOSE_CPP);
+        delete_str(text, L"-\r\n");
+        delete_str(text, L"-\n");
+        delete_str(text, L"-\f");
+        delete_str(text, L"-\v");
         return text;
     }
 
+    // modul: HYPHEN, SNTCORR
     // str osszes elofordulasanak torlese text-bol
     void delete_str(std::wstring &text, const std::wstring &str) {
         for(size_t pos = text.find(str);
@@ -57,8 +56,19 @@ body {
         }
     }
 
-    // functions for TOKEN module:
-    //
+    // modul: SNTCORR
+    // Az SNT es WS tag-ek osszes elofordulasanak torlese a kapott lexeme-bol,
+    // javitott szoveg visszaadasa wstring-kent.
+    std::wstring snt_boundary_correction(const wchar_t* lexeme) {
+        std::wstring text(lexeme);
+        delete_str(text, SNT_OPEN_CPP);
+        delete_str(text, SNT_CLOSE_CPP);
+        delete_str(text, WS_OPEN_CPP);
+        delete_str(text, WS_CLOSE_CPP);
+        return text;
+    }
+
+    // modul: TOKEN:
     // dot at the end of the senetence belong to sentence, not to word
     void sntend_corrig(std::wstring &LEX) {
         if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
@@ -73,6 +83,8 @@ body {
         }
         return;
     }
+
+    // modul: TOKEN:
     // correct snt ending, more dots in LEX separate tokens
     void basic_token_corrig(std::wstring &LEX) {
         std::wstring res;
@@ -117,6 +129,8 @@ body {
         LEX = res;
         return;
     }
+
+    // modul: TOKEN:
     // "-e" at the end of word is treated as a new word
     void particula_token_corrig(std::wstring &LEX) {
         self.basic_token_corrig(LEX);
@@ -222,7 +236,7 @@ define {
 
     NEWLINECHAR [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
 
-    NEWLINE     {NEWLINECHAR}|"\r\n"
+    NEWLINE     "\r\n"|{NEWLINECHAR}
 
     SPACE       [: intersection( {BASE_CLASS}, union(difference(\P{White_Space}, {NEWLINECHAR}), [­]) ) :]
 

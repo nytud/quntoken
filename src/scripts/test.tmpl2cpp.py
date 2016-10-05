@@ -128,7 +128,7 @@ def main():
 if __name__ == "__main__":
     INP_PREFIX = "IN : "
     OUT_PREFIX = "OUT: "
-    MODULES2FUNCTIONS = {'PREP':'prepTest', 'SNT':'sntTest', 'SNTCORR':'sntcorrTest', 'TOKEN':'tokenTest'}
+    MODULES2FUNCTIONS = {'PREP':'prepTest', 'HYPHEN':'hyphenTest', 'SNT':'sntTest', 'SNTCORR':'sntcorrTest', 'TOKEN':'tokenTest'}
     TEST_TEMPLATE = Template("""TEST(${TESTCASE}, ${TESTNAME}){
     ${EXPECTATIONS}\n}""")
     EXPECT_TEMPLATE = Template("""
@@ -143,6 +143,7 @@ if __name__ == "__main__":
     Jelenelg elerheto modulok:
         - PREP: elofeldolgozas, ervenytelen  karakterek szurese, html entity-k,
           xml tag-ek kezelese
+        - HYPHEN: sorvegi elvalasztas torlese, osszevonas a kovetkezo sor elso tokenjevel
         - SNT: alap mondatra bontas
         - SNTCORR: mondatrabontas hibainak korrigalasa (roviditesek, datumok)
         - TOKEN: szavakra bontás
