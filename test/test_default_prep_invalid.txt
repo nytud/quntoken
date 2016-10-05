@@ -27,3 +27,7 @@ OUT: �
 OUT: �
 OUT: �
 
+valid (combining diacritical marks)
+IN : Áríztűrő cõmbïning diācritica̖l ma̗rks̱.
+OUT: Áríztűrő cõmbïning diācritica̖l ma̗rks̱.
+
