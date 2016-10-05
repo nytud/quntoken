@@ -2,8 +2,6 @@
 
 New Hungarian tokenizer based on quex and huntoken.
 
-Verison: pre-alpha
-
 ## Requirements
 
 * linux
@@ -23,8 +21,12 @@ make all
 ## Usage
 
 ```
-./quntoken [-f FORMAT] FILE
+./quntoken [OPTIONS] [-f FORMAT] FILE
 ```
-Valid formats: `xml`, `json`  
-Default format: `xml`
+### Options
+
+* -d: Remove division of words at the end of the lines.
+* -f: Define output format. Valid formats: xml, json. Default format: xml.
+* -V: Display version number and exit.
+* -h: Display help and exit.
 

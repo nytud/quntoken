@@ -10,12 +10,12 @@
 
 // globals:
 const std::string HELP_STR = "Usage:\n"
-                             "\tquntoken [OPTION] FILE\n"
+                             "\tquntoken [OPTIONS] [-f FORMAT] FILE\n"
                              "Options:\n"
-                             "\t-f FORMAT\toutput format; valid formats: xml, json\n"
-                             "\t-d\t\tremove division of words from end of the line\n"
-                             "\t-V\t\tdisplay version number\n"
-                             "\t-h\t\tdisplay this help and exit";
+                             "\t-d\t\tRemove division of words at the end of the lines.\n"
+                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json. Default format: xml.\n"
+                             "\t-V\t\tDisplay version number and exit.\n"
+                             "\t-h\t\tDisplay this help and exit";
 const std::string VERSION  = "quntoken 0.3.0";
 
 
