@@ -260,7 +260,7 @@ define {
 
     SNTCHAR     [: intersection( {BASE_CLASS}, [^.?!\n] ) :]
 
-    SNTBEGINCHR [: intersection( {BASE_CLASS}, [^?!\n ] ) :]
+    SNTBEGINCHR [: difference( {BASE_CLASS}, union([?!], {WSPACE}) ) :]
 
     ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :]
 
