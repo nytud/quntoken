@@ -80,9 +80,9 @@ test: $(TARGET_DIR)/test
 .PHONY: test
 
 
-install: prepare install_gtest install_quex
+prereq: create_dirs install_gtest install_quex
 
-.PHONY: install
+.PHONY: prereq
 
 
 update: update_gtest update_quex
@@ -248,12 +248,12 @@ CMD_INSTALL_QUEX = \
 	rm $(QUEX_STABLE_VERSION).tar.gz
 CMD_UPDATE_QUEX = cd $(QUEX_DIR) ; svn up
 
-prepare:
+create_dirs:
 	mkdir -p $(TARGET_DIR)
 	mkdir -p $(TMP_DIR)
 	mkdir -p $(LIB_DIR)
 
-.PHONY: prepare
+.PHONY: create_dirs
 
 install_gtest:
 	if ! [ -d $(GTEST_DIR) ] ; then $(CMD_INSTALL_GTEST) ; fi
