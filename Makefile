@@ -165,7 +165,7 @@ $(TMP_DIR)/convjson.o: $(TMP_DIR)/convjson_convjson_lexer.cpp
 # parancsok
 QUEX_CMD		= export QUEX_PATH=$(QUEX_DIR) ; $(QUEX_DIR)/quex-exe.py
 
-quex_files: $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(TMP_DIR)/token_token_lexer.cpp $(TMP_DIR)/convxml_convxml_lexer.cpp $(TMP_DIR)/convjson_convjson_lexer.cpp
+quex_files: $(TMP_DIR)/prep_prep_lexer.cpp $(TMP_DIR)/hyphen_hyphen_lexer.cpp $(TMP_DIR)/snt_snt_lexer.cpp $(TMP_DIR)/sntcorr_sntcorr_lexer.cpp $(TMP_DIR)/token_token_lexer.cpp $(TMP_DIR)/convxml_convxml_lexer.cpp $(TMP_DIR)/convjson_convjson_lexer.cpp
 
 .PHONY: quex_files
 
@@ -204,7 +204,7 @@ $(TMP_DIR)/convjson_convjson_lexer.cpp: $(DEFINITIONS) $(QMODULES_DIR)/convjson.
 				-o convjson::convjson_lexer \
 				--token-id-prefix CONVJSON_
 
-# roviditeseket tartalmayo abbrev.qx generalasa
+# roviditeseket tartalmazo abbrev.qx generalasa
 $(TMP_DIR)/abbrev.qx: $(SCRIPTS_DIR)/generate_abbrev.qx.py $(ABBREVIATIONS)
 	./$< -d $(word 2, $^) -o $@
 
