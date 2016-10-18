@@ -78,11 +78,11 @@ int main(int argc, char** argv) {
     inp_sstream << inp_fstream.rdbuf();
     if(hyphen_flag)
     {
-        quntoken_print({PREP, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+        quntoken_print({PREPROC, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
     }
     else
     {
-        quntoken_print({PREP, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+        quntoken_print({PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
     }
 
     /* std::cout << std::endl; */

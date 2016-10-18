@@ -115,27 +115,27 @@ mode PROGRAM {
                ){NEWLINE}?)*{SIMPLESNT}{SNTEND} {
         std::wstring LEX(Lexeme);
         LEX = self.SNT_OPEN_CPP + LEX + self.SNT_CLOSE_CPP;
-        self_send1(SNT_SENTENCE, LEX.c_str());
+        self_send1(snt_SENTENCE, LEX.c_str());
     }
 
     // mondatközi whitespace-eket leíró szabály
     {WSPACE}+   {
         std::wstring LEX(Lexeme);
         LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
-        self_send1(SNT_WHITESPACE, LEX.c_str());
+        self_send1(snt_WHITESPACE, LEX.c_str());
     }
 
     // mondatkozi nem-mondatkezdo karakterek
     [: difference( {BASE_CLASS}, {SNTBEGINCHR} ) :] {
         std::wstring LEX(Lexeme);
         LEX = self.SNT_OPEN_CPP + LEX + self.SNT_CLOSE_CPP;
-        self_send1(SNT_SENTENCE, LEX.c_str());
+        self_send1(snt_SENTENCE, LEX.c_str());
     }
 
 
-    on_failure  => SNT_TERMINATION;
-    <<EOF>>     => SNT_TERMINATION;
-    on_end_of_stream => SNT_TERMINATION;
+    on_failure  => snt_TERMINATION;
+    <<EOF>>     => snt_TERMINATION;
+    on_end_of_stream => snt_TERMINATION;
 }
 
 // vim:set syntax=cpp:

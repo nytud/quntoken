@@ -25,26 +25,26 @@ std::stringstream* QxModule::get_output_p() {
 
 void QxModule::using_module() {
     switch(type) {
-        case PREP:
-            module<prep::prep_lexer, prep::Token>(PREP_TERMINATION);
+        case PREPROC:
+            module<preproc::Lexer, preproc::Token>(preproc_TERMINATION);
             break;
         case HYPHEN:
-            module<hyphen::hyphen_lexer, hyphen::Token>(HYPHEN_TERMINATION);
+            module<hyphen::Lexer, hyphen::Token>(hyphen_TERMINATION);
             break;
         case SNT:
-            module<snt::snt_lexer, snt::Token>(SNT_TERMINATION);
+            module<snt::Lexer, snt::Token>(snt_TERMINATION);
             break;
         case SNTCORR:
-            module<sntcorr::sntcorr_lexer, sntcorr::Token>(SNTCORR_TERMINATION);
+            module<sntcorr::Lexer, sntcorr::Token>(sntcorr_TERMINATION);
             break;
         case TOKEN:
-            module<token::token_lexer, token::Token>(TOKEN_TERMINATION);
+            module<token::Lexer, token::Token>(token_TERMINATION);
             break;
         case CONVXML:
-            module<convxml::convxml_lexer, convxml::Token>(CONVXML_TERMINATION);
+            module<convxml::Lexer, convxml::Token>(convxml_TERMINATION);
             break;
         case CONVJSON:
-            module<convjson::convjson_lexer, convjson::Token>(CONVJSON_TERMINATION);
+            module<convjson::Lexer, convjson::Token>(convjson_TERMINATION);
             break;
         default:
             std::cerr << "Wrong module type!" << std::endl;

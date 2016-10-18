@@ -8,7 +8,7 @@
 std::string prepTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, CONVXML}, &inp);
+    quntoken_get_str(result, {PREPROC, CONVXML}, &inp);
     return result;
 }
 
@@ -16,7 +16,7 @@ std::string prepTest(std::string text) {
 std::string hyphenTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, HYPHEN, CONVXML}, &inp);
+    quntoken_get_str(result, {PREPROC, HYPHEN, CONVXML}, &inp);
     return result;
 }
 
@@ -24,7 +24,7 @@ std::string hyphenTest(std::string text) {
 std::string sntTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, SNT, CONVXML}, &inp);
+    quntoken_get_str(result, {PREPROC, SNT, CONVXML}, &inp);
     return result;
 }
 
@@ -32,14 +32,14 @@ std::string sntTest(std::string text) {
 std::string sntcorrTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, CONVXML}, &inp);
+    quntoken_get_str(result, {PREPROC, SNT, SNTCORR, SNTCORR, CONVXML}, &inp);
     return result;
 }
 
 std::string tokenTest(std::string text) {
     std::stringstream inp(text);
     std::string result;
-    quntoken_get_str(result, {PREP, SNT, SNTCORR, SNTCORR, TOKEN, CONVXML}, &inp);
+    quntoken_get_str(result, {PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, CONVXML}, &inp);
     return result;
 }
 

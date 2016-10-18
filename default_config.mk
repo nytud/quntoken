@@ -1,19 +1,29 @@
 # Itt lehet megadni a forditando modulokat, a hozzajuk tartozo teszteketes
 # egyeb tartozekaikat.
 
-# quex modulok es modul templatumok forrasai
-QMODULES_DIR = src/quex_modules
 
-DEFINITIONS		= $(QMODULES_DIR)/definitions.qx
-PREP_MODULE    	= $(QMODULES_DIR)/preproc.qx
-HYPHEN_MODULE   = $(QMODULES_DIR)/hyphen.qx
-SNT_MODULE     	= $(QMODULES_DIR)/snt.qx
-SNTCORR_MODULE 	= $(QMODULES_DIR)/sntcorr.qx
-TOKEN_MODULE	= $(QMODULES_DIR)/token.qx
+# DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SRC_QX			= src/quex_modules
+SRC_ABBR		= data
+
+
+# FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ABBREVIATIONS	= abbreviations_orig-hu.txt
+ABBRLEXER		= $(ABBREVIATIONS:%.txt=%.qx)
+DEFINITIONS		= definitions.qx
+QXDEPS			= $(SRC_QX)/$(DEFINITIONS) $(TMP)/$(ABBRLEXER)
+QXLEXERS		= preproc hyphen snt sntcorr token convxml convjson
+
+
+# modules - TODO: make this deprecated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PREP_MODULE    	= $(SRC_QX)/preproc.qx
+HYPHEN_MODULE   = $(SRC_QX)/hyphen.qx
+SNT_MODULE     	= $(SRC_QX)/snt.qx
+SNTCORR_MODULE 	= $(SRC_QX)/sntcorr.qx
+TOKEN_MODULE	= $(SRC_QX)/token.qx
 
 # roviditeseket tartalmazo fajl az SNTCORR_MODULE-hoz
 # Megj: fejleszteshez erdemes az orig-ot haznalni, mert joval gyorsabban fordul
-ABBREVIATIONS	= data/abbreviations_orig-hu.txt
 # ABBREVIATIONS	= data/abbreviations_nytud-hu.txt
 
 

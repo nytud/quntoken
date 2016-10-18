@@ -16,14 +16,14 @@ define
 mode PREPROC {
     {HYPHEN}        {
         std::wstring LEX(self.hyphenation(Lexeme));
-        self_send1(HYPHEN_LINE, LEX.c_str());
+        self_send1(hyphen_LINE, LEX.c_str());
     }
-    {NEWLINECHAR}+  => HYPHEN_NEWLINES(Lexeme);
-    {LINE}          => HYPHEN_LINE(Lexeme);
+    {NEWLINECHAR}+  => hyphen_NEWLINES(Lexeme);
+    {LINE}          => hyphen_LINE(Lexeme);
 
-    on_failure          => HYPHEN_TERMINATION;
-    <<EOF>>             => HYPHEN_TERMINATION;
-    on_end_of_stream    => HYPHEN_TERMINATION;
+    on_failure          => hyphen_TERMINATION;
+    <<EOF>>             => hyphen_TERMINATION;
+    on_end_of_stream    => hyphen_TERMINATION;
 }
 
 // vim:set syntax=cpp:

@@ -3,13 +3,13 @@
 
 #include <sstream>
 #include "quntoken_api.h"
-#include "prep_prep_lexer"
-#include "hyphen_hyphen_lexer"
-#include "snt_snt_lexer"
-#include "sntcorr_sntcorr_lexer"
-#include "token_token_lexer"
-#include "convxml_convxml_lexer"
-#include "convjson_convjson_lexer"
+#include "preproc_Lexer"
+#include "hyphen_Lexer"
+#include "snt_Lexer"
+#include "sntcorr_Lexer"
+#include "token_Lexer"
+#include "convxml_Lexer"
+#include "convjson_Lexer"
 
 
 class QxModule {

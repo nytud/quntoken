@@ -7,8 +7,8 @@ token {
 
 mode PREPROC {
     // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => PREP_BASECHARS(Lexeme);
-    {NEWLINECHAR}+      => PREP_BASECHARS(Lexeme);
+    [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => preproc_BASECHARS(Lexeme);
+    {NEWLINECHAR}+      => preproc_BASECHARS(Lexeme);
 
     // A nem abba tartozokat lecsereljuk es hibauzenetet adunk.
     .               {
@@ -16,11 +16,11 @@ mode PREPROC {
                   << self.line_number() << ","
                   << self.column_number() << "): "
                   << QUEX_CONVERTER_STRING(unicode, char)(Lexeme) << std::endl;
-        self_send1(PREP_REPLACEMENTCHAR, self.REPLACEMENTCHAR_CPP.c_str());
+        self_send1(preproc_REPLACEMENTCHAR, self.REPLACEMENTCHAR_CPP.c_str());
     }
-    on_failure      => PREP_TERMINATION;
-    <<EOF>>         => PREP_TERMINATION;
-    on_end_of_stream => PREP_TERMINATION;
+    on_failure      => preproc_TERMINATION;
+    <<EOF>>         => preproc_TERMINATION;
+    on_end_of_stream => preproc_TERMINATION;
 }
 
 // vim:set syntax=cpp:

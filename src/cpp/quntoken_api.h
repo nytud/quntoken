@@ -7,7 +7,7 @@
 
 
 enum MODULE_TYPE {
-        PREP = 0,
+        PREPROC = 0,
         HYPHEN,
         SNT,
         SNTCORR,
