@@ -133,12 +133,12 @@ $(BIN)/test: $(TMP)/test.o $(LIB)/libquntoken.a $(TMP)/gtest.a
 
 
 ### libraries
-$(LIB)/libquntoken.a: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qx_module_queue.o $(TMP)/quntoken_api.o
+$(LIB)/libquntoken.a: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qxqueue.o $(TMP)/quntoken_api.o
 	$(AR) rscv $@ $^
 
 
 ### object files
-object_files: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qx_module_queue.o $(TMP)/quntoken_api.o $(TMP)/test.o $(TMP)/$(NAME).o
+object_files: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qxqueue.o $(TMP)/quntoken_api.o $(TMP)/test.o $(TMP)/$(NAME).o
 
 .PHONY: object_files
 
@@ -148,10 +148,10 @@ $(TMP)/$(NAME).o: $(SRC_CPP)/$(NAME).cpp $(SRC_CPP)/*.h $(SRC_CPP)/quntoken_api.
 $(TMP)/test.o: $(TMP)/test.cpp $(SRC_CPP)/*.h $(QXCPPS)
 	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-$(TMP)/quntoken_api.o: $(SRC_CPP)/quntoken_api.cpp $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qx_module_queue.h
+$(TMP)/quntoken_api.o: $(SRC_CPP)/quntoken_api.cpp $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qxqueue.h
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
-$(TMP)/qx_module_queue.o: $(SRC_CPP)/qx_module_queue.cpp $(SRC_CPP)/qx_module_queue.h $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qx_module.h $(QXCPPS)
+$(TMP)/qxqueue.o: $(SRC_CPP)/qxqueue.cpp $(SRC_CPP)/qxqueue.h $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qx_module.h $(QXCPPS)
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP)/qx_module.o: $(SRC_CPP)/qx_module.cpp $(SRC_CPP)/qx_module.h $(SRC_CPP)/quntoken_api.h $(QXCPPS)

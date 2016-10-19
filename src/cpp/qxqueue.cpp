@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <iostream>
-#include "qx_module_queue.h"
+#include "qxqueue.h"
 #include "qx_module.h"
 #include <sstream>
 #include <string>

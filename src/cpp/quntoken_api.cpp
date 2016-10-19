@@ -1,6 +1,6 @@
 #include <iostream>
 #include "quntoken_api.h"
-#include "qx_module_queue.h"
+#include "qxqueue.h"
 #include <quex/code_base/multi.i> // több quex modulhoz osszekapcsolasahoz
 #include <quex/code_base/definitions> // QUEX_CONVERTER_STRING-hez
 
