@@ -106,9 +106,9 @@ test: $(BIN)/test
 .PHONY: test
 
 
-install: prepare install_gtest install_quex
+prereq: create_dirs install_gtest install_quex
 
-.PHONY: install
+.PHONY: prereq
 
 
 update: update_gtest update_quex
@@ -183,9 +183,8 @@ print:
 .PHONY: nana
 
 
-# generate lexer for abbreviations
-$(TMP)/$(ABBREVIATIONS:%.txt=%.qx): $(SRC_SCRIPT)/generate_abbrev.qx.py $(SRC_ABBR)/$(ABBREVIATIONS)
-	./$< -d $(word 2, $^) -o $@
+# # generate lexer for abbreviations
+# $(TMP)/$(ABBREVIATIONS:%.txt=%.qx): $(SRC_SCRIPT)/generate_abbrev.qx.py $(SRC_ABBR)/$(ABBREVIATIONS)
 
 
 
@@ -228,12 +227,12 @@ CMD_INSTALL_QUEX = \
 	rm $(QUEX_STABLE_VERSION).tar.gz
 CMD_UPDATE_QUEX = cd $(QUEX) ; svn up
 
-prepare:
-	mkdir -p $(BIN)
-	mkdir -p $(TMP)
-	mkdir -p $(LIB)
+create_dirs:
+	mkdir -p $(TARGET_DIR)
+	mkdir -p $(TMP_DIR)
+	mkdir -p $(LIB_DIR)
 
-.PHONY: prepare
+.PHONY: create_dirs
 
 install_gtest:
 	if ! [ -d $(GTEST) ] ; then $(CMD_INSTALL_GTEST) ; fi
