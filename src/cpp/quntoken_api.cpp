@@ -7,14 +7,14 @@
 
 // functions to print result
 void quntoken_print(TYPE_VECTOR types, std::stringstream* fst_input_p) {
-    QxModuleQueue qx_queue(TYPE_VECTOR(types), fst_input_p);
+    QxQueue qx_queue(TYPE_VECTOR(types), fst_input_p);
     qx_queue.print_result();
 }
 
 
 // functions to get results as stirng
 void quntoken_get_str(std::string& result, TYPE_VECTOR types, std::stringstream* fst_input_p) {
-    QxModuleQueue qx_queue(TYPE_VECTOR(types), fst_input_p);
+    QxQueue qx_queue(TYPE_VECTOR(types), fst_input_p);
     qx_queue.get_result(result);
 }
 

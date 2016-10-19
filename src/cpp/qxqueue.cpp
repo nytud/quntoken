@@ -8,7 +8,7 @@
 
 
 // constructor:
-QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p)
+QxQueue::QxQueue(TYPE_VECTOR types, std::stringstream* fst_input_p)
 : modules(MODULE_VECTOR(types.size())), processed(false) {
     // empty queue, do nothing
     if(types.empty())
@@ -39,10 +39,10 @@ QxModuleQueue::QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p)
 }
 
 // destructor:
-QxModuleQueue::~QxModuleQueue() {}
+QxQueue::~QxQueue() {}
 
 // private functions:
-void QxModuleQueue::process()
+void QxQueue::process()
 {
     for(MODULE_VECTOR::iterator it = modules.begin();
         it != modules.end();
@@ -53,7 +53,7 @@ void QxModuleQueue::process()
     processed = true;
 }
 
-std::string& QxModuleQueue::get_result(std::string& result)
+std::string& QxQueue::get_result(std::string& result)
 {
     if(!processed)
     {
@@ -63,7 +63,7 @@ std::string& QxModuleQueue::get_result(std::string& result)
     return result;
 }
 
-void QxModuleQueue::print_result()
+void QxQueue::print_result()
 {
     if(!processed)
     {

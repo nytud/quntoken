@@ -13,7 +13,7 @@
 typedef std::vector<QxModule> MODULE_VECTOR;
 
 
-class QxModuleQueue {
+class QxQueue {
 
 // class members
 private:
@@ -24,11 +24,11 @@ private:
 // constructors & destructors
 public:
     // constructor:
-    /* QxModuleQueue qx_queue(TYPE_VECTOR(types), fst_input_p, true); */
-    QxModuleQueue(TYPE_VECTOR types, std::stringstream* fst_input_p);
+    /* QxQueue qx_queue(TYPE_VECTOR(types), fst_input_p, true); */
+    QxQueue(TYPE_VECTOR types, std::stringstream* fst_input_p);
 
     // destructor:
-    ~QxModuleQueue();
+    ~QxQueue();
 
 // private functions:
 private:
