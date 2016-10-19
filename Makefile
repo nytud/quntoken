@@ -183,8 +183,9 @@ print:
 .PHONY: nana
 
 
-# # generate lexer for abbreviations
-# $(TMP)/$(ABBREVIATIONS:%.txt=%.qx): $(SRC_SCRIPT)/generate_abbrev.qx.py $(SRC_ABBR)/$(ABBREVIATIONS)
+# generate lexer for abbreviations
+$(TMP)/$(ABBREVIATIONS:%.txt=%.qx): $(SRC_SCRIPT)/generate_abbrev.qx.py $(SRC_ABBR)/$(ABBREVIATIONS)
+	./$< -d $(word 2, $^) -o $@
 
 
 
@@ -228,9 +229,9 @@ CMD_INSTALL_QUEX = \
 CMD_UPDATE_QUEX = cd $(QUEX) ; svn up
 
 create_dirs:
-	mkdir -p $(TARGET_DIR)
-	mkdir -p $(TMP_DIR)
-	mkdir -p $(LIB_DIR)
+	mkdir -p $(BIN)
+	mkdir -p $(TMP)
+	mkdir -p $(LIB)
 
 .PHONY: create_dirs
 
