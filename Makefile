@@ -57,7 +57,6 @@ CXXFLAGS += \
 	-Werror -Wno-sign-compare \
 	-o $@ \
 	-std=c++11 \
-	-DQUEX_OPTION_POSIX \
 	-DQUEX_OPTION_ASSERTS_DISABLED \
 	-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
 	-DQUEX_OPTION_MULTI \
@@ -66,18 +65,12 @@ CXXFLAGS += \
 	-I$(QUEX) \
 	-I$(SRC_CPP)
 	# -g
+	# -DENCODING_NAME='"UTF8"' \
+	# -DQUEX_SETTING_BUFFER_SIZE=65536 \
+	# -DQUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE \
+	# -DQUEX_OPTION_POSIX \
+	# -liconv \
 
-# g++ kapcsoloi quex-es fajlokhoz
-CXXFLAGS_QUEX =	$(CXXFLAGS) \
-				-I$(QUEX) \
-				-I./ \
-				-DQUEX_OPTION_ASSERTS_DISABLED \
-				-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
-				-DENCODING_NAME='"UTF8"' \
-				-DQUEX_OPTION_MULTI \
-				-liconv \
-				# -DQUEX_SETTING_BUFFER_SIZE=65536 \
-				# -DQUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE \
 
 # g++ kapcsoloi gtest-es fajlokhoz
 CXXFLAGS_GTEST =	$(CXXFLAGS) \
@@ -85,7 +78,7 @@ CXXFLAGS_GTEST =	$(CXXFLAGS) \
 
 
 
-# parhuzamositas
+# PARHUZAMOSITAS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 NUMCPUS = `grep -c '^processor' /proc/cpuinfo`
 MAKE += -j $(NUMCPUS)
 
@@ -150,19 +143,19 @@ object_files: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qx_module_queue.o $(TMP)/qunto
 .PHONY: object_files
 
 $(TMP)/$(NAME).o: $(SRC_CPP)/$(NAME).cpp $(SRC_CPP)/*.h $(SRC_CPP)/quntoken_api.h
-	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP)/test.o: $(TMP)/test.cpp $(SRC_CPP)/*.h $(QXCPPS)
-	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS_QUEX) -c $<
+	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) -c $<
 
 $(TMP)/quntoken_api.o: $(SRC_CPP)/quntoken_api.cpp $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qx_module_queue.h
-	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP)/qx_module_queue.o: $(SRC_CPP)/qx_module_queue.cpp $(SRC_CPP)/qx_module_queue.h $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qx_module.h $(QXCPPS)
-	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP)/qx_module.o: $(SRC_CPP)/qx_module.cpp $(SRC_CPP)/qx_module.h $(SRC_CPP)/quntoken_api.h $(QXCPPS)
-	$(CXX) -o $@ $(CXXFLAGS_QUEX) -c $<
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 
 $(QXOBJS): %.o: %.cpp
@@ -214,11 +207,16 @@ $(TMP)/gtest_main.a : $(TMP)/gtest-all.o $(TMP)/gtest_main.o
 ######  I N S T A L L   A N D   U P D A T E  ##################################
 CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
 CMD_UPDATE_GTEST = cd $(GTEST) ; git pull
+# NOTE: a jelenlegi Quex verzio nem rossz, a 0.65.4-os az utolso hasznalhato
+# verzio. Ezert egyelore nem lehet hasznalni sem az aktualis verzio sima svn-es
+# letolteset, sem a svn-es frissitest. Ehelyett a history-bol kell letolteni es
+# nem szabad frissiteni.
+# CMD_INSTALL_QUEX =
+# 	cd $(TMP) ; \
+# 	svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
+# 	mv trunk/ ../$(QUEX)
 QUEX_STABLE_VERSION = quex-0.65.4
 QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_STABLE_VERSION).tar.gz
-# CMD_INSTALL_QUEX = cd $(TMP) ; \
-# 				   svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
-#                    mv trunk/ ../$(QUEX)
 CMD_INSTALL_QUEX = \
 	rm -rvf $(QUEX) ; \
 	cd $(TMP) ; \
@@ -240,31 +238,21 @@ install_gtest:
 
 .PHONY: install_gtest
 
-# TODO: a jelenlegi verzioval nem fordul a quex. A 0.65.4-os az utolso
-# hasznalhato verzio. Csak a downgrade utan lesz jo.
 install_quex:
 	if ! [ -d $(QUEX) ] ; then $(CMD_INSTALL_QUEX) ; fi
 
 .PHONY: install_quex
 
-# # Ez csak egy biztonsagi lehetoseg. Utana nem lesz frissitheto a quex (TODO).
-# downgrade_quex:
-# 	rm -rf $(QUEX) ; \
-# 	cd $(TMP) ; \
-# 	wget $(QUEX_LINK) ; \
-# 	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
-# 	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX) ; \
-# 	rm $(QUEX_STABLE_VERSION).tar.gz
-
-.PHONY: downgrade_quex
 
 update_gtest:
 	if [ -d $(GTEST) ] ; then $(CMD_UPDATE_GTEST) ; fi
 
 .PHONY: update_gtest
 
+
 update_quex:
-	if [ -d $(QUEX) ] ; then $(CMD_UPDATE_QUEX) ; fi
+	@echo "Updating Quex is not secure!"
+	# if [ -d $(QUEX) ] ; then $(CMD_UPDATE_QUEX) ; fi
 
 .PHONY: update_quex
 
