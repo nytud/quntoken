@@ -2,44 +2,53 @@
 #define QX_MODULE_QUEUE_H
 
 
-#include <sstream>
-#include <string>
 #include <vector>
-#include "qx_module.h"
-#include "quntoken_api.h"
+#include <sstream>
 
 
-// type definitions
-typedef std::vector<QxModule> MODULE_VECTOR;
+enum MODULE_TYPE {
+        PREPROC = 0,
+        HYPHEN,
+        SNT,
+        SNTCORR,
+        TOKEN,
+        CONVXML,
+        CONVJSON
+};
 
 
-class QxQueue {
+typedef std::vector<MODULE_TYPE> TYPE_VECTOR;
+typedef std::vector<std::stringstream*> STREAM_VECTOR;
 
-// class members
+
+class QxQueue
+{
+
+// members
 private:
-    MODULE_VECTOR modules;
-    /* Converter* converter_p; */
-    bool processed;
+    TYPE_VECTOR types;
+    STREAM_VECTOR streams;
+    bool external_last; // jelzi, hogy streams utolso tagjat kell-e letrehozni/torolni
 
-// constructors & destructors
+// ctor & dtor
 public:
-    // constructor:
-    /* QxQueue qx_queue(TYPE_VECTOR(types), fst_input_p, true); */
-    QxQueue(TYPE_VECTOR types, std::stringstream* fst_input_p);
+    // ctor:
+    QxQueue(TYPE_VECTOR types);
 
-    // destructor:
+    // dtor:
     ~QxQueue();
 
 // private functions:
 private:
-    void process();
+    void create_streams();
+    void delete_streams();
 
 // public functions:
 public:
-    std::string& get_result(std::string& result);
-    void print_result();
+    void run(std::stringstream* inp, std::stringstream* out=nullptr);
 
 };
+
 
 
 #endif // QX_MODULE_QUEUE_H

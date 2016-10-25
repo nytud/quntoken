@@ -2,45 +2,50 @@
 #include <string>
 #include <sstream>
 #include <gtest/gtest.h>
-#include "quntoken_api.h"
+#include "qxqueue.h"
 
 
 std::string prepTest(std::string text) {
     std::stringstream inp(text);
-    std::string result;
-    quntoken_get_str(result, {PREPROC, CONVXML}, &inp);
-    return result;
+    std::stringstream out;
+    QxQueue q({PREPROC, CONVXML});
+    q.run(&inp, &out);
+    return out.str();
 }
 
 
 std::string hyphenTest(std::string text) {
     std::stringstream inp(text);
-    std::string result;
-    quntoken_get_str(result, {PREPROC, HYPHEN, CONVXML}, &inp);
-    return result;
+    std::stringstream out;
+    QxQueue q({PREPROC, HYPHEN, CONVXML});
+    q.run(&inp, &out);
+    return out.str();
 }
 
 
 std::string sntTest(std::string text) {
     std::stringstream inp(text);
-    std::string result;
-    quntoken_get_str(result, {PREPROC, SNT, CONVXML}, &inp);
-    return result;
+    std::stringstream out;
+    QxQueue q({PREPROC, SNT, CONVXML});
+    q.run(&inp, &out);
+    return out.str();
 }
 
 
 std::string sntcorrTest(std::string text) {
     std::stringstream inp(text);
-    std::string result;
-    quntoken_get_str(result, {PREPROC, SNT, SNTCORR, SNTCORR, CONVXML}, &inp);
-    return result;
+    std::stringstream out;
+    QxQueue q({PREPROC, SNT, SNTCORR, SNTCORR, CONVXML});
+    q.run(&inp, &out);
+    return out.str();
 }
 
 std::string tokenTest(std::string text) {
     std::stringstream inp(text);
-    std::string result;
-    quntoken_get_str(result, {PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, CONVXML}, &inp);
-    return result;
+    std::stringstream out;
+    QxQueue q({PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, CONVXML});
+    q.run(&inp, &out);
+    return out.str();
 }
 
 

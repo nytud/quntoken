@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <map>
 #include <unistd.h>
-#include "quntoken_api.h"
+#include "qxqueue.h"
 
 
 // globals:
@@ -16,7 +16,7 @@ const std::string HELP_STR = "Usage:\n"
                              "\t-f FORMAT\tDefine output format. Valid formats: xml, json. Default format: xml.\n"
                              "\t-V\t\tDisplay version number and exit.\n"
                              "\t-h\t\tDisplay this help and exit";
-const std::string VERSION  = "quntoken 0.3.0";
+const std::string VERSION  = "quntoken 1.0.0";
 
 
 int main(int argc, char** argv) {
@@ -72,20 +72,22 @@ int main(int argc, char** argv) {
         }
     }
 
-    // call quntoken
+    // queue
     std::ifstream inp_fstream(input_file);
     std::stringstream inp_sstream;
     inp_sstream << inp_fstream.rdbuf();
     if(hyphen_flag)
     {
-        quntoken_print({PREPROC, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+        QxQueue q({PREPROC, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN, out_type});
+        q.run(&inp_sstream);
     }
     else
     {
-        quntoken_print({PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, out_type}, &inp_sstream);
+        QxQueue q({PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, out_type});
+        q.run(&inp_sstream);
     }
 
-    /* std::cout << std::endl; */
+    std::cout << std::endl;
 
     return 0;
 }

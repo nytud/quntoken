@@ -28,6 +28,7 @@ GTEST_HEADERS	:= $(GTEST)/include/gtest/*.h $(GTEST)/include/gtest/internal/*.h
 # FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 QXCPPS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).cpp)
 QXOBJS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).o)
+CPPOBJS			:= $(TMP)/$(NAME).o $(TMP)/test.o $(TMP)/qxqueue.o
 
 
 # COMPILERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,28 +134,24 @@ $(BIN)/test: $(TMP)/test.o $(LIB)/libquntoken.a $(TMP)/gtest.a
 
 
 ### libraries
-$(LIB)/libquntoken.a: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qxqueue.o $(TMP)/quntoken_api.o
+$(LIB)/libquntoken.a: $(QXOBJS) $(TMP)/qxqueue.o
 	$(AR) rscv $@ $^
 
 
 ### object files
-object_files: $(QXOBJS) $(TMP)/qx_module.o $(TMP)/qxqueue.o $(TMP)/quntoken_api.o $(TMP)/test.o $(TMP)/$(NAME).o
+object_files: $(QXOBJS) $(CPPOBJS)
 
 .PHONY: object_files
 
-$(TMP)/$(NAME).o: $(SRC_CPP)/$(NAME).cpp $(SRC_CPP)/*.h $(SRC_CPP)/quntoken_api.h
+
+$(TMP)/$(NAME).o: $(SRC_CPP)/$(NAME).cpp $(SRC_CPP)/*.h
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(TMP)/test.o: $(TMP)/test.cpp $(SRC_CPP)/*.h $(QXCPPS)
 	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) -c $<
 
-$(TMP)/quntoken_api.o: $(SRC_CPP)/quntoken_api.cpp $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qxqueue.h
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
-$(TMP)/qxqueue.o: $(SRC_CPP)/qxqueue.cpp $(SRC_CPP)/qxqueue.h $(SRC_CPP)/quntoken_api.h $(SRC_CPP)/qx_module.h $(QXCPPS)
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
-
-$(TMP)/qx_module.o: $(SRC_CPP)/qx_module.cpp $(SRC_CPP)/qx_module.h $(SRC_CPP)/quntoken_api.h $(QXCPPS)
+$(TMP)/qxqueue.o: $(SRC_CPP)/qxqueue.cpp $(SRC_CPP)/qxqueue.h $(QXCPPS)
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 
