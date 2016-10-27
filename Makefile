@@ -11,6 +11,7 @@ include $(CONFIG_FILE)
 # NAMES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 NAME			:= quntoken
 QXSUFFIX		:= _Lexer
+CLASS			:= qxqueue
 
 
 # DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,9 +27,18 @@ GTEST_HEADERS	:= $(GTEST)/include/gtest/*.h $(GTEST)/include/gtest/internal/*.h
 
 
 # FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-QXCPPS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).cpp)
+PROGBIN	    	:= $(BIN)/$(NAME)
+PROGOBJ	    	:= $(TMP)/$(NAME).o
+TESTBIN			:= $(BIN)/test_$(NAME)
+TESTOBJ			:= $(TESTBIN:$(BIN)/%=$(TMP)/%.o)
+TESTCPP			:= $(TESTOBJ:%.o=%.cpp)
+LIBRARY			:= $(LIB)/lib$(NAME).a
+CLASSOBJS		:= $(CLASS:%=$(TMP)/%.o)
+CPPOBJS			:= $(PROGOBJ) $(CLASSOBJS)
 QXOBJS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).o)
-CPPOBJS			:= $(TMP)/$(NAME).o $(TMP)/test.o $(TMP)/qxqueue.o
+QXCPPS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).cpp)
+ABBRLEXER		:= $(TMP)/$(basename $(notdir $(ABBREVIATIONS))).qx
+QXDEPS			:= $(SRC_QX)/$(DEFINITIONS) $(ABBRLEXER)
 
 
 # COMPILERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,32 +84,84 @@ CXXFLAGS += \
 
 
 # g++ kapcsoloi gtest-es fajlokhoz
-CXXFLAGS_GTEST =	$(CXXFLAGS) \
-					-pthread \
+CXXFLAGS_GTEST	= $(CXXFLAGS) -pthread
 
 
+# TARGETS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# PARHUZAMOSITAS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NUMCPUS = `grep -c '^processor' /proc/cpuinfo`
-MAKE += -j $(NUMCPUS)
-
-#####  M A I N   T A R G E T S  ###############################################
-all: common $(NAME) test
+all: common $(PROGBIN) $(TESTBIN) test
 
 .PHONY: all
 
 
-$(NAME): $(BIN)/$(NAME)
+common:
+	$(MAKE) -j $(QXCPPS)
+	$(MAKE) -j $(QXOBJS)
 
-.PHONY: $(NAME)
+.PHONY: common
 
 
-test: $(BIN)/test
-	./$(BIN)/test 2>/dev/null
+test: $(TESTBIN)
+	./$(TESTBIN) 2>/dev/null
 
 .PHONY: test
 
 
+$(PROGBIN): $(TMP)/$(NAME).o $(LIBRARY)
+	$(CXX) $< -L$(LIB) -static-libstdc++ -static -lquntoken -o $@
+
+
+$(TESTBIN): $(TESTOBJ) $(LIBRARY) $(TMP)/gtest.a
+	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^
+
+
+$(TESTOBJ): $(TESTCPP) $(SRC_CPP)/*.h $(QXCPPS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
+
+
+$(TESTCPP): $(SRC_SCRIPT)/test.tmpl2cpp.py $(TESTCPP:$(TMP)%=$(SRC_CPP)%) $(TEST_FILES)
+	./$< -t $(word 2, $^) -d $(TEST_FILES) -o $@
+
+
+$(LIBRARY): $(QXOBJS) $(CLASSOBJS)
+	$(AR) rscv $@ $^
+
+
+$(CPPOBJS): $(TMP)/%.o: $(SRC_CPP)/%.cpp $(SRC_CPP)/*.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+
+$(QXOBJS): %.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $<
+
+
+$(QXCPPS): $(TMP)/%$(QXSUFFIX).cpp: $(QXDEPS) $(SRC_QX)/%.qx
+	$(QXCMD) $(QXFLAGS)
+
+
+# abbreviations
+$(ABBRLEXER): $(SRC_SCRIPT)/generate_abbrev.qx.py $(ABBREVIATIONS)
+	./$< -d $(word 2, $^) -o $@
+
+
+# gtest
+$(TMP)/gtest-all.o: $(GTEST)/src/*.cc $(GTEST)/src/*.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) -I$(GTEST) $(CXXFLAGS_GTEST) -c $(GTEST)/src/gtest-all.cc
+
+$(TMP)/gtest.a : $(TMP)/gtest-all.o
+	$(AR) $(ARFLAGS) $@ $^
+
+
+# clean
+clean:
+	rm -rfv $(BIN)/*
+	rm -rfv $(LIB)/*
+	rm -rfv $(TMP)/*
+
+.PHONY: clean
+
+
+# install and update requirements ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 prereq: create_dirs install_gtest install_quex
 
 .PHONY: prereq
@@ -110,98 +172,6 @@ update: update_gtest update_quex
 .PHONY: update
 
 
-clean:
-	rm -rfv $(BIN)/*
-	rm -rfv $(LIB)/*
-	rm -rfv $(TMP)/*
-
-.PHONY: clean
-
-
-######  A U X I L I A R Y   T A R G E T S  ####################################
-### common files
-common:
-	$(MAKE) $(QXCPPS)
-	$(MAKE) object_files
-
-
-### binaries
-$(BIN)/$(NAME): $(TMP)/$(NAME).o $(LIB)/libquntoken.a
-	$(CXX) $< -L$(LIB) -static-libstdc++ -static -lquntoken -o $@
-
-$(BIN)/test: $(TMP)/test.o $(LIB)/libquntoken.a $(TMP)/gtest.a
-	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^ -o $@
-
-
-### libraries
-$(LIB)/libquntoken.a: $(QXOBJS) $(TMP)/qxqueue.o
-	$(AR) rscv $@ $^
-
-
-### object files
-object_files: $(QXOBJS) $(CPPOBJS)
-
-.PHONY: object_files
-
-
-$(TMP)/$(NAME).o: $(SRC_CPP)/$(NAME).cpp $(SRC_CPP)/*.h
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
-
-$(TMP)/test.o: $(TMP)/test.cpp $(SRC_CPP)/*.h $(QXCPPS)
-	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) -c $<
-
-
-$(TMP)/qxqueue.o: $(SRC_CPP)/qxqueue.cpp $(SRC_CPP)/qxqueue.h $(QXCPPS)
-	$(CXX) -o $@ $(CXXFLAGS) -c $<
-
-
-$(QXOBJS): %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
-
-.PRECIOUS: $(QXOBJS)
-
-
-$(QXCPPS): $(TMP)/%$(QXSUFFIX).cpp: $(QXDEPS) $(SRC_QX)/%.qx
-	$(QXCMD) $(QXFLAGS)
-
-.PRECIOUS: $(QXCPPS)
-
-
-print:
-	@echo 'qxobjs:' $(QXOBJS)
-
-.PHONY: nana
-
-
-# generate lexer for abbreviations
-$(TMP)/$(ABBREVIATIONS:%.txt=%.qx): $(SRC_SCRIPT)/generate_abbrev.qx.py $(SRC_ABBR)/$(ABBREVIATIONS)
-	./$< -d $(word 2, $^) -o $@
-
-
-
-### test.cpp
-$(TMP)/test.cpp: $(SRC_SCRIPT)/test.tmpl2cpp.py $(SRC_CPP)/test.cpp.tmpl $(TEST_FILES)
-	./$< -t $(word 2, $^) -d $(wordlist 3, $(words $^), $^) -o $@
-
-### gtest
-GTEST_SRCS_ = $(GTEST)/src/*.cc $(GTEST)/src/*.h $(GTEST_HEADERS)
-
-$(TMP)/gtest-all.o: $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST) $(CXXFLAGS_GTEST) -c \
-            $(GTEST)/src/gtest-all.cc -o $@
-
-$(TMP)/gtest_main.o: $(GTEST_SRCS_)
-	$(CXX) $(CPPFLAGS) -I$(GTEST) $(CXXFLAGS_GTEST) -c \
-            $(GTEST)/src/gtest_main.cc -o $@
-
-$(TMP)/gtest.a : $(TMP)/gtest-all.o
-	$(AR) $(ARFLAGS) $@ $^
-
-$(TMP)/gtest_main.a : $(TMP)/gtest-all.o $(TMP)/gtest_main.o
-	$(AR) $(ARFLAGS) $@ $^
-
-
-######  I N S T A L L   A N D   U P D A T E  ##################################
 CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
 CMD_UPDATE_GTEST = cd $(GTEST) ; git pull
 # NOTE: a jelenlegi Quex verzio nem rossz, a 0.65.4-os az utolso hasznalhato

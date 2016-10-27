@@ -1,33 +1,24 @@
-# Itt lehet megadni a forditando modulokat, a hozzajuk tartozo teszteketes
+# Itt lehet megadni a forditando modulokat, a hozzajuk tartozo teszteket es
 # egyeb tartozekaikat.
 
 
 # DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SRC_QX			= src/quex_modules
-SRC_ABBR		= data
 
 
-# FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ABBREVIATIONS	= abbreviations_orig-hu.txt
-ABBRLEXER		= $(ABBREVIATIONS:%.txt=%.qx)
-DEFINITIONS		= definitions.qx
-QXDEPS			= $(SRC_QX)/$(DEFINITIONS) $(TMP)/$(ABBRLEXER)
+# LEXERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 QXLEXERS		= preproc hyphen snt sntcorr token convxml convjson
 
 
-# modules - TODO: make this deprecated ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PREP_MODULE    	= $(SRC_QX)/preproc.qx
-HYPHEN_MODULE   = $(SRC_QX)/hyphen.qx
-SNT_MODULE     	= $(SRC_QX)/snt.qx
-SNTCORR_MODULE 	= $(SRC_QX)/sntcorr.qx
-TOKEN_MODULE	= $(SRC_QX)/token.qx
-
-# roviditeseket tartalmazo fajl az SNTCORR_MODULE-hoz
-# Megj: fejleszteshez erdemes az orig-ot haznalni, mert joval gyorsabban fordul
+# AUXILIARY FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Megj: fejleszteshez erdemes az abbreviations_orig-ot hasznalni,
+# 		mert joval gyorsabban fordul, mint az abbreviations_nytud-hu
 # ABBREVIATIONS	= data/abbreviations_nytud-hu.txt
+ABBREVIATIONS	= data/abbreviations_orig-hu.txt
+DEFINITIONS		= definitions.qx
 
 
-# tesztfajlok:
+# TESTFILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 MYTEST_DIR = test
 TEST_FILES = $(MYTEST_DIR)/test_default_prep_invalid.txt \
              $(MYTEST_DIR)/test_default_hyphen_all.txt \
