@@ -45,7 +45,7 @@ body {
         return text;
     }
 
-    // modul: HYPHEN, SNTCORR
+    // module: HYPHEN, SNTCORR
     // str osszes elofordulasanak torlese text-bol
     void delete_str(std::wstring &text, const std::wstring &str) {
         for(size_t pos = text.find(str);
@@ -56,7 +56,7 @@ body {
         }
     }
 
-    // modul: SNTCORR
+    // module: SNTCORR
     // Az SNT es WS tag-ek osszes elofordulasanak torlese a kapott lexeme-bol,
     // javitott szoveg visszaadasa wstring-kent.
     std::wstring snt_boundary_correction(const wchar_t* lexeme) {
@@ -68,7 +68,7 @@ body {
         return text;
     }
 
-    // modul: TOKEN:
+    // module: TOKEN
     // dot at the end of the senetence belong to sentence, not to word
     void sntend_corrig(std::wstring &LEX) {
         if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
@@ -81,6 +81,60 @@ body {
         else {
             LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
         }
+        return;
+    }
+
+    // module: TOKEN
+    // operation e.g. "2 + 3"
+    void operation_processing(std::wstring &LEX)
+    {
+        
+        self.sntend_corrig(LEX);
+
+        std::wstring operand_chars = L"0123456789.,";
+        std::wstring operator_chars = L"+*";
+        std::wstring operation_ws = L"  "; // space (0020), non-breaking space (00A0)
+
+        bool prev_num = false;
+        std::wstring res;
+        size_t pos = LEX.find(self.PUNCT_OPEN_CPP);
+        const std::wstring operation = LEX.substr(0, pos != std::wstring::npos ? pos-1 : pos);
+        const std::wstring ending = LEX.substr(pos != std::wstring::npos ? pos : LEX.size());
+        for(auto c : operation)
+        {
+            if(operand_chars.find(c) == std::wstring::npos) // c is not a number
+            {
+                if(prev_num)
+                {
+                    prev_num = false;
+                    res += self.WORD_CLOSE_CPP;
+                }
+                if(operator_chars.find(c) != std::wstring::npos) // c is an operator
+                {
+                    res += self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP;
+                }
+                else if(operation_ws.find(c) != std::wstring::npos) // c is a whitespace
+                {
+                    res += self.WS_OPEN_CPP + c + self.WS_CLOSE_CPP;
+                }
+            }
+            else // c is a number
+            {
+                if(not prev_num)
+                {
+                    prev_num = true;
+                    res += self.WORD_OPEN_CPP;
+                }
+                res += c;
+            }
+        }
+        if(prev_num)
+        {
+            res += self.WORD_CLOSE_CPP;
+        }
+        res += ending;
+
+        LEX.swap(res);
         return;
     }
 
@@ -163,8 +217,6 @@ define {
     // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
     //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
     //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
-    //      TODO: html entitások kezelését kitalálni (előfeldolgozás, és
-    //          utf8-ra alakítás?)
     //      Figyelni: az eredeti a '_'-t nem tartalmazza (hun_token-nel lehet
     //          fontos)!
     // WORDCHAR2: szóban szerepelhető karakterek, pont nélkül
@@ -244,7 +296,7 @@ define {
 
     NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
 
-    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-+_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
 
     WORDCHAR2   [: difference( {WORDCHAR}, [.]) :]
 
