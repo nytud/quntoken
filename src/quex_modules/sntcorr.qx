@@ -209,6 +209,16 @@ mode PROGRAM {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
+    // Mondatveg + fajlveg verzio:
+    {NONWORDCHAR}({UPPER}{DOT_SENTENCE_BOUNDARY})+{UPPER}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(self.snt_boundary_correction(Lexeme)+self.SNT_CLOSE_CPP);
+        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+    }
+    // Mondatkezdo verzio a mondatveg + fajlveg felebol:
+    {SNT_OPEN_QX}({UPPER}{DOT_SENTENCE_BOUNDARY})+{UPPER}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme)+self.SNT_CLOSE_CPP);
+        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+    }
 
     // 11. Rovidites es kettospont kozti mondathatar (csaba fele 'huje string').
     // Megj.: Ha a roviditesekkel (12.) fel van cserelve, akkor segfault lehet.
