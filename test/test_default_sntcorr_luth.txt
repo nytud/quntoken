@@ -1,6 +1,9 @@
 # SNTCORR luth
-A misztikus hiba tesztelese.
+test cases for segmentation fault
 
 IN : luth
 OUT: <s>luth</s>
+
+IN : P. L.
+OUT: <s>P. L.</s>
 
