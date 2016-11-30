@@ -1,4 +1,4 @@
-# SNTCORR luth
+# SNTCORR segfault
 test cases for segmentation fault
 
 IN : luth

@@ -209,12 +209,15 @@ mode PROGRAM {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
-    // Mondatveg + fajlveg verzio:
+    // Mondatveg + bekezdesveg verzio:
+    // Megj.: az alabbi ket verzio azert kellett, mert a Quex altal generalt
+    //      kod hajlamos esetenkent segfault-tal elszallni. Igy elkerulhetonek
+    //      tunik a problemas eset.
     {NONWORDCHAR}({UPPER}{DOT_SENTENCE_BOUNDARY})+{UPPER}"."{SNT_CLOSE_QX} {
         std::wstring LEX(self.snt_boundary_correction(Lexeme)+self.SNT_CLOSE_CPP);
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
-    // Mondatkezdo verzio a mondatveg + fajlveg felebol:
+    // Mondatkezdo verzio a mondatveg + bekezdesveg felebol:
     {SNT_OPEN_QX}({UPPER}{DOT_SENTENCE_BOUNDARY})+{UPPER}"."{SNT_CLOSE_QX} {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme)+self.SNT_CLOSE_CPP);
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
