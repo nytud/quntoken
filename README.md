@@ -1,6 +1,9 @@
 # quntoken
 
 New Hungarian tokenizer based on quex and huntoken.
+This tool is also [integrated](https://github.com/dlt-rilmta/hunlp-GATE)
+into the [e-magyar](http://www.e-magyar.hu) language processing system
+under the name [emToken](http://e-magyar.hu/hu/textmodules/emtoken).
 
 ## Requirements
 
