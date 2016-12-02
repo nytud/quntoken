@@ -143,6 +143,12 @@ mode PROGRAM : COMMON {
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
         self_send1(token_PUNCT, LEX.c_str());
     }
+    "."{2,}{SNT_CLOSE_QX} {
+        /* std::wcout << L"dots! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX.substr(0, LEX.size()-1) + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP;
+        self_send1(token_PUNCT, LEX.c_str());
+    }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // operations with decimal fractions
