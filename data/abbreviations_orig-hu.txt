@@ -147,7 +147,8 @@ cca.
 gr.
 hsz.
 htb.
-luth.
+# the string "luth" causes a bug in quex (in module SNTCORR)
+# luth.
 megh.
 ov.
 ovh.

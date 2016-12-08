@@ -4,6 +4,9 @@ test cases for segmentation fault
 IN : luth
 OUT: <s>luth</s>
 
+IN : p. Luth
+OUT: <s>p. Luth</s>
+
 IN : P. L.
 OUT: <s>P. L.</s>
 

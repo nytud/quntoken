@@ -247,7 +247,8 @@ lgv.
 loc.
 lt.
 ltp.
-luth.
+# the string "luth" causes a bug in quex (in module SNTCORR)
+# luth.
 m.
 má.
 márc.
