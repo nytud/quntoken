@@ -88,9 +88,7 @@ body {
     // operation e.g. "2 + 3"
     void operation_processing(std::wstring &LEX)
     {
-        
         self.sntend_corrig(LEX);
-
         std::wstring operand_chars = L"0123456789.,";
         std::wstring operator_chars = L"+*";
         std::wstring operation_ws = L"  "; // space (0020), non-breaking space (00A0)
