@@ -47,6 +47,11 @@ IN : A http://foo.bar/?q=Test%20URL-encoded%20stuff.
 OUT: <s><w>A</w><ws> </ws><w>http://foo.bar/?q=Test%20URL-encoded%20stuff</w><c>.</c></s>
 IN : A http://foo.bar/?q=Test%20URL-encoded%20stuff van.
 OUT: <s><w>A</w><ws> </ws><w>http://foo.bar/?q=Test%20URL-encoded%20stuff</w><ws> </ws><w>van</w><c>.</c></s>
+# url with more '='
+IN : A www.kereso.elte.hu/nev=kiss,jozsef%kar=jog%tagozat=nappali.
+OUT: <s><w>A</w><ws> </ws><w>www.kereso.elte.hu/nev=kiss,jozsef%kar=jog%tagozat=nappali</w><c>.</c></s>
+IN : A www.kereso.elte.hu/nev=kiss,jozsef%kar=jog%tagozat=nappali van.
+OUT: <s><w>A</w><ws> </ws><w>www.kereso.elte.hu/nev=kiss,jozsef%kar=jog%tagozat=nappali</w><ws> </ws><w>van</w><c>.</c></s>
 
 email
 IN : A foo.bar@baz.com van.
