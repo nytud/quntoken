@@ -188,13 +188,13 @@ mode PROGRAM {
     // KI: Pl. Jani szerint ápr. Kati kedvenc hónapja.
     // eredeti: {NONWORDCHAR}({ABBREV}{BOUNDARY}|{UPPER}{BOUNDARY})+
     {NONWORDCHAR}({UPPER}{DOT_SENTENCE_BOUNDARY})|({ABBREV}{DOT_SENTENCE_BOUNDARY}) {
-        std::wcerr << L"SNTCORR (roviditesek): " << Lexeme << std::endl;
+        /* std::wcerr << L"SNTCORR (roviditesek): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
     // Mondatkezdo verzio:
     {SNT_OPEN_QX}({UPPER}{DOT_SENTENCE_BOUNDARY})|({ABBREV}{DOT_SENTENCE_BOUNDARY}) {
-        std::wcerr << L"SNTCORR: (roviditesek - mk)" << Lexeme << std::endl;
+        /* std::wcerr << L"SNTCORR: (roviditesek - mk)" << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
