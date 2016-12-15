@@ -226,7 +226,9 @@ define {
     //      Ez a régi: ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
     //      Megj.: union(\P{Lowercase}, \P{Other_Lowercase} is lehet hogy jó
     //          \G{Lowercase_Letter} helyett -- vajon van különbség?
-    // UPPER: nagybetűk + néhány szimbólum Csaba kódja alapján
+    // UPPER: nagybetűk 
+    //      Megj.: Csaba kódja alapján meg ezek voltak benne [§¡£¥¦©ª«¬®¯],
+    //      most csak a monogrammokhoz kell az UPPER, ugyhogy kivettem.
     //      Ez a régi: ([A-ZÁÉÍÓÖÕÚÜÛ§¡£¥¦©ª«¬®¯ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞ])
     // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is mondathatároló
     //      karakterek (zárójel, idézőjel, szóköz, stb.)
@@ -302,7 +304,7 @@ define {
 
     LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿»¶±¼¾¹³øº])) :]
 
-    UPPER       [: intersection( {BASE_CLASS}, union(\G{Uppercase_Letter}, [§¡£¥¦©ª«¬®¯]) ) :]
+    UPPER       [: intersection( {BASE_CLASS}, \G{Uppercase_Letter} ) :]
 
     CHARINSNT   [: intersection( {BASE_CLASS}, [\(\)\-[\],; "] ) :]
 
