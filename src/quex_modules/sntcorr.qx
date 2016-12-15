@@ -37,6 +37,7 @@ mode PROGRAM {
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
 
+
     // 2. Zarojelezett datum (mondatveg is lehet utana).
     // BE: <s>A 2002.</s><ws> </ws><s>(IV.</s><ws> </ws><s>25.)</s>
     // KI: <s>A 2002. (IV. 25.)</s>
@@ -62,6 +63,7 @@ mode PROGRAM {
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
 
+
     // 3. Roviditett honap + nap.
     // BE: Szep.</s> <s>11-ről
     // KI: Szep. 11-ről
@@ -77,6 +79,7 @@ mode PROGRAM {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
+
 
     // 4. Ev + nagybetus honap.
     // BE: 2012.</s> <s>MÁJUS
@@ -114,6 +117,7 @@ mode PROGRAM {
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
 
+
     // 6. Teljes datum romai vagy arab honappal.
     // BE: <s>A 2001.</s> <s>XII.</s> <s>10-en tortentek megraztak a vilagot.</s>
     // KI: <s>A 2001. XII. 10-en tortentek megraztak a vilagot.</s>
@@ -136,6 +140,7 @@ mode PROGRAM {
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
 
+
     // 7. .* kozti mondathatar korrigalasa (pl. *.*, huntoken.*, stb) /M.I./
     // BE: A .* van.
     // KI: <s>A .* van</s>
@@ -146,6 +151,7 @@ mode PROGRAM {
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
+
 
     // 8. Romai szamok (VI. Lajos), kiveve CD.
     // BE: XIV.</s> <s>Lajos.
@@ -180,7 +186,6 @@ mode PROGRAM {
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
         self_send1(sntcorr_SNTFRAG, LEX.c_str());
     }
-
 
 
     // 9. Roviditesek & monogrammok.
