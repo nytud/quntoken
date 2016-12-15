@@ -38,8 +38,8 @@ def get_abbrevs(data):
     capital_abbrevs = [ x[0]+x[1].upper()+x[2:] for x in abbrevs ] # x[0]=='"'!
     upper_abbrevs = [ x.upper() for x in abbrevs ]
     abbrevs += capital_abbrevs + upper_abbrevs
-    abbrevs = sorted(set(abbrevs))
-    return '\n           |'.join(abbrevs)
+    abbrevs = sorted(sorted(set(abbrevs)), key=len)
+    return '|'.join(abbrevs)
 
 def generate_qx(data):
     """Templatum behelyettesites.
