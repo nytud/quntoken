@@ -154,9 +154,10 @@ $(TMP)/gtest.a : $(TMP)/gtest-all.o
 
 # clean
 clean:
-	rm -rfv $(BIN)/*
-	rm -rfv $(LIB)/*
-	rm -rfv $(TMP)/*
+	@rm -fv  $(PROGBIN)
+	@rm -fv  $(TESTBIN)
+	@rm -rfv $(LIBRARY)
+	@rm -rfv $(TMP)/*
 
 .PHONY: clean
 
