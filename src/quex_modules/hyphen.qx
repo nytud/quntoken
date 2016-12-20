@@ -13,7 +13,7 @@ define
 }
 
 
-mode PREPROC {
+mode PROGRAM {
     {HYPHEN}        {
         std::wstring LEX(self.hyphenation(Lexeme));
         self_send1(hyphen_LINE, LEX.c_str());
