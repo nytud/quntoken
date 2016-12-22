@@ -31,9 +31,12 @@ OUT: <s><w>A</w><ws> </ws><w>.hu</w><c>.</c></s>
 IN : Az egy.ketto.
 OUT: <s><w>Az</w><ws> </ws><w>egy.ketto</w><c>.</c></s>
 1.2.3 pont a szo vegen
+IN : A Balaton.
+OUT: <s><w>A</w><ws> </ws><w>Balaton</w><c>.</c></s>
+1.2.4 pont a rovidites vegen
 IN : A pl.
-OUT: <s><w>A</w><ws> </ws><w>pl</w><c>.</c></s>
-1.2.4 pontozott szo
+OUT: <s><w>A</w><ws> </ws><w>pl.</w></s>
+1.2.5 pontozott szo
 IN : A S.M.A.R.T.
 OUT: <s><w>A</w><ws> </ws><w>S.M.A.R.T</w><c>.</c></s>
 

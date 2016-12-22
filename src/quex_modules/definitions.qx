@@ -83,6 +83,12 @@ body {
         }
         return;
     }
+    void sntend_corrig_abbrev(std::wstring &LEX) {
+        // delete sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-1, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP + self.SNT_CLOSE_CPP;
+        return;
+    }
 
     // module: TOKEN
     // operation e.g. "2 + 3"

@@ -151,6 +151,15 @@ mode PROGRAM : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // abbreviations at sentence ending
+    {ABBREV}"."{SNT_CLOSE_QX} {
+        /* std::wcerr << L"abbrev! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig_abbrev(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // operations with decimal fractions
     {OPERATION}("."{SNT_CLOSE_QX})? {
         std::wstring LEX(Lexeme);
