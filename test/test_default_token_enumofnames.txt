@@ -1,0 +1,23 @@
+# TOKEN enumofames
+
+IN : nana
+OUT: <s><w>nana</w></s>
+
+IN : nana-nini
+OUT: <s><w>nana-nini</w></s>
+
+IN : nana-nini-nene
+OUT: <s><w>nana-nini-nene</w></s>
+
+IN : Nana
+OUT: <s><w>Nana</w></s>
+
+IN : Nana-Nini
+OUT: <s><w>Nana-Nini</w></s>
+
+IN : Nana-Nini-Nene
+OUT: <s><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w></s>
+
+IN : Nana-Nini-Nene-Nono
+OUT: <s><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono</w></s>
+
