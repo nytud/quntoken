@@ -251,7 +251,8 @@ define {
     //      TODO: unicode-osítani
     // INPARENTCHR: BRACKET_PART szabályban zárójelen belül alapból megengedett
     //      karakterek osztálya
-    // COMMACHR: COMMA_PART szabályban szerepelhető vessző-szerű karakterek
+    // COMMACHR: COMMA_PART szabályban szerepelhető vessző- és idézőjelszerű
+    //      karakterek
 
     EMOTICONS   [\U1F600-\U1F915]
 
@@ -324,7 +325,7 @@ define {
 
     INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINECHAR}) ) :]
 
-    COMMACHR    [: intersection( {BASE_CLASS}, [,;:] ) :]
+    COMMACHR    [: intersection( {BASE_CLASS}, [,;:“”„‘’‚] ) :]
 
     DASH        [: intersection( {BASE_CLASS}, \G{Dash_Punctuation} ) :]
 
