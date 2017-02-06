@@ -206,7 +206,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumerate of names with hyphen
     ({UPPER}{LOWER}+)("-"{UPPER}{LOWER}+){2,} {
-        std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl;
+        /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         std::wstring tmp;
         for(auto c : LEX)
