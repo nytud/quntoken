@@ -232,7 +232,7 @@ define {
     //      Ez a régi: ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
     //      Megj.: union(\P{Lowercase}, \P{Other_Lowercase} is lehet hogy jó
     //          \G{Lowercase_Letter} helyett -- vajon van különbség?
-    // UPPER: nagybetűk 
+    // UPPER: nagybetűk
     //      Megj.: Csaba kódja alapján meg ezek voltak benne [§¡£¥¦©ª«¬®¯],
     //      most csak a monogrammokhoz kell az UPPER, ugyhogy kivettem.
     //      Ez a régi: ([A-ZÁÉÍÓÖÕÚÜÛ§¡£¥¦©ª«¬®¯ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞ])

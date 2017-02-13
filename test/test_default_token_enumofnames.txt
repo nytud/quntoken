@@ -21,3 +21,9 @@ OUT: <s><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w></s>
 IN : Nana-Nini-Nene-Nono
 OUT: <s><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono</w></s>
 
+IN : Nana-Nini-Nene.
+OUT: <s><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>.</c></s>
+
+IN : A Nana-Nini-Nene-Nono.
+OUT: <s><w>A</w><ws> </ws><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono</w><c>.</c></s>
+

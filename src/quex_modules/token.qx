@@ -66,7 +66,7 @@ define {
 
     //O P E R A T I O N S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     OPERAND         ([0-9]+[.,])?[0-9]+ // decimal fractions
-    OPERATION_WS    [  ] // space (0020), non-breaking space (00A0) 
+    OPERATION_WS    [  ] // space (0020), non-breaking space (00A0)
     OPERATOR        {OPERATION_WS}?[*+]{OPERATION_WS}?
     OPERATION       {OPERAND}({OPERATOR}{OPERAND})+
 
@@ -160,8 +160,50 @@ mode PROGRAM : COMMON {
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // enumerate of names with hyphen
+    // mondatvegi verzio
+    (\G{Uppercase_Letter}\G{Lowercase_Letter}+)("-"\G{Uppercase_Letter}\G{Lowercase_Letter}+){2,}"."{SNT_CLOSE_QX} {
+        /* std::wcerr << L"enum of names with hyphen (snt end): " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme, wcslen(Lexeme)-2);
+        std::wstring res;
+        for(auto c : LEX)
+        {
+            if(c!=L'-')
+            {
+                res.push_back(c);
+            }
+            else
+            {
+                res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"-" + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
+            }
+        }
+        res = self.WORD_OPEN_CPP + res + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP;
+        self_send1(token_TOKEN, res.c_str());
+    }
+    // mondatkozi verzio
+    (\G{Uppercase_Letter}\G{Lowercase_Letter}+)("-"\G{Uppercase_Letter}\G{Lowercase_Letter}+){2,} {
+        /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        std::wstring res;
+        for(auto c : LEX)
+        {
+            if(c!=L'-')
+            {
+                res.push_back(c);
+            }
+            else
+            {
+                res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"-" + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
+            }
+        }
+        res = self.WORD_OPEN_CPP + res + self.WORD_CLOSE_CPP;
+        self_send1(token_TOKEN, res.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // operations with decimal fractions
     {OPERATION}("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"operations: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.operation_processing(LEX);
         self_send1(token_TOKEN, LEX.c_str());
@@ -203,27 +245,6 @@ mode PROGRAM : COMMON {
         self_send1(token_PUNCT, LEX.c_str());
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // enumerate of names with hyphen
-    ({UPPER}{LOWER}+)("-"{UPPER}{LOWER}+){2,} {
-        /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
-        std::wstring LEX(Lexeme);
-        std::wstring tmp;
-        for(auto c : LEX)
-        {
-            if(c!=L'-')
-            {
-                tmp.push_back(c);
-            }
-            else
-            {
-                tmp.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"-" + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
-            }
-        }
-        tmp.swap(LEX);
-        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        self_send1(token_TOKEN, LEX.c_str());
-    }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // basic tokenizer rules:
@@ -235,14 +256,14 @@ mode PROGRAM : COMMON {
     //   par(en)thesis, but not (parenthesis)
     // verision for words with "-e"
     ((({WORDS_WITH_DOTS}?{WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}?{WORD_IN_PAR}))"-e"("."+)?{SNT_CLOSE_QX}? {
-        /* std::wcerr << L"basic with -e! " << Lexeme << std::endl; */
+        /* std::wcerr << L"basic (-e): " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.particula_token_corrig(LEX);
         self_send1(token_TOKEN, LEX.c_str());
     }
     // version for other cases:
     ((({WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
-        /* std::wcerr << L"basic! " << Lexeme << std::endl; */
+        /* std::wcerr << L"basic: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.basic_token_corrig(LEX);
         self_send1(token_TOKEN, LEX.c_str());
