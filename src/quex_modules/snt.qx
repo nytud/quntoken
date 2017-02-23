@@ -25,9 +25,11 @@ define {
     //          \n\n már paragrafus törésnek számít, a mondat végét
     //          is jelenti. A mondathatároló (.?!) csak opcionális a
     //          mondat végén.
-    // SNTEND: mondat végződés
+    // SNTEND: mondatvegi opcionalis zarojelek es idezojelek
     // INPARENT: BRACKET_PART szabályhoz a zárójelen belüli karakterek között
     //      megengedhető sortörések kezelése
+    // HYPHEN_OR_DASH: idezo- es kotojeles szabalynal a gondolatjelet is
+    //      megengedjuk, esetleges szokozokkel egyutt
 
     CHARINSNTN  {CHARINSNT}*{NEWLINE}?{CHARINSNT}*
 
@@ -35,10 +37,13 @@ define {
 
     SIMPLESNT   ({NEWLINE}?{SNTCHAR}+)*
 
-    SNTEND      ({NEWLINE}?{SPACE}*({ENDQUOPAR}|{BOUNDARY}))?({SPACE}*({ENDQUOPAR}|{BOUNDARY}))*
+    /* SNTEND      ({NEWLINE}?{SPACE}*({ENDPAR}|{BOUNDARY}))?({SPACE}*({ENDPAR}|{BOUNDARY}))* */
+    /* SNTEND      ({NEWLINE}?{SPACE}*({ENDQUOPAR}|{BOUNDARY}))?({SPACE}*({ENDQUOPAR}|{BOUNDARY}))* */
+    SNTEND      ({NEWLINE}?({ENDQUO}|({SPACE}*({ENDPAR}|{BOUNDARY}))))?({ENDQUO}|({SPACE}*({ENDPAR}|{BOUNDARY})))*
 
     INPARENT    ({INPARENTCHR}{NEWLINE}?)*
 
+    HYPHEN_OR_DASH " "?("-"|"–")" "?
 
     // Mondatrészek szabályai: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // 0. Egyszerű mondat: megenged egyszeres sortöréseket a mondaton belül, de
@@ -56,7 +61,7 @@ define {
     // Az egyszerű mondat ilyen szerkezetű: {SNTBEGIN}{SIMPLESNT}{SNTEND}
     // Minden összetettebb esetben az SNTBEGIN után következhet valamilyen
     // részmondat szerűség. Ezek lesznek itt definiálva:
-    //      Megj.: a definíciók utáni kommentes definíciók az eredeti, BOUDARY-t
+    //      Megj.: a definíciók utáni kommentes definíciók az eredeti, BOUNDARY-t
     //      tartalmazó SIMPLESNT hatását állítják helyre
 
     // 1. Mondathatár túllépés: mondatzáró után kis betű
@@ -77,11 +82,17 @@ define {
     // LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}{SNTEND}{CHARINSNTN}{LOWER})
     LOWERCASE_PART      ({SIMPLESNT}{BOUNDARY}+{SNTEND}?{CHARINSNTN}{LOWER})
 
-    // 2. Mondatzáró után idéző- vagy kötő jel.
+    // 2. Mondatzáró után idézőjel (esetleg kotojel is).
     // BE: A "Ne már!"-ral az a baj.
     // KI: <s>A "Ne már!"-ral az a baj.</s>
     // QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}{SNTEND}"-"{WORDCHAR})
-    QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}+{SNTEND}"-"{WORDCHAR})
+    QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}+"\""[\- ]?{LOWER})
+
+    // 2/b. Szam - kotojel - nagybetu
+    // BE: Januar 2. - Budapest
+    // KI: <s>Januar 2. - Budapest</s>
+    // QUOTATIONMARK_PART  ({SIMPLESNT}{BOUNDARY}{SNTEND}"-"{WORDCHAR})
+    HYPHEN_PART         ({SIMPLESNT}[0-9]"."{HYPHEN_OR_DASH}{UPPER})
 
     // 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva.
     // BE: A WWW.AKARMI.HU.
@@ -109,6 +120,7 @@ mode PROGRAM {
     // egységesen kezelve
     {SNTBEGIN}(({LOWERCASE_PART}
                |{QUOTATIONMARK_PART}
+               |{HYPHEN_PART}
                |{WORDCHAR_PART}
                |{COMMA_PART}
                |{BRACKET_PART}

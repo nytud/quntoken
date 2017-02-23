@@ -23,9 +23,22 @@ IN : - Szia Péterkém! Holnap találkozunk - mondta Gizi.
 OUT: <s>- Szia Péterkém!</s><ws> </ws><s>Holnap találkozunk - mondta Gizi.</s>
 
 
-2. Mondatzáró után idéző- vagy kötő jel. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. Mondatzáró után idézőjel, esetleg kötőjellel. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IN : A "Ne már!" után nincs mondatvég.
+OUT: <s>A "Ne már!" után nincs mondatvég.</s>
+
 IN : A "Ne már!"-ral az a baj.
 OUT: <s>A "Ne már!"-ral az a baj.</s>
+
+# kontrol
+IN : Elso. "Masodik." Harmadik.
+OUT: <s>Elso.</s><ws> </ws><s>"Masodik."</s><ws> </ws><s>Harmadik.</s>
+
+2/b. Szam-kotojel-nagybetu
+IN : Született: január 2. - Budapest.
+OUT: <s>Született: január 2. - Budapest.</s>
+IN : Született: január 2. – Budapest.
+OUT: <s>Született: január 2. – Budapest.</s>
 
 
 3. Pont után közvetlenül szóalkotó karakter a pontot magát leszámítva. ~~~~~~~~

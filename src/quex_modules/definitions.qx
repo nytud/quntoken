@@ -245,6 +245,8 @@ define {
     // SNTBEGINCHR: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
     //      neten.")
     //      TODO: whitespace karaktereket megadni rendesen!!!
+    // ENDPAR: zaro zarojelek
+    // ENDQUO: zaro idezojelek
     // ENDQUOPAR: záró záró- és idézőjelek
     //      Ez a régi: ("\""|"''"|"'"|")"|"]")
     //      Megj.: mondathatár (BOUNDARY) után is következhetnek (l. SNTEND)
@@ -321,7 +323,12 @@ define {
 
     SNTBEGINCHR [: difference( {BASE_CLASS}, union([?!], {WSPACE}) ) :]
 
-    ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :]
+    ENDPAR      [: intersection( {BASE_CLASS}, [\)\]}] ) :]
+
+    ENDQUO      [: intersection( {BASE_CLASS}, ["'”’] ) :]
+
+    ENDQUOPAR   [: union( {ENDQUO}, {ENDPAR} ) :]
+    /* ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :] */
 
     INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINECHAR}) ) :]
 
