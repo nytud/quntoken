@@ -162,7 +162,7 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumerate of names with hyphen
     // mondatvegi verzio
-    (\G{Uppercase_Letter}\G{Lowercase_Letter}+)("-"\G{Uppercase_Letter}\G{Lowercase_Letter}+){2,}"."{SNT_CLOSE_QX} {
+    ((\G{Uppercase_Letter}|\G{Lowercase_Letter})\G{Lowercase_Letter}+)(")"?"-""("?(\G{Uppercase_Letter}|\G{Lowercase_Letter})+){2,}"."{SNT_CLOSE_QX} {
         /* std::wcerr << L"enum of names with hyphen (snt end): " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme, wcslen(Lexeme)-2);
         std::wstring res;
@@ -181,7 +181,7 @@ mode PROGRAM : COMMON {
         self_send1(token_TOKEN, res.c_str());
     }
     // mondatkozi verzio
-    (\G{Uppercase_Letter}\G{Lowercase_Letter}+)("-"\G{Uppercase_Letter}\G{Lowercase_Letter}+){2,} {
+    ((\G{Uppercase_Letter}|\G{Lowercase_Letter})\G{Lowercase_Letter}+)(")"?"-""("?(\G{Uppercase_Letter}|\G{Lowercase_Letter})+){2,} {
         /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         std::wstring res;
