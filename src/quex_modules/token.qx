@@ -162,38 +162,38 @@ mode PROGRAM : COMMON {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // enumerate of names with hyphen
     // mondatvegi verzio
-    (\G{Uppercase_Letter}\G{Lowercase_Letter}+)("-"\G{Uppercase_Letter}\G{Lowercase_Letter}+){2,}"."{SNT_CLOSE_QX} {
+    (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,}"."{SNT_CLOSE_QX} {
         /* std::wcerr << L"enum of names with hyphen (snt end): " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme, wcslen(Lexeme)-2);
         std::wstring res;
         for(auto c : LEX)
         {
-            if(c!=L'-')
+            if(c==L'-' or c==L'(' or c==L')')
             {
-                res.push_back(c);
+                res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
             }
             else
             {
-                res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"-" + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
+                res.push_back(c);
             }
         }
         res = self.WORD_OPEN_CPP + res + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP;
         self_send1(token_TOKEN, res.c_str());
     }
     // mondatkozi verzio
-    (\G{Uppercase_Letter}\G{Lowercase_Letter}+)("-"\G{Uppercase_Letter}\G{Lowercase_Letter}+){2,} {
+    (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,} {
         /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         std::wstring res;
         for(auto c : LEX)
         {
-            if(c!=L'-')
+            if(c==L'-')
             {
-                res.push_back(c);
+                res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
             }
             else
             {
-                res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"-" + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP);
+                res.push_back(c);
             }
         }
         res = self.WORD_OPEN_CPP + res + self.WORD_CLOSE_CPP;
@@ -251,7 +251,9 @@ mode PROGRAM : COMMON {
     // - tokens can contain wordchars and dots, but dot can not follow another
     //   dot
     // - dot at the end of the word belongs to the sentence, if it is followed
-    //   by a snt close tag
+    //   by a snt close tag -- DELETE!
+    // - TODO: dot at the end of the word is a separated punctuation
+    // - dot at the end of the word is a separated punctuation
     // - words with parenthesis: (paren)thesis or paren(thesis), or
     //   par(en)thesis, but not (parenthesis)
     // verision for words with "-e"
