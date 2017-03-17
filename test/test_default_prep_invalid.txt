@@ -31,3 +31,7 @@ valid (combining diacritical marks)
 IN : Áríztűrő cõmbïning diācritica̖l ma̗rks̱.
 OUT: Áríztűrő cõmbïning diācritica̖l ma̗rks̱.
 
+Nem standard spaciumok
+IN : Adagokban　kapjuk.
+OUT: Adagokban　kapjuk.
+

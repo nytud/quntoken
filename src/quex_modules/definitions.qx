@@ -211,10 +211,13 @@ define {
     //      \r: carriage return (CR, U+000D)
     //      \v: vertical tab (U+000B)
     //      \f: form feed (U+000C)
+    //      U+0085: next line (NEL)
+    //      U+2028: line separator
+    //      U+2029: paragraph separator
     // NEWLINE: ujsor, de ebben az osszetett valtozatok is benne vannak (CR+LF)
     //      TODO: tobbi unicode szerinti ujsort is belerakni (next line U+0085,
     //          line separator U+2028, paragraph separator U+2029)
-    // SPACE: Minden wspace a base_class-ból, az újsor karakterek kivételével.
+    // SPACE: Minden wspace -- nem csak a base_class-ból! -- az újsor karakterek kivételével.
     //      SOFT HYPHEN (00AD) is benne van.
     //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
     // WSPACE: Minden white space a base class-bol.
@@ -295,11 +298,11 @@ define {
                           \P{Block=Miscellaneous_Symbols}
                           ), \G{Other}), [\n\r\f\v\t ], {EMOTICONS}) :]
 
-    NEWLINECHAR [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :]
+    NEWLINECHAR [\U000085\U002028\U002029\n\r\f\v]
 
     NEWLINE     "\r\n"|{NEWLINECHAR}
 
-    SPACE       [: intersection( {BASE_CLASS}, union(difference(\P{White_Space}, {NEWLINECHAR}), [­]) ) :]
+    SPACE       [: difference(\P{White_Space}, {NEWLINECHAR}) :]
 
     WSPACE      ({NEWLINECHAR}|{SPACE})
 

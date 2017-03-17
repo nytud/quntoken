@@ -7,7 +7,7 @@ token {
 
 mode PREPROC {
     // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => preproc_BASECHARS(Lexeme);
+    [: difference( union({BASE_CLASS}, {SPACE}), {NEWLINECHAR}) :]+ => preproc_BASECHARS(Lexeme);
     {NEWLINECHAR}+      => preproc_BASECHARS(Lexeme);
 
     // A nem abba tartozokat lecsereljuk es hibauzenetet adunk.
