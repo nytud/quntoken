@@ -169,23 +169,10 @@ mode PROGRAM : COMMON {
         self_send1(token_TOKEN, LEX.c_str());
     }
     // mondatkozi verzio
-    (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,} {
+    (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,}"."? {
         /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.enumofnames_sntend(LEX, false);
-        /* std::wstring res; */
-        /* for(auto c : LEX) */
-        /* { */
-        /*     if(c==L'-') */
-        /*     { */
-        /*         res.append(self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP + self.WORD_OPEN_CPP); */
-        /*     } */
-        /*     else */
-        /*     { */
-        /*         res.push_back(c); */
-        /*     } */
-        /* } */
-        /* res = self.WORD_OPEN_CPP + res + self.WORD_CLOSE_CPP; */
         self_send1(token_TOKEN, LEX.c_str());
     }
 
@@ -253,7 +240,7 @@ mode PROGRAM : COMMON {
         self_send1(token_TOKEN, LEX.c_str());
     }
     // version for other cases:
-    ((({WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
+    (({WORD_IN_PAR}?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
         /* std::wcerr << L"basic: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.basic_token_corrig(LEX);
