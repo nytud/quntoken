@@ -143,8 +143,30 @@ body {
     }
 
     // modul: TOKEN:
+    // tagging enumerate of names with hyphen
+    void enumofnames_sntend(std::wstring &LEX, bool sntend=false) {
+        std::wstring res;
+        bool prev_not_word = true; // previous character was punctuation
+        for(auto c : LEX)
+        {
+            if(c==L'-' or c==L'(' or c==L')')
+            {
+                res.append((prev_not_word ? L"" : self.WORD_CLOSE_CPP) + self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP);
+                prev_not_word = true;
+            }
+            else
+            {
+                res.append((prev_not_word ? self.WORD_OPEN_CPP : L"") + c);
+                prev_not_word = false;
+            }
+        }
+        res += prev_not_word ? L"" : self.WORD_CLOSE_CPP;
+        res += sntend ? self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP : L"";
+        LEX = res;
+    }
     // correct snt ending, more dots in LEX separate tokens
-    void basic_token_corrig(std::wstring &LEX) {
+    void basic_token_corrig(std::wstring &LEX)
+    {
         std::wstring res;
         for(size_t pos = LEX.find(L".."), prev_pos = 0; ; prev_pos = pos, pos = LEX.find(L"..", pos+1)) {
             // res-t bovitjuk nem-pontokkal ...
