@@ -27,3 +27,18 @@ OUT: <s><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>.</c></s>
 IN : A Nana-Nini-Nene-Nono.
 OUT: <s><w>A</w><ws> </ws><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono</w><c>.</c></s>
 
+# Kisbetuvel is kezdodhet.
+IN : A nana-Nini-Nene-Nono.
+OUT: <s><w>A</w><ws> </ws><w>nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono</w><c>.</c></s>
+IN : A nana-Nini-Nene-Nono van.
+OUT: <s><w>A</w><ws> </ws><w>nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono</w><ws> </ws><w>van</w><c>.</c></s>
+
+# Pontra is vegzodhet mondat kozben, ami szoalkoto karakter lesz, nem punktuacio.
+IN : A Nana-Nini-Nene-Nono. van.
+OUT: <s><w>A</w><ws> </ws><w>Nana</w><c>-</c><w>Nini</w><c>-</c><w>Nene</w><c>-</c><w>Nono.</w><ws> </ws><w>van</w><c>.</c></s>
+
+# Zarojelpar is lehet a felsorolas belsejeben.
+IN : A Nana-(Nini-Nene)-Nono van.
+OUT: <s><w>A</w><ws> </ws><w>Nana</w><c>-</c><c>(</c><w>Nini</w><c>-</c><w>Nene</w><c>)</c><c>-</c><w>Nono</w><ws> </ws><w>van</w><c>.</c></s>
+
+
