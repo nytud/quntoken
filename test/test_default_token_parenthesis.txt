@@ -56,5 +56,7 @@ OUT: <s><w>Egy</w><ws> </ws><w>1)-4)</w><ws> </ws><w>van</w><c>.</c></s>
 kontroll
 IN : Egy ab) van.
 OUT: <s><w>Egy</w><ws> </ws><w>ab</w><c>)</c><ws> </ws><w>van</w><c>.</c></s>
+IN : Egy 12.) van.
+OUT: <s><w>Egy</w><ws> </ws><w>12.</w><c>)</c><ws> </ws><w>van</w><c>.</c></s>
 
 
