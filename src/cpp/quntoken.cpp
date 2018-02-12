@@ -13,7 +13,7 @@ const std::string HELP_STR = "Usage:\n"
                              "\tquntoken [OPTIONS] [-f FORMAT] FILE\n"
                              "Options:\n"
                              "\t-d\t\tRemove division of words at the end of the lines.\n"
-                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json. Default format: xml.\n"
+                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json, vert. Default format: xml.\n"
                              "\t-V\t\tDisplay version number and exit.\n"
                              "\t-h\t\tDisplay this help and exit";
 const std::string VERSION  = "quntoken 1.0.0";
@@ -65,6 +65,7 @@ int main(int argc, char** argv) {
     {
         if(format == "xml") {}
         else if(format == "json") { out_type = CONVJSON; }
+        else if(format == "vert") { out_type = CONVVERT; }
         else
         {
             std::cerr << "Wrong format. Valid formats: xml, json" << std::endl;

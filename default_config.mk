@@ -7,7 +7,7 @@ SRC_QX			= src/quex_modules
 
 
 # LEXERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-QXLEXERS		= preproc hyphen snt sntcorr token convxml convjson
+QXLEXERS		= preproc hyphen snt sntcorr token convxml convjson convvert
 
 
 # AUXILIARY FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

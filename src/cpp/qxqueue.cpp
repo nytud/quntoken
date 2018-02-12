@@ -12,6 +12,7 @@
 #include "token_Lexer"
 #include "convxml_Lexer"
 #include "convjson_Lexer"
+#include "convvert_Lexer"
 
 #include <quex/code_base/multi.i>
 #include <quex/code_base/definitions>
@@ -102,6 +103,9 @@ void QxQueue::run(std::stringstream* inp, std::stringstream* out /*=nullptr*/)
                 break;
             case CONVJSON:
                 module<convjson::Lexer, convjson::Token, convjson_TERMINATION>(streams[i], streams[i+1]);
+                break;
+            case CONVVERT:
+                module<convvert::Lexer, convvert::Token, convvert_TERMINATION>(streams[i], streams[i+1]);
                 break;
             default:
                 std::cerr << "Wrong module type!" << std::endl;

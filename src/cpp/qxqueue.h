@@ -13,7 +13,8 @@ enum MODULE_TYPE {
         SNTCORR,
         TOKEN,
         CONVXML,
-        CONVJSON
+        CONVJSON,
+        CONVVERT
 };
 
 

@@ -29,7 +29,7 @@ make all
 ### Options
 
 * -d: Remove division of words at the end of the lines.
-* -f: Define output format. Valid formats: xml, json. Default format: xml.
+* -f: Define output format. Valid formats: xml, json, vert. Default format: xml.
 * -V: Display version number and exit.
 * -h: Display help and exit.
 
