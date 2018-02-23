@@ -16,7 +16,7 @@ mode CONVERTER
 
     // A nyito tag-eket elnyeljuk, a zaroknal sortorunk.
     {SNT_OPEN_QX}     => convvert_TAG(text=L"");
-    {SNT_CLOSE_QX}    => convvert_TAG(text=L"\n\n");
+    {SNT_CLOSE_QX}    => convvert_TAG(text=L"\n");
     {WS_OPEN_QX}      => convvert_TAG(text=L"");
     {WS_CLOSE_QX}     => convvert_TAG(text=L"");
     {WORD_OPEN_QX}    => convvert_TAG(text=L"");
