@@ -1,0 +1,30 @@
+token
+{
+    TAG;
+    ANYCHAR;
+    FAILURE;
+}
+
+
+mode CONVERTER
+{
+    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
+    [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => convxml_ANYCHAR(Lexeme);
+    {NEWLINECHAR}+      => convxml_ANYCHAR(Lexeme);
+
+    {SNT_OPEN_QX}     => convxml_TAG(text=L"<s>");
+    {SNT_CLOSE_QX}    => convxml_TAG(text=L"</s>");
+    {WS_OPEN_QX}      => convxml_TAG(text=L"<ws>");
+    {WS_CLOSE_QX}     => convxml_TAG(text=L"</ws>");
+    {WORD_OPEN_QX}    => convxml_TAG(text=L"<w>");
+    {WORD_CLOSE_QX}   => convxml_TAG(text=L"</w>");
+    {PUNCT_OPEN_QX}   => convxml_TAG(text=L"<c>");
+    {PUNCT_CLOSE_QX}  => convxml_TAG(text=L"</c>");
+
+    // hiba
+    on_failure          => convxml_FAILURE(Lexeme);
+    // stream vege
+    on_end_of_stream    => convxml_TERMINATION;
+}
+
+

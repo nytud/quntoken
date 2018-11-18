@@ -1,0 +1,349 @@
+token {
+    ANYCHAR;
+    NEWLINE;
+    TOKEN;
+    PUNCT;
+    WS;
+}
+
+
+define {
+    // CHARACTERS CLASSES:
+    SYMBOL              [: intersection( {BASE_CLASS}, union(\G{Symbol}, {EMOTICONS}) ) :]
+    // punctuations (all):
+    PUNCT               [: intersection( {BASE_CLASS}, \G{Punctuation} ) :]
+    // joinable punctuations:
+    PUNCT_JOINABLE_CHAR [�.?!~@#$%^*+=<>_¢¤§·×÷°,:;\-]
+
+
+    // RULE FRAGMENTS
+    // W O R D ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    WORD_WITHOUT_DOTS   "."?({WORDCHAR2}+"."?)+
+    WORDS_WITH_DOTS     {WORDCHAR}*{WORDCHAR2}{WORDCHAR}*
+    WORD_IN_PAR         "("{WORD_WITHOUT_DOTS}")"
+
+    // U R L ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    PROTOKOLL           [a-zA-Z][a-zA-Z0-9+.\-]+"://"
+    USER                [a-zA-Z0-9][a-zA-Z0-9.]*
+    PASSWD              [!-~]+
+    AUTH                {USER}(":"{PASSWD})?"@"
+    // IP_FRAG: numbers between 0-255
+    IP_FRAG             ([1-9]?[0-9])|("1"[0-9]{2})|("2"[0-4][0-9])|("25"[0-5])
+    // IP: 4 IP_FRAG separated with dots, e.g. 142.42.1.1
+    IP                  ({IP_FRAG}"."){3}{IP_FRAG}
+    // DOMAIN_FRAG: dns label, must not begin and end with a hyphen
+    // TODO: internationalized domain name
+    DOMAIN_FRAG         [a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?
+    DOMAIN              ({DOMAIN_FRAG}".")*{DOMAIN_FRAG}
+    // TODO: IPv6
+    HOST                {IP}|{DOMAIN}
+    PORT                ":"[0-9]{2,5}
+    URL_PATH_FRAG       [a-zA-Z0-9_\-\/()=,%]+
+    URL_PATH            "/"(({URL_PATH_FRAG}".")*{URL_PATH_FRAG})?
+    QUERY               "?"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
+    FRAGMENT            "#"[a-zA-Z0-9_\-./;&=+%:~]*[a-zA-Z0-9_\-/;&=+%:~]
+    URL                 {PROTOKOLL}?{AUTH}?{HOST}{PORT}?{URL_PATH}?{QUERY}?{FRAGMENT}?
+
+    // P A T H ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // windows
+    WIN_PATH_INIT   ([a-zA-Z]":")|("\\")
+    WIN_PATH_FRAG   "\\"[a-zA-Z0-9.$]+
+    WIN_PATH_SHORT  [a-zA-Z]":""\\"?
+    WIN_PATH        ({WIN_PATH_SHORT})|({WIN_PATH_INIT}{WIN_PATH_FRAG}*)
+    // unix
+    UNIX_PATH_INIT  "."{0,2}
+    UNIX_PATH_FRAG  "/"([a-zA-z0-9.]|"\\ ")*
+    UNIX_PATH       {UNIX_PATH_INIT}{UNIX_PATH_FRAG}+"/"?
+    // path
+    PATH            {UNIX_PATH}|{WIN_PATH}
+
+    // N U M B E R S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // numbers with punctuations
+    // Megj: a kotojelet felesleges belevenni, ugyis a word fog ra illeszkedni
+    NUM_WITH_PUNCT  ([+\-]|\G{Currency_Symbol})?([0-9]([.,:;]|{DASH})?)*[0-9]
+    // numbers with spaces
+    NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]*)?
+
+    //O P E R A T I O N S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    OPERAND         ([0-9]+[.,])?[0-9]+ // decimal fractions
+    OPERATION_WS    [  ] // space (0020), non-breaking space (00A0)
+    OPERATOR        {OPERATION_WS}?[*+]{OPERATION_WS}?
+    OPERATION       {OPERAND}({OPERATOR}{OPERAND})+
+
+    // ID-s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ID              (\G{Lowercase_Letter}|\G{Uppercase_Letter})+({DASH}[0-9]+)+(\G{Lowercase_Letter}|\G{Uppercase_Letter})*"."?
+
+    // ENUMERATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // enumerations with parenthesis e.g. a), viii), 12), a)-d), 4)-6)
+    // note: ROMAN_NUMBER matches empty string, recusive form is forbidden
+    ENUMERATION_WITH_LETTER_FRAG    (\G{Lowercase_Letter}|\G{Uppercase_Letter})")"
+    ENUMERATION_WITH_NUMBER_FRAG    [0-9]+")"
+    ENUMERATION_WITH_ROMANNUM       {ROMAN_NUMBER}")"
+    ENUMERATION_WITH_LETTER         {ENUMERATION_WITH_LETTER_FRAG}({DASH}{ENUMERATION_WITH_LETTER_FRAG})*
+    ENUMERATION_WITH_NUMBER         {ENUMERATION_WITH_NUMBER_FRAG}({DASH}{ENUMERATION_WITH_NUMBER_FRAG})*
+    ENUMERATION                     {ENUMERATION_WITH_LETTER}|{ENUMERATION_WITH_NUMBER}|{ENUMERATION_WITH_ROMANNUM}
+
+    // SMILEY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // smiley0: :smiley:
+    // smiley1: :-)
+    // smiley2: (-:
+    // smiley3: <3
+    // smiley4: :DDDDD
+    SMILEY1_FRONT   [;:=B8]
+    SMILEY1_BACK    [()3DoOpP\|\/\\$*@]
+    SMILEY2_FRONT   [()$*D\\\|]
+    SMILEY2_BACK    [;:=]
+    SMILEY0     ":"[a-zA-Z]+":"
+    SMILEY1     {SMILEY1_FRONT}[\-^]?{SMILEY1_BACK}
+    SMILEY2     {SMILEY2_FRONT}[\-^]?{SMILEY2_BACK}
+    SMILEY3     "<"[\/\\]?"3"
+    SMILEY4     ":"[()D]+
+    SMILEY      {SMILEY0}|{SMILEY1}|{SMILEY2}|{SMILEY3}|{SMILEY4}
+
+}
+
+
+
+// M O D E S
+start = PROGRAM;
+
+// basic processing
+mode PROGRAM : COMMON {
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // beginning / end of sentence
+    {SNT_OPEN_QX}|{SNT_CLOSE_QX}   => token_ANYCHAR(Lexeme);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // whitespaces (out sentence)
+    {TAGGED_WS_SEQ} => token_WS(Lexeme);
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // whitespaces (in sentence)
+    {WSPACE}+ {
+        /* std::wcerr << L"ws! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
+        self_send1(token_WS, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // punctuations
+    // single punctuations
+    {PUNCT}|{SYMBOL} {
+        /* std::wcerr << L"single punct! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(token_PUNCT, LEX.c_str());
+    }
+    // more dots
+    "."{2,} {
+        /* std::wcerr << L"dots! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(token_PUNCT, LEX.c_str());
+    }
+    "."{2,}{SNT_CLOSE_QX} {
+        /* std::wcerr << L"dots! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX.substr(0, LEX.size()-1) + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP;
+        self_send1(token_PUNCT, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // abbreviations at sentence ending
+    {ABBREV}"."{SNT_CLOSE_QX} {
+        /* std::wcerr << L"abbrev! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig_abbrev(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // enumerate of names with hyphen
+    // mondatvegi verzio
+    (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,}"."{SNT_CLOSE_QX} {
+        std::wstring LEX(Lexeme, wcslen(Lexeme)-2);
+        /* std::wcerr << L"enum of names with hyphen (snt end): " << LEX<< std::endl; */
+        self.enumofnames_sntend(LEX, true);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+    // mondatkozi verzio
+    (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,}"."? {
+        /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.enumofnames_sntend(LEX, false);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // operations with decimal fractions
+    {OPERATION}("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"operations: " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.operation_processing(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // path
+    {PATH}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"path! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // filename with wildcard characters
+    {PATH}?[?.*]{2,}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"filename! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // joinable punctuations
+    {PUNCT_JOINABLE_CHAR}+ {
+        /* std::wcerr << L"joinable punct! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+        self_send1(token_PUNCT, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // smiley
+    {SMILEY} {
+        /* std::wcerr << L"smiley! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        self_send1(token_PUNCT, LEX.c_str());
+    }
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // basic tokenizer rules:
+    // - tokens can contain wordchars and dots, but dot can not follow another
+    //   dot
+    // - dot at the end of the word belongs to the sentence, if it is followed
+    //   by a snt close tag -- DELETE!
+    // - TODO: dot at the end of the word is a separated punctuation
+    // - dot at the end of the word is a separated punctuation
+    // - words with parenthesis: (paren)thesis or paren(thesis), or
+    //   par(en)thesis, but not (parenthesis)
+    // verision for words with "-e"
+    ((({WORDS_WITH_DOTS}?{WORD_IN_PAR})?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}?{WORD_IN_PAR}))"-e"("."+)?{SNT_CLOSE_QX}? {
+        /* std::wcerr << L"basic (-e): " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.particula_token_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+    // version for other cases:
+    (({WORD_IN_PAR}?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"basic: " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.basic_token_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // url
+    {URL}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"url! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // email
+    // it's ready :)
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // windows network services (?)
+    [a-zA-Z]+"$"{WORD_WITHOUT_DOTS}?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"wns! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // uppercase letters with '&'
+    \G{Uppercase_Letter}+"&"\G{Uppercase_Letter}+("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"uppercase with &! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // words with apostroph
+    \G{Letter}+"'"\G{Letter}+ {
+        /* std::wcerr << L"words with apostroph! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // numbers with punctuations
+    {NUM_WITH_PUNCT}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"nums with punct! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // numbers with spaces
+    {NUM_WITH_SPACE}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"nums with spaces! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ID
+    {ID}("-"?{WORD_WITHOUT_DOTS})?("."{SNT_CLOSE_QX})? {
+        /* std::wcerr << L"id! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        self.sntend_corrig(LEX);
+        self_send1(token_TOKEN, LEX.c_str());
+    }
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // enumeration with parenthesis
+    // note: roman_number matches empty string!
+    {ENUMERATION} {
+        /* std::wcerr << L"enumeration! " << Lexeme << std::endl; */
+        std::wstring LEX(Lexeme);
+        if(LEX.front() != L')'){
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+            self_send1(token_TOKEN, LEX.c_str());
+        }
+        else {
+            LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
+            self_send1(token_PUNCT, LEX.c_str());
+        }
+    }
+
+}
+
+
+// kozos dolgok
+mode COMMON : <inheritable: only> {
+    /* {NEWLINE}       => token_NEWLINE(Lexeme); */
+    on_failure      {
+        std::wcerr << L"TOKEN-ERROR ("
+                   << self.line_number() << L", "
+                   << self.column_number() << L"): "
+                   << Lexeme << std::endl;
+        self_send1(token_ANYCHAR, Lexeme);
+    }
+    <<EOF>>         => token_TERMINATION;
+    on_end_of_stream => token_TERMINATION;
+}
+

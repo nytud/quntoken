@@ -1,0 +1,401 @@
+// a modulok kozos definicioi
+
+body {
+
+    #include <string>
+
+    //TAG DEFINICIOK
+
+    // A szovegben a feldolgozas soran hasznalt tag-ek C++-os (wstring)
+    // definicioja. Ezeket a C++ kodok hasznaljak, ezt jeloli a _CPP vegzodes.
+    // A veluk parhuzamos, a quex altal pattern-kent hasznalt definiciokat a
+    // 'define' szekcio tartalmazza. Modositasnal es uj tag/karkter
+    // felvetelenel a megfelelo _QX vegzodesu definiciokat is cserelni vagy
+    // felvenni kell.
+    // Az xml tag-ek helyett spec. karakterek vannak a későbbi feldolgozást
+    // megkönnyítendő.
+    const std::wstring SNT_OPEN_CPP     = L"🀰";
+    const std::wstring SNT_CLOSE_CPP    = L"🀱";
+    const std::wstring WS_OPEN_CPP      = L"🀲";
+    const std::wstring WS_CLOSE_CPP     = L"🀳";
+    const std::wstring WORD_OPEN_CPP      = L"🀴";
+    const std::wstring WORD_CLOSE_CPP     = L"🀵";
+    const std::wstring PUNCT_OPEN_CPP      = L"🀶";
+    const std::wstring PUNCT_CLOSE_CPP     = L"🀷";
+
+    // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
+    const std::wstring REPLACEMENTCHAR_CPP = L"�";
+
+
+    // FUGGVENYEK
+    // Megj.: Az itt levo fuggvenyeknek az egyes modulokban lenne a helye,
+    //      de ha azokban van 'body' szekcio, akkor az felulirja az ittenit,
+    //      igy ezekben nem lenne hasznalhato a tobbi, itt deklaralt dolog sem.
+    //      Szoval ezek itt vannak es kesz.
+
+    // modul: HYPHEN
+    /* NEWLINECHAR [: intersection( {BASE_CLASS}, [\n\r\f\v] ) :] */
+    /* NEWLINE     "\r\n"|{NEWLINECHAR} */
+    std::wstring hyphenation(const wchar_t* lexeme) {
+        std::wstring text(lexeme);
+        delete_str(text, L"-\r\n");
+        delete_str(text, L"-\n");
+        delete_str(text, L"-\f");
+        delete_str(text, L"-\v");
+        return text;
+    }
+
+    // module: HYPHEN, SNTCORR
+    // str osszes elofordulasanak torlese text-bol
+    void delete_str(std::wstring &text, const std::wstring &str) {
+        for(size_t pos = text.find(str);
+            pos != std::wstring::npos;
+            pos = text.find(str, pos)) {
+
+            text.erase(pos, str.length());
+        }
+    }
+
+    // module: SNTCORR
+    // Az SNT es WS tag-ek osszes elofordulasanak torlese a kapott lexeme-bol,
+    // javitott szoveg visszaadasa wstring-kent.
+    std::wstring snt_boundary_correction(const wchar_t* lexeme) {
+        std::wstring text(lexeme);
+        delete_str(text, SNT_OPEN_CPP);
+        delete_str(text, SNT_CLOSE_CPP);
+        delete_str(text, WS_OPEN_CPP);
+        delete_str(text, WS_CLOSE_CPP);
+        return text;
+    }
+
+    // module: TOKEN
+    // dot at the end of the senetence belong to sentence, not to word
+    void sntend_corrig(std::wstring &LEX) {
+        if(LEX.back() == self.SNT_CLOSE_CPP.front()) {
+            // delete dot and sentence close tag from the end of the Lexeme
+            LEX.erase(LEX.end()-2, LEX.end());
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP +
+                  self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP +
+                  self.SNT_CLOSE_CPP;
+        }
+        else {
+            LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
+        }
+        return;
+    }
+    void sntend_corrig_abbrev(std::wstring &LEX) {
+        // delete sentence close tag from the end of the Lexeme
+        LEX.erase(LEX.end()-1, LEX.end());
+        LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP + self.SNT_CLOSE_CPP;
+        return;
+    }
+
+    // module: TOKEN
+    // operation e.g. "2 + 3"
+    void operation_processing(std::wstring &LEX)
+    {
+        self.sntend_corrig(LEX);
+        std::wstring operand_chars = L"0123456789.,";
+        std::wstring operator_chars = L"+*";
+        std::wstring operation_ws = L"  "; // space (0020), non-breaking space (00A0)
+
+        bool prev_num = false;
+        std::wstring res;
+        size_t pos = LEX.find(self.PUNCT_OPEN_CPP);
+        const std::wstring operation = LEX.substr(0, pos != std::wstring::npos ? pos-1 : pos);
+        const std::wstring ending = LEX.substr(pos != std::wstring::npos ? pos : LEX.size());
+        for(auto c : operation)
+        {
+            if(operand_chars.find(c) == std::wstring::npos) // c is not a number
+            {
+                if(prev_num)
+                {
+                    prev_num = false;
+                    res += self.WORD_CLOSE_CPP;
+                }
+                if(operator_chars.find(c) != std::wstring::npos) // c is an operator
+                {
+                    res += self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP;
+                }
+                else if(operation_ws.find(c) != std::wstring::npos) // c is a whitespace
+                {
+                    res += self.WS_OPEN_CPP + c + self.WS_CLOSE_CPP;
+                }
+            }
+            else // c is a number
+            {
+                if(not prev_num)
+                {
+                    prev_num = true;
+                    res += self.WORD_OPEN_CPP;
+                }
+                res += c;
+            }
+        }
+        if(prev_num)
+        {
+            res += self.WORD_CLOSE_CPP;
+        }
+        res += ending;
+
+        LEX.swap(res);
+        return;
+    }
+
+    // modul: TOKEN:
+    // tagging enumerate of names with hyphen
+    void enumofnames_sntend(std::wstring &LEX, bool sntend=false) {
+        std::wstring res;
+        bool prev_not_word = true; // previous character was punctuation
+        for(auto c : LEX)
+        {
+            if(c==L'-' or c==L'(' or c==L')')
+            {
+                res.append((prev_not_word ? L"" : self.WORD_CLOSE_CPP) + self.PUNCT_OPEN_CPP + c + self.PUNCT_CLOSE_CPP);
+                prev_not_word = true;
+            }
+            else
+            {
+                res.append((prev_not_word ? self.WORD_OPEN_CPP : L"") + c);
+                prev_not_word = false;
+            }
+        }
+        res += prev_not_word ? L"" : self.WORD_CLOSE_CPP;
+        res += sntend ? self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP : L"";
+        LEX = res;
+    }
+    // correct snt ending, more dots in LEX separate tokens
+    void basic_token_corrig(std::wstring &LEX)
+    {
+        std::wstring res;
+        for(size_t pos = LEX.find(L".."), prev_pos = 0; ; prev_pos = pos, pos = LEX.find(L"..", pos+1)) {
+            // res-t bovitjuk nem-pontokkal ...
+            // ... LEX belsejeben
+            if(pos != std::string::npos) {
+                res.append(pos!=prev_pos ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.WORD_CLOSE_CPP : L"");
+            }
+            // ... LEX vegen
+            else {
+                // korrigalni kell mondatzaro jel miatt
+                if (LEX.back() == self.SNT_CLOSE_CPP.front()) {
+                    // res vegen pontok voltak, mar csak a mondatzarot kell hozzacsapni
+                    if(res.back() == self.PUNCT_CLOSE_CPP.front()) {
+                        res.append((prev_pos != LEX.size()-1 ? self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP : L"") + self.SNT_CLOSE_CPP);
+                    }
+                    // res vegen csak egy pont volt, a pont nem a szohoz tartozik, hanem kulon punktuacio
+                    else {
+                        res.append(self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos-2) + self.WORD_CLOSE_CPP + self.PUNCT_OPEN_CPP + L"." + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP);
+                    }
+                }
+                // nem kell korrigalni
+                else {
+                    res.append(self.WORD_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos) + self.WORD_CLOSE_CPP);
+                }
+                break;
+            }
+            // res-t bovitjuk pontokkal ...
+            prev_pos = pos;
+            pos = LEX.find_first_not_of(L".", pos+2);
+            // ... LEX belsejeben
+            if(pos != std::string::npos) {
+                res.append(self.PUNCT_OPEN_CPP + LEX.substr(prev_pos, pos-prev_pos) + self.PUNCT_CLOSE_CPP);
+            }
+            // ... LEX vegen
+            else {
+                res.append(self.PUNCT_OPEN_CPP + LEX.substr(prev_pos, LEX.size()-prev_pos) + self.PUNCT_CLOSE_CPP);
+                break;
+            }
+        }
+        LEX = res;
+        return;
+    }
+
+    // modul: TOKEN:
+    // "-e" at the end of word is treated as a new word
+    void particula_token_corrig(std::wstring &LEX) {
+        self.basic_token_corrig(LEX);
+        size_t pos = LEX.find_last_of(self.WORD_CLOSE_CPP);
+        LEX.insert(pos-2, self.WORD_CLOSE_CPP+self.WORD_OPEN_CPP);
+        return;
+    }
+
+}
+
+
+define {
+    // Karakterrosztályok: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // EMOTICONS: ~. A quex nem ismeri ezt a unicode blokkot, kézzel kell
+    //      megadni.
+    // BASE_CLASS: Alap karakterosztály, minden más ennek részhalmaza kell
+    //      legyen.
+    // NEWLINECHAR: Újsor karakterek.
+    //      \n: line feed (LF, U+000A)
+    //      \r: carriage return (CR, U+000D)
+    //      \v: vertical tab (U+000B)
+    //      \f: form feed (U+000C)
+    //      U+0085: next line (NEL)
+    //      U+2028: line separator
+    //      U+2029: paragraph separator
+    // NEWLINE: ujsor, de ebben az osszetett valtozatok is benne vannak (CR+LF)
+    //      TODO: tobbi unicode szerinti ujsort is belerakni (next line U+0085,
+    //          line separator U+2028, paragraph separator U+2029)
+    // SPACE: Minden wspace -- nem csak a base_class-ból! -- az újsor karakterek kivételével.
+    //      SOFT HYPHEN (00AD) is benne van.
+    //      Ez a régi: ([ \n\t]) - nincs különbség a ws és nl között.
+    // WSPACE: Minden white space a base class-bol.
+    // WORDCHAR: szóban szerepelhető karakterek (pont is benne van, l. nytud.hu)
+    //      eredetileg html entitásokat is tartalmazott, de ki lettek véve
+    //      Ez a régi: ([a-zA-ZáéíóöőúüűÁÉÍÓÖŐÚÜŰ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ĄŁĽŚŠŞŤŹŽŻąłľśšşťźžżŔÂĂÄĹĆÇČĘËĚÎĎĐŃŇÔŘŮÝŢßŕâăäĺćçčęëěîďđńňôřůýţ])
+    //      Figyelni: az eredeti a '_'-t nem tartalmazza (hun_token-nel lehet
+    //          fontos)!
+    // WORDCHAR2: szóban szerepelhető karakterek, pont nélkül
+    // NONWORDCHAR: nem-szoalkoto kakaktrerek (pont nincs benne, tehat a sima
+    //      WORDCHAR komplementere)
+    //      Ez a regi: [^a-zA-ZáéíóöõúüûÁÉÍÓÖÕÚÜÛ\-.§%°0-9¡£¥¦©ª«¬®¯±³µ¶¹º»¼¾¿ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞßàâãäåæçèêëìîïðñòôøùýþ]
+    //      Figyelni: a hun_token is hasznalja, de az a '_'-t is tartalmazza!
+    // LOWER: kisbetűk + néhány szimbólum Csaba kódja alapján
+    //      Ez a régi: ([a-zµ¿»¶±¼¾¹³áàăâåäãąæćčçďđðéèêěëęíìîïĺľłńňñóòôöőõøºŕřśšşßťţúùûůüűýźžżþ])
+    //      Megj.: union(\P{Lowercase}, \P{Other_Lowercase} is lehet hogy jó
+    //          \G{Lowercase_Letter} helyett -- vajon van különbség?
+    // UPPER: nagybetűk
+    //      Megj.: Csaba kódja alapján meg ezek voltak benne [§¡£¥¦©ª«¬®¯],
+    //      most csak a monogrammokhoz kell az UPPER, ugyhogy kivettem.
+    //      Ez a régi: ([A-ZÁÉÍÓÖÕÚÜÛ§¡£¥¦©ª«¬®¯ÀÂÃÄÅÆÇÈÊËÌÎÏÐÑÒÔØÙÝÞ])
+    // CHARINSNT: mondatban szerepelhető, nem szóalkotó és nem is mondathatároló
+    //      karakterek (zárójel, idézőjel, szóköz, stb.)
+    // BOUNDARY: egyszerű mondathatároló karakterek (pont, felkiáltójel,
+    //      kérdőjel)
+    //      Megj.: a szón belüli pont máshogy van kezelve.
+    // SNTCHAR: nem mondathatároló karakter ami nem is sortörés
+    // SNTBEGINCHR: mondatkezdő karakter (pont is lehet, pl. a ".hu vita a
+    //      neten.")
+    //      TODO: whitespace karaktereket megadni rendesen!!!
+    // ENDPAR: zaro zarojelek
+    // ENDQUO: zaro idezojelek
+    // ENDQUOPAR: záró záró- és idézőjelek
+    //      Ez a régi: ("\""|"''"|"'"|")"|"]")
+    //      Megj.: mondathatár (BOUNDARY) után is következhetnek (l. SNTEND)
+    //      TODO: unicode-osítani
+    // INPARENTCHR: BRACKET_PART szabályban zárójelen belül alapból megengedett
+    //      karakterek osztálya
+    // COMMACHR: COMMA_PART szabályban szerepelhető vessző- és idézőjelszerű
+    //      karakterek
+
+    EMOTICONS   [\U1F600-\U1F915]
+
+    BASE_CLASS  [: union(difference(union( \P{Block=Basic_Latin},
+                          \P{Block=Latin-1_Supplement},
+                          \P{Block=Latin_Extended-A},
+                          \P{Block=Latin_Extended-B},
+                          \P{Block=Latin_Extended-C},
+                          \P{Block=Latin_Extended-D},
+                          \P{Block=Cyrillic},
+                          \P{Block=Cyrillic_Supplement},
+                          \P{Block=Greek_and_Coptic},
+                          \P{Block=Greek_Extended},
+                          \P{Block=Ancient_Greek_Numbers},
+                          \P{Block=Combining_Diacritical_Marks},
+                          \P{Block=Combining_Diacritical_Marks_Supplement},
+                          \P{Block=General_Punctuation},
+                          \P{Block=Supplemental_Punctuation},
+                          \P{Block=Specials},
+                          \P{Block=Mathematical_Operators},
+                          \P{Block=Supplemental_Mathematical_Operators},
+                          \P{Block=Geometric_Shapes},
+                          \P{Block=Arrows},
+                          \P{Block=Supplemental_Arrows-A},
+                          \P{Block=Supplemental_Arrows-B},
+                          \P{Block=Spacing_Modifier_Letters},
+                          \P{Block=Alphabetic_Presentation_Forms},
+                          \P{Block=Phonetic_Extensions},
+                          \P{Block=Phonetic_Extensions_Supplement},
+                          \P{Block=Currency_Symbols},
+                          \P{Block=Letterlike_Symbols},
+                          \P{Block=Mathematical_Alphanumeric_Symbols},
+                          \P{Block=Miscellaneous_Mathematical_Symbols-A},
+                          \P{Block=Miscellaneous_Mathematical_Symbols-B},
+                          \P{Block=Miscellaneous_Symbols_and_Arrows},
+                          \P{Block=Miscellaneous_Technical},
+                          \P{Block=Musical_Symbols},
+                          \P{Block=Miscellaneous_Symbols}
+                          ), \G{Other}), [\n\r\f\v\t ], {EMOTICONS}) :]
+
+    NEWLINECHAR [\U000085\U002028\U002029\n\r\f\v]
+
+    NEWLINE     "\r\n"|{NEWLINECHAR}
+
+    SPACE       [: difference(\P{White_Space}, {NEWLINECHAR}) :]
+
+    WSPACE      ({NEWLINECHAR}|{SPACE})
+
+    NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
+
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-+_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
+
+    WORDCHAR2   [: difference( {WORDCHAR}, [.]) :]
+
+    NONWORDCHAR [: difference( {BASE_CLASS}, {WORDCHAR}) :]
+
+    LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿»¶±¼¾¹³øº])) :]
+
+    UPPER       [: intersection( {BASE_CLASS}, \G{Uppercase_Letter} ) :]
+
+    CHARINSNT   [: intersection( {BASE_CLASS}, [\(\)\-[\],; "] ) :]
+
+    BOUNDARY    [: intersection( {BASE_CLASS}, [.?!] ) :]
+
+    SNTCHAR     [: intersection( {BASE_CLASS}, [^.?!\n] ) :]
+
+    SNTBEGINCHR [: difference( {BASE_CLASS}, union([?!], {WSPACE}) ) :]
+
+    ENDPAR      [: intersection( {BASE_CLASS}, [\)\]}] ) :]
+
+    ENDQUO      [: intersection( {BASE_CLASS}, ["'”’] ) :]
+
+    ENDQUOPAR   [: union( {ENDQUO}, {ENDPAR} ) :]
+    /* ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :] */
+
+    INPARENTCHR [: intersection( {BASE_CLASS}, difference([^.!?\)], {NEWLINECHAR}) ) :]
+
+    COMMACHR    [: intersection( {BASE_CLASS}, [,;:“”„‘’‚] ) :]
+
+    DASH        [: intersection( {BASE_CLASS}, \G{Dash_Punctuation} ) :]
+
+
+    // A szovegben a feldolgozas soran hasznalt tag-ek quex-es (pattern)
+    // definicioja:
+    SNT_OPEN_QX     \U01F030 // 🀰
+    SNT_CLOSE_QX    \U01F031 // 🀱
+    WS_OPEN_QX      \U01F032 // 🀲
+    WS_CLOSE_QX     \U01F033 // 🀳
+    WORD_OPEN_QX    \U01F034 // 🀴
+    WORD_CLOSE_QX   \U01F035 // 🀵
+    PUNCT_OPEN_QX   \U01F036 // 🀶
+    PUNCT_CLOSE_QX  \U01F037 // 🀷
+
+    // egyebek:
+    // tetszoleges egesz szam:
+    INT             [\-+]?[0-9]+
+    // romai szamok (http://stackoverflow.com/a/267405 felhasznalasaval)
+    // Megj: ures stringre is illeszkedik, hasznalatanal ezt ellenorizni kell!
+    LOWERCASE_ROMAN_NUMBER  "m"{0,4}("cm"|"cd"|("d"?"c"{0,3}))("xc"|"xl"|("l"?"x"{0,3}))("ix"|"iv"|("v"?"i"{0,3}))
+    UPPERCASE_ROMAN_NUMBER  "M"{0,4}("CM"|"CD"|("D"?"C"{0,3}))("XC"|"XL"|("L"?"X"{0,3}))("IX"|"IV"|("V"?"I"{0,3}))
+    ROMAN_NUMBER            {LOWERCASE_ROMAN_NUMBER}|{UPPERCASE_ROMAN_NUMBER}
+    // BASE_CLASS-ba nem tartozo karakterek csere karaktere:
+    /* REPLACEMENTCHAR_QX "�" */
+
+    // ws szekvencia benne legfeljebb 1 db sortoressel (mondaton belul)
+    WS_SEQ_INSNT            (({SPACE}+{NEWLINE}?{SPACE}*)|({NEWLINE}{SPACE}*))
+    // megtag-gelt ws_seq
+    TAGGED_WS_SEQ_INSNT     ({WS_OPEN_QX}{WS_SEQ_INSNT}{WS_CLOSE_QX})
+    // mondathatar: mondatzaro tag + taggelt space-sorozat + mondatnyito tag
+    SENTENCE_BOUNDARY       ({SNT_CLOSE_QX}{TAGGED_WS_SEQ_INSNT}?{SNT_OPEN_QX})
+    // ugyan ez "." utan
+    DOT_SENTENCE_BOUNDARY   ("."{SENTENCE_BOUNDARY})
+    // megtag-gelt ws_seq, benne barhany sortores (mondatkozi)
+    TAGGED_WS_SEQ     ({WS_OPEN_QX}{WSPACE}*{WS_CLOSE_QX})
+}
+
+
+// vim:set syntax=cpp:
+

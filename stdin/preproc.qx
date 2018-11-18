@@ -1,0 +1,27 @@
+token {
+    // alap karakterosztalyba tartozo karakterek nem ures sorozata
+    BASECHARS;
+    // egy db ismeretlen karakter helyettesitoje
+    REPLACEMENTCHAR;
+}
+
+mode PREPROC {
+    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
+    [: difference( union({BASE_CLASS}, {SPACE}), {NEWLINECHAR}) :]+ => preproc_BASECHARS(Lexeme);
+    {NEWLINECHAR}+      => preproc_BASECHARS(Lexeme);
+
+    // A nem abba tartozokat lecsereljuk es hibauzenetet adunk.
+    .               {
+        std::cerr << "invalid character ("
+                  << self.line_number() << ","
+                  << self.column_number() << "): "
+                  << QUEX_CONVERTER_STRING(unicode, char)(Lexeme) << std::endl;
+        self_send1(preproc_REPLACEMENTCHAR, self.REPLACEMENTCHAR_CPP.c_str());
+    }
+    on_failure      => preproc_TERMINATION;
+    <<EOF>>         => preproc_TERMINATION;
+    on_end_of_stream => preproc_TERMINATION;
+}
+
+// vim:set syntax=cpp:
+
