@@ -1,3 +1,6 @@
+# 67.5-os quex kell hozza
+QUEX_PATH=${HOME}/Install/quex/quex-0.67.5/
+
 quex --bet wchar_t -i definitions.qx abbreviations_orig-hu.qx preproc.qx -o preprocLexer --token-id-prefix preproc_ &
 quex --bet wchar_t -i definitions.qx abbreviations_orig-hu.qx hyphen.qx -o hyphenLexer --token-id-prefix hyphen_ &
 quex --bet wchar_t -i definitions.qx abbreviations_orig-hu.qx snt.qx -o sntLexer --token-id-prefix snt_ &
