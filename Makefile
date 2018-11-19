@@ -43,7 +43,7 @@ QXDEPS			:= $(SRC_QX)/$(DEFINITIONS) $(ABBRLEXER)
 
 # COMPILERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # quex command
-QXCMD		= export QUEX_PATH=$(QUEX) ; $(QUEX)/quex-exe.py
+QXCMD = export QUEX_PATH=$(QUEX) ; $(QUEX)/quex-exe.py
 
 # quex flags
 QXFLAGS = \
@@ -162,68 +162,27 @@ clean:
 .PHONY: clean
 
 
-# install and update requirements ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-prereq: create_dirs install_gtest install_quex
-
+# install requirements ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+prereq: create_dirs install_quex
 .PHONY: prereq
 
-
-update: update_gtest update_quex
-
-.PHONY: update
-
-
-CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
-CMD_UPDATE_GTEST = cd $(GTEST) ; git pull
-# NOTE: a jelenlegi Quex verzio nem rossz, a 0.65.4-os az utolso hasznalhato
-# verzio. Ezert egyelore nem lehet hasznalni sem az aktualis verzio sima svn-es
-# letolteset, sem a svn-es frissitest. Ehelyett a history-bol kell letolteni es
-# nem szabad frissiteni.
-# CMD_INSTALL_QUEX =
-# 	cd $(TMP) ; \
-# 	svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
-# 	mv trunk/ ../$(QUEX)
-QUEX_STABLE_VERSION = quex-0.65.4
-QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_STABLE_VERSION).tar.gz
-CMD_INSTALL_QUEX = \
-	rm -rvf $(QUEX) ; \
-	cd $(TMP) ; \
-	wget $(QUEX_LINK) ; \
-	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
-	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX) ; \
-	rm $(QUEX_STABLE_VERSION).tar.gz
-CMD_UPDATE_QUEX = cd $(QUEX) ; svn up
 
 create_dirs:
 	mkdir -p $(BIN)
 	mkdir -p $(TMP)
-	mkdir -p $(LIB)
-
 .PHONY: create_dirs
 
-install_gtest:
-	if ! [ -d $(GTEST) ] ; then $(CMD_INSTALL_GTEST) ; fi
 
-.PHONY: install_gtest
+QUEX_VERSION = 0.67.5
+QUEX_VERSION_MINOR = `echo $(QUEX_VERSION) | sed -E 's/\.[0-9]+$$//'`
+QUEX_LINK = https://sourceforge.net/projects/quex/files/HISTORY/$(QUEX_VERSION_MINOR)/quex-$(QUEX_VERSION).tar.gz/download
 
 install_quex:
-	if ! [ -d $(QUEX) ] ; then $(CMD_INSTALL_QUEX) ; fi
-
+	rm -rvf $(QUEX) ; \
+	cd $(TMP) ; \
+	wget -O quex.tar.gz $(QUEX_LINK) ; \
+	tar zxvf quex.tar.gz ; \
+	mv quex-$(QUEX_VERSION)/ ../$(QUEX) ; \
+	rm quex.tar.gz
 .PHONY: install_quex
-
-
-update_gtest:
-	if [ -d $(GTEST) ] ; then $(CMD_UPDATE_GTEST) ; fi
-
-.PHONY: update_gtest
-
-
-update_quex:
-	@echo "Updating Quex is not secure!"
-	# if [ -d $(QUEX) ] ; then $(CMD_UPDATE_QUEX) ; fi
-
-.PHONY: update_quex
-
-
-
 
