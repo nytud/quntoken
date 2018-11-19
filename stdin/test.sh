@@ -1,1 +1,0 @@
-cat input.txt | ./tokenize.sh > output.txt
