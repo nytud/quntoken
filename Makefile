@@ -25,9 +25,9 @@ build: quex
 
 QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
 quex: abbrev
-	@echo 'Run Quex, generate *.cpp files from *.qx.'
+	@echo 'Run Quex.'
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		$(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer --token-id-prefix $${module}_ & \
+		$(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: qxcpps

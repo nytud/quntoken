@@ -1,18 +1,17 @@
 #include <stdio.h>
+#include <sntLexer>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
+#include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 
-#   include <sntLexer>
-#   define  LEXER_CLASS   sntLexer
-#   define  PREFIX_TERMINATION    snt_TERMINATION
-#   include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
-#   include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
+#define LEXER_CLASS sntLexer
 
-int 
-main(int argc, char** argv) 
-{        
+
+int main(int argc, char** argv)
+{
     using namespace quex;
 
     Token*                 token;
-    LEXER_CLASS*           qlex;   
+    LEXER_CLASS*           qlex;
     QUEX_NAME(Converter)*  converter = QUEX_NAME(Converter_IConv_new)("UTF8", NULL);
     QUEX_NAME(ByteLoader)* loader = QUEX_NAME(ByteLoader_POSIX_new)(0); /* 0 = stdin */
 
@@ -21,10 +20,10 @@ main(int argc, char** argv)
     qlex = LEXER_CLASS::from_ByteLoader(loader, converter);
 
     do {
-        qlex->receive(&token); 
-        printf("%s", QUEX_CONVERTER_STRING(unicode, char)(token->get_text()).c_str()); 
-    } while( token->_id != PREFIX_TERMINATION);
-        
+        qlex->receive(&token);
+        printf("%s", QUEX_CONVERTER_STRING(unicode, char)(token->get_text()).c_str());
+    } while( token->_id != QUEX_TKN_TERMINATION);
+
     delete qlex;
     return 0;
 }
