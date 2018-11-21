@@ -8,7 +8,7 @@ all: build test
 .PHONY: all
 
 test:
-	echo 'Test'
+	@echo 'Test'
 .PHONY: test
 
 
@@ -17,7 +17,7 @@ build: quex
 	@echo 'Compile binaries.'
 	@cp src/cpp/*main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		 $(BCMD) $${module}Lexer.cpp $${module}_main.cpp -o ../bin/quntoken_$${module} & \
+		 { $(BCMD) $${module}Lexer.cpp $${module}_main.cpp -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: binaries
@@ -27,7 +27,7 @@ QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_m
 quex: abbrev
 	@echo 'Run Quex.'
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		$(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer & \
+		{ $(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: qxcpps
