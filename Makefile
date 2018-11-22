@@ -7,37 +7,41 @@ MODULES := preproc hyphen snt sntcorr token convxml convjson convvert
 all: build test
 .PHONY: all
 
+
 test:
 	@echo 'Test'
 .PHONY: test
 
 
+BINARIES := $(MODULES:%=bin/quntoken_%)
+build: $(BINARIES)
+.PHONY: build
+
+
+QXGENERATED := $(MODULES:%=tmp/%Lexer.cpp)
 BCMD := g++-5 -Wall -Werror -pedantic -static -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -std=c++11 -DWITH_UTF8
-build: quex
+$(BINARIES): $(QXGENERATED)
 	@echo 'Compile binaries.'
 	@cp src/cpp/*main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
 		 { $(BCMD) $${module}Lexer.cpp $${module}_main.cpp -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
-.PHONY: binaries
 
 
 QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
-quex: abbrev
+$(QXGENERATED): tmp/abbrev.qx
 	@echo 'Run Quex.'
 	@cd tmp/ ; for module in $(MODULES) ; do \
 		{ $(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
-.PHONY: qxcpps
 
 
-abbrev:
+tmp/abbrev.qx: $(ABBREV)
 	@echo 'Generate abbrev.qx' ;
-	@./src/scripts/generate_abbrev.qx.py -d $(ABBREV) -o tmp/abbrev.qx
+	@./src/scripts/generate_abbrev.qx.py -d $(ABBREV) -o $@
 	@echo -e 'Done.\n'
-.PHONY: abbrev
 
 
 # aux ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
