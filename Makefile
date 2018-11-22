@@ -1,213 +1,71 @@
-# NAMES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NAME			:= quntoken
-QXSUFFIX		:= _Lexer
-CLASS			:= qxqueue
+# ABBREV := data/abbreviations_nytud-hu.txt
+ABBREV := data/abbreviations_orig-hu.txt
+MODULES := preproc hyphen snt sntcorr token convxml convjson convvert
 
 
-# DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-BIN				:= bin
-LIB				:= lib
-TMP				:= tmp
-SRC				:= src
-SRC_CPP			:= $(SRC)/cpp
-SRC_SCRIPT		:= $(SRC)/scripts
-QUEX			:= quex
-GTEST			:= googletest/googletest
-GTEST_HEADERS	:= $(GTEST)/include/gtest/*.h $(GTEST)/include/gtest/internal/*.h
-SRC_QX			= src/quex_modules
+# build ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+all: build test
+.PHONY: all
+
+test:
+	@echo 'Test'
+.PHONY: test
 
 
-# FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-QXLEXERS		= preproc hyphen snt sntcorr token convxml convjson convvert
-# Megj: fejleszteshez erdemes az abbreviations_orig-ot hasznalni,
-# 		mert joval gyorsabban fordul, mint az abbreviations_nytud-hu
-# ABBREVIATIONS	= data/abbreviations_nytud-hu.txt
-ABBREVIATIONS	= data/abbreviations_orig-hu.txt
-DEFINITIONS		= definitions.qx
-PROGBIN	    	:= $(BIN)/$(NAME)
-PROGOBJ	    	:= $(TMP)/$(NAME).o
-TESTBIN			:= $(BIN)/test_$(NAME)
-TESTOBJ			:= $(TESTBIN:$(BIN)/%=$(TMP)/%.o)
-TESTCPP			:= $(TESTOBJ:%.o=%.cpp)
-LIBRARY			:= $(LIB)/lib$(NAME).a
-CLASSOBJS		:= $(CLASS:%=$(TMP)/%.o)
-CPPOBJS			:= $(PROGOBJ) $(CLASSOBJS)
-QXOBJS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).o)
-QXCPPS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).cpp)
-ABBRLEXER		:= $(TMP)/$(basename $(notdir $(ABBREVIATIONS))).qx
-# ABBRLEXER		:= $(basename $(notdir $(ABBREVIATIONS))).qx
-# QXDEPS			:= $(SRC_QX)/$(DEFINITIONS) $(ABBRLEXER)
-QXDEPS			:= ../$(SRC_QX)/$(DEFINITIONS) abbrev.qx
-
-
-# COMPILERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# quex flags
-# QXFLAGS = \
-# 	-i $^ \
-# 	--odir $(TMP)/ \
-# 	-o $(@:$(TMP)/%$(QXSUFFIX).cpp=%::$(subst _,,$(QXSUFFIX))) \
-# 	--token-id-prefix $(@:$(TMP)/%$(QXSUFFIX).cpp=%_) \
-# 	-b 4 \
-# 	--bet wchar_t
-
-# # c preprocesszor
-# CPPFLAGS +=	-isystem $(GTEST)/include
-
-# # g++ kapcsoloi altalaban
-# CXXFLAGS += \
-# 	-Wall \
-# 	-Wextra \
-# 	-Wconversion \
-# 	-pedantic \
-# 	-Werror -Wno-sign-compare \
-# 	-o $@ \
-# 	-std=c++11 \
-# 	-DQUEX_OPTION_ASSERTS_DISABLED \
-# 	-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
-# 	-DQUEX_OPTION_MULTI \
-# 	-DQUEX_SETTING_BUFFER_SIZE=2097152 \
-# 	-I./ \
-# 	-I$(TMP)/ \
-# 	-I$(QUEX) \
-# 	-I$(SRC_CPP)
-# 	# -g
-# 	# -DENCODING_NAME='"UTF8"' \
-# 	# -DQUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE \
-# 	# -DQUEX_OPTION_POSIX \
-# 	# -liconv \
-
-
-# # g++ kapcsoloi gtest-es fajlokhoz
-# CXXFLAGS_GTEST	= $(CXXFLAGS) -pthread
-
-
-# TARGETS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# all: common $(PROGBIN) $(TESTBIN) test
-
-# .PHONY: all
-
-
-# common:
-# 	$(MAKE) -j $(QXCPPS)
-# 	$(MAKE) -j $(QXOBJS)
-
-# .PHONY: common
-
-
-# test: $(TESTBIN)
-# 	./$(TESTBIN) 2>/dev/null
-
-# .PHONY: test
-
-
-# $(PROGBIN): $(TMP)/$(NAME).o $(LIBRARY)
-# 	$(CXX) $< -L$(LIB) -static-libstdc++ -static -lquntoken -o $@
-
-
-# $(TESTBIN): $(TESTOBJ) $(LIBRARY) $(TMP)/gtest.a
-# 	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^
-
-
-# $(TESTOBJ): $(TESTCPP) $(SRC_CPP)/*.h $(QXCPPS)
-# 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
-
-
-# $(TESTCPP): $(SRC_SCRIPT)/test.tmpl2cpp.py $(TESTCPP:$(TMP)%=$(SRC_CPP)%) $(TEST_FILES)
-# 	./$< -t $(word 2, $^) -d $(TEST_FILES) -o $@
-
-
-# $(LIBRARY): $(QXOBJS) $(CLASSOBJS)
-# 	$(AR) rscv $@ $^
-
-
-# $(CPPOBJS): $(TMP)/%.o: $(SRC_CPP)/%.cpp $(SRC_CPP)/*.h
-# 	$(CXX) $(CXXFLAGS) -c $<
-
-
-# $(QXOBJS): %.o: %.cpp
-# 	$(CXX) $(CXXFLAGS) -c $<
-
-# g++ kapcsoloi altalaban
-CXXFLAGS += \
-	-Wall \
-	-Wextra \
-	-Wconversion \
-	-pedantic \
-	-Werror -Wno-sign-compare \
-	-o $@ \
-	-std=c++11 \
-	-DQUEX_OPTION_ASSERTS_DISABLED \
-	-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
-	-DQUEX_OPTION_MULTI \
-	-DQUEX_SETTING_BUFFER_SIZE=2097152 \
-	-I./ \
-	-I$(TMP)/ \
-	-I$(QUEX) \
-	-I$(SRC_CPP)
-
-# g++ -ggdb -Wall -Werror -pedantic -I./ -I$QUEX_PATH -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -std=c++11 -DWITH_UTF8 preprocLexer.cpp preproc_main.cpp -o preproc &
-binaries: # qxcpps
+BCMD := g++-5 -Wall -Werror -pedantic -static -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -std=c++11 -DWITH_UTF8
+build: quex
 	@echo 'Compile binaries.'
-	cp $(SRC_CPP)/*main.cpp tmp/
-	@cd tmp/ ; for lexer in $(QXLEXERS) ; do \
-		g++-5 -Wall -Werror -pedantic -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -std=c++11 -DWITH_UTF8 $${lexer}Lexer.cpp $${lexer}_main.cpp -o ../bin/$${lexer} & \
+	@cp src/cpp/*main.cpp tmp/
+	@cd tmp/ ; for module in $(MODULES) ; do \
+		 { $(BCMD) $${module}Lexer.cpp $${module}_main.cpp -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: binaries
 
-# quex command
-QXCMD = export QUEX_PATH=$(QUEX) ; $(QUEX)/quex-exe.py --bet wchar_t
 
-qxcpps: #$(QXDEPS)
-	@echo 'Generate Lexer.cpp files with Quex.'
-	@cd tmp/ ; for lexer in $(QXLEXERS) ; do \
-		$(QXCMD) -i $(QXDEPS) ../$(SRC_QX)/$${lexer}.qx -o $${lexer}Lexer --token-id-prefix $${lexer}_ & \
+QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
+quex: abbrev
+	@echo 'Run Quex.'
+	@cd tmp/ ; for module in $(MODULES) ; do \
+		{ $(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: qxcpps
 
 
-# abbreviations
-abbrev: $(SRC_SCRIPT)/generate_abbrev.qx.py $(ABBREVIATIONS)
-	@echo 'Generate $(ABBRLEXER)' ;
-	@./$< -d $(word 2, $^) -o tmp/abbrev.qx
+abbrev:
+	@echo 'Generate abbrev.qx' ;
+	@./src/scripts/generate_abbrev.qx.py -d $(ABBREV) -o tmp/abbrev.qx
 	@echo -e 'Done.\n'
 .PHONY: abbrev
 
 
-# # clean
-# clean:
-# 	@rm -fv  $(PROGBIN)
-# 	@rm -fv  $(TESTBIN)
-# 	@rm -rfv $(LIBRARY)
-# 	@rm -rfv $(TMP)/*
-
-# .PHONY: clean
-
-
-# install requirements ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-prereq: create_dirs install_quex
+# aux ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+prereq: clean create_dirs install_quex
 .PHONY: prereq
 
 
+clean:
+	@rm -rf bin
+	@rm -rf tmp/*
+.PHONY: clean
+
+
 create_dirs:
-	mkdir -p $(BIN)
-	mkdir -p $(TMP)
+	@mkdir -p bin
+	@mkdir -p tmp
 .PHONY: create_dirs
 
 
 QUEX_VERSION = 0.67.5
 QUEX_VERSION_MINOR = `echo $(QUEX_VERSION) | sed -E 's/\.[0-9]+$$//'`
 QUEX_LINK = https://sourceforge.net/projects/quex/files/HISTORY/$(QUEX_VERSION_MINOR)/quex-$(QUEX_VERSION).tar.gz/download
-
 install_quex:
-	rm -rvf $(QUEX) ; \
-	cd $(TMP) ; \
-	wget -O quex.tar.gz $(QUEX_LINK) ; \
-	tar zxvf quex.tar.gz ; \
-	mv quex-$(QUEX_VERSION)/ $(QUEX) ; \
+	@cd tmp ; \
+	rm -rf quex ; \
+	wget -q -O quex.tar.gz $(QUEX_LINK) ; \
+	tar zxf quex.tar.gz ; \
+	mv quex-$(QUEX_VERSION)/ quex ; \
 	rm quex.tar.gz
 .PHONY: install_quex
 

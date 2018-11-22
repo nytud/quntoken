@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <convjsonLexer>
+#include <convvertLexer>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 
-#define LEXER_CLASS convjsonLexer
+#define LEXER_CLASS convvertLexer
 
 
 int main(int argc, char** argv)

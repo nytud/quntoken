@@ -9,25 +9,25 @@ token
 mode CONVERTER
 {
     // Az alap karakterosztalyba tartozo nem whitespace karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {WSPACE}) :]+ => convvert_ANYCHAR(Lexeme);
+    [: difference({BASE_CLASS}, {WSPACE}) :]+ => QUEX_TKN_ANYCHAR(Lexeme);
 
     // A WS karaktereket elnyeljuk.
-    {WSPACE}+      => convvert_ANYCHAR(text=L"");
+    {WSPACE}+      => QUEX_TKN_ANYCHAR(text=L"");
 
     // A nyito tag-eket elnyeljuk, a zaroknal sortorunk.
-    {SNT_OPEN_QX}     => convvert_TAG(text=L"");
-    {SNT_CLOSE_QX}    => convvert_TAG(text=L"\n");
-    {WS_OPEN_QX}      => convvert_TAG(text=L"");
-    {WS_CLOSE_QX}     => convvert_TAG(text=L"");
-    {WORD_OPEN_QX}    => convvert_TAG(text=L"");
-    {WORD_CLOSE_QX}   => convvert_TAG(text=L"\n");
-    {PUNCT_OPEN_QX}   => convvert_TAG(text=L"");
-    {PUNCT_CLOSE_QX}  => convvert_TAG(text=L"\n");
+    {SNT_OPEN_QX}     => QUEX_TKN_TAG(text=L"");
+    {SNT_CLOSE_QX}    => QUEX_TKN_TAG(text=L"\n");
+    {WS_OPEN_QX}      => QUEX_TKN_TAG(text=L"");
+    {WS_CLOSE_QX}     => QUEX_TKN_TAG(text=L"");
+    {WORD_OPEN_QX}    => QUEX_TKN_TAG(text=L"");
+    {WORD_CLOSE_QX}   => QUEX_TKN_TAG(text=L"\n");
+    {PUNCT_OPEN_QX}   => QUEX_TKN_TAG(text=L"");
+    {PUNCT_CLOSE_QX}  => QUEX_TKN_TAG(text=L"\n");
 
     // hiba
-    on_failure          => convvert_FAILURE(Lexeme);
+    on_failure          => QUEX_TKN_FAILURE(Lexeme);
     // stream vege
-    on_end_of_stream    => convvert_TERMINATION;
+    on_end_of_stream    => QUEX_TKN_TERMINATION;
 }
 
 

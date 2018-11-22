@@ -16,14 +16,14 @@ define
 mode PROGRAM {
     {HYPHEN}        {
         std::wstring LEX(self.hyphenation(Lexeme));
-        self_send1(hyphen_LINE, LEX.c_str());
+        self_send1(QUEX_TKN_LINE, LEX.c_str());
     }
-    {NEWLINECHAR}+  => hyphen_NEWLINES(Lexeme);
-    {LINE}          => hyphen_LINE(Lexeme);
+    {NEWLINECHAR}+  => QUEX_TKN_NEWLINES(Lexeme);
+    {LINE}          => QUEX_TKN_LINE(Lexeme);
 
-    on_failure          => hyphen_TERMINATION;
-    <<EOF>>             => hyphen_TERMINATION;
-    on_end_of_stream    => hyphen_TERMINATION;
+    on_failure          => QUEX_TKN_TERMINATION;
+    <<EOF>>             => QUEX_TKN_TERMINATION;
+    on_end_of_stream    => QUEX_TKN_TERMINATION;
 }
 
 // vim:set syntax=cpp:
