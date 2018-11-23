@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <convxmlLexer>
+#include <convtsvLexer>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
 #include <quex/code_base/definitions>
 
-#define LEXER_CLASS convxmlLexer
+#define LEXER_CLASS convtsvLexer
 
 
 int main(int argc, char** argv)

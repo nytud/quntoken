@@ -1,0 +1,19 @@
+token {
+    ANYCHAR;
+}
+
+
+mode PREPROC {
+    {BASE_CLASS}+       => QUEX_TKN_ANYCHAR(Lexeme);
+    /* {WS_CLOSE_QX}       {self_send1(QUEX_TKN_ANYCHAR, L"\n"); } */
+    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
+    {PUNCT_CLOSE_QX}    {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
+    {WORD_CLOSE_QX}     {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
+    {TAGGED_WS_SEQ}+    {}
+    {WSPACE}+           {}
+    .                   {}
+
+    <<FAIL>>            => QUEX_TKN_TERMINATION;
+    <<EOF>>             => QUEX_TKN_TERMINATION;
+}
+

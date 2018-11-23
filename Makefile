@@ -1,6 +1,7 @@
 # ABBREV := data/abbreviations_nytud-hu.txt
 ABBREV := data/abbreviations_orig-hu.txt
 # MODULES := preproc hyphen snt sntcorr token convxml convjson convvert
+# MODULES := preproc hyphen snt sntcorr token convxml convjson convvert convtsv
 MODULES := convtsv
 
 
@@ -15,7 +16,7 @@ test:
 .PHONY: test
 
 
-BCMD := g++-5 -Wall -Werror -pedantic -static -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -std=c++11 -DWITH_UTF8
+BCMD := g++-5 -Wall -Werror -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
 build: quex
 	@echo 'Compile binaries.'
 	@cp src/cpp/*main.cpp tmp/
@@ -26,7 +27,7 @@ build: quex
 .PHONY: build
 
 
-QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
+QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py -b 4 --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
 quex: abbrev
 	@echo 'Run Quex.'
 	@cd tmp/ ; for module in $(MODULES) ; do \

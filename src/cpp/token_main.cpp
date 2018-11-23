@@ -2,6 +2,7 @@
 #include <tokenLexer>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
+#include <quex/code_base/definitions>
 
 #define LEXER_CLASS tokenLexer
 
