@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     int module_flag = 0;
     std::string format;
     std::string mod;
-    while( (c = getopt(argc, argv, "hVdrf:")) != -1 ) {
+    while( (c = getopt(argc, argv, "hVdm:f:")) != -1 ) {
         switch (c) {
             case 'm':
                 module_flag = 1;
@@ -97,13 +97,13 @@ int main(int argc, char** argv) {
         if (format == "raw") {
             // skip
         }
-        if (format == "xml") {
+        else if (format == "xml") {
             modules.push_back(CONVXML);
         }
-        if (format == "json") {
+        else if (format == "json") {
             modules.push_back(CONVJSON);
         }
-        if (format == "vert") {
+        else if (format == "vert") {
             modules.push_back(CONVVERT);
         }
         else {
