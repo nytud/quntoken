@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <vector>
 #include <map>
 #include <unistd.h>
 #include "qxqueue.h"
@@ -13,7 +14,8 @@ const std::string HELP_STR = "Usage:\n"
                              "\tquntoken [OPTIONS] [-f FORMAT] FILE\n"
                              "Options:\n"
                              "\t-d\t\tRemove division of words at the end of the lines.\n"
-                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json, vert. Default format: xml.\n"
+                             "\t-m MODULE\tDefine target module. Valid targets: pre, snt, cor and tok. Default module: tok\n"
+                             "\t-f FORMAT\tDefine output format. Valid formats: xml, json, vert and raw. Default format: vert.\n"
                              "\t-V\t\tDisplay version number and exit.\n"
                              "\t-h\t\tDisplay this help and exit";
 const std::string VERSION  = "quntoken 1.0.0";
@@ -25,9 +27,15 @@ int main(int argc, char** argv) {
     int c;
     int format_flag = 0;
     int hyphen_flag = 0;
+    int module_flag = 0;
     std::string format;
-    while( (c = getopt(argc, argv, "hVdf:")) != -1 ) {
+    std::string mod;
+    while( (c = getopt(argc, argv, "hVdrf:")) != -1 ) {
         switch (c) {
+            case 'm':
+                module_flag = 1;
+                mod = optarg;
+                break;
             case 'f':
                 format_flag = 1;
                 format = optarg;
@@ -59,34 +67,65 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
+    // modules
+    std::vector<MODULE_TYPE> modules;
+    if (module_flag) { // default
+        if(mod == "pre") {
+            modules = {PREPROC};
+        }
+        else if (mod ==  "snt") {
+            modules = {PREPROC, SNT};
+        }
+        else if (mod ==  "cor") {
+            modules = {PREPROC, SNT, SNTCORR, SNTCORR};
+        }
+        else if (mod ==  "tok") {
+            modules = {PREPROC, SNT, SNTCORR, SNTCORR, TOKEN};
+        }
+        else {
+            std::cerr << "Wrong module name: " << mod << std::endl;
+            std::cerr << "Valid names: 'pre', 'snt', 'cor' and 'tok'" << std::endl;
+            exit(1);
+        }
+    }
+    else {
+        modules = {PREPROC, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN};
+    }
+
     // output format
-    MODULE_TYPE out_type = CONVXML;
-    if(format_flag)
-    {
-        if(format == "xml") {}
-        else if(format == "json") { out_type = CONVJSON; }
-        else if(format == "vert") { out_type = CONVVERT; }
-        else
-        {
+    if (format_flag) {
+        if (format == "raw") {
+            // skip
+        }
+        if (format == "xml") {
+            modules.push_back(CONVXML);
+        }
+        if (format == "json") {
+            modules.push_back(CONVJSON);
+        }
+        if (format == "vert") {
+            modules.push_back(CONVVERT);
+        }
+        else {
             std::cerr << "Wrong format. Valid formats: xml, json" << std::endl;
             exit(1);
         }
+    }
+    else { // default
+        modules.push_back(CONVVERT);
+    }
+
+    // hyphen
+    if (hyphen_flag) {
+        modules.insert(modules.begin()+1, HYPHEN);
     }
 
     // queue
     std::ifstream inp_fstream(input_file);
     std::stringstream inp_sstream;
     inp_sstream << inp_fstream.rdbuf();
-    if(hyphen_flag)
-    {
-        QxQueue q({PREPROC, HYPHEN, SNT, SNTCORR, SNTCORR, TOKEN, out_type});
-        q.run(&inp_sstream);
-    }
-    else
-    {
-        QxQueue q({PREPROC, SNT, SNTCORR, SNTCORR, TOKEN, out_type});
-        q.run(&inp_sstream);
-    }
+    QxQueue q(modules);
+    q.run(&inp_sstream);
 
     std::cout << std::endl;
 
