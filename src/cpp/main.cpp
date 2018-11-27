@@ -1,11 +1,7 @@
 #include <iostream>
-/* #include <sntLexer> */
 #include MYLEXER
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv>
 #include <quex/code_base/buffer/lexatoms/converter/iconv/Converter_IConv.i>
-/* #include <quex/code_base/definitions> */
-
-/* #define LEXER_CLASS sntLexer */
 
 
 int main(int argc, char** argv) {
