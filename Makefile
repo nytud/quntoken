@@ -1,8 +1,6 @@
 # ABBREV := data/abbreviations_nytud-hu.txt
 ABBREV := data/abbreviations_orig-hu.txt
-# MODULES := preproc hyphen snt sntcorr token convxml convjson convvert
-# MODULES := preproc hyphen snt sntcorr token convxml convjson convvert convtsv
-MODULES := convtsv
+MODULES := preproc hyphen snt sntcorr token convxml convjson convvert convtsv
 
 
 # build ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,16 +10,15 @@ all: build test
 
 test:
 	@echo 'Test'
-	@echo $(XXX)
 .PHONY: test
 
 
 BCMD := g++-5 -Wall -Werror -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
 build: quex
 	@echo 'Compile binaries.'
-	@cp src/cpp/*main.cpp tmp/
+	@cp src/cpp/main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		 { $(BCMD) $${module}Lexer.cpp $${module}_main.cpp -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
+		 { $(BCMD) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: build
