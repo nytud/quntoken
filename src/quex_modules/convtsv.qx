@@ -1,19 +1,29 @@
 token {
     ANYCHAR;
+    FAILURE;
 }
 
 
 mode PREPROC {
-    {BASE_CLASS}+       => QUEX_TKN_ANYCHAR(Lexeme);
-    /* {WS_CLOSE_QX}       {self_send1(QUEX_TKN_ANYCHAR, L"\n"); } */
+    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
+    [: difference({BASE_CLASS}, {WSPACE}) :]+ => QUEX_TKN_ANYCHAR(Lexeme);
+
     {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
     {PUNCT_CLOSE_QX}    {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
     {WORD_CLOSE_QX}     {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
+
+    // white spaces
     {TAGGED_WS_SEQ}+    {}
     {WSPACE}+           {}
-    .                   {}
 
-    <<FAIL>>            => QUEX_TKN_TERMINATION;
+    // other tags
+    {SNT_OPEN_QX}       {}
+    {WS_OPEN_QX}        {}
+    {WS_CLOSE_QX}       {}
+    {WORD_OPEN_QX}      {}
+    {PUNCT_OPEN_QX}     {}
+
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
     <<EOF>>             => QUEX_TKN_TERMINATION;
 }
 

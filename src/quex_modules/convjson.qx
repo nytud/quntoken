@@ -35,10 +35,7 @@ mode CONVERTER
     {WORD_CLOSE_QX}                 {self_send1(QUEX_TKN_TAG, L"\"\n");}
     {PUNCT_CLOSE_QX}                {self_send1(QUEX_TKN_TAG, L"\"\n");}
 
-    // hiba
-    on_failure                      => QUEX_TKN_FAILURE(Lexeme);
-    // stream vege
-    on_end_of_stream                => QUEX_TKN_TERMINATION;
+    <<FAIL>>                        => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>                         => QUEX_TKN_TERMINATION;
 }
-
 

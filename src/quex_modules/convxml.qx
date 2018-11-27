@@ -12,19 +12,16 @@ mode CONVERTER
     [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => QUEX_TKN_ANYCHAR(Lexeme);
     {NEWLINECHAR}+      => QUEX_TKN_ANYCHAR(Lexeme);
 
-    {SNT_OPEN_QX}     => QUEX_TKN_TAG(text=L"<s>");
-    {SNT_CLOSE_QX}    => QUEX_TKN_TAG(text=L"</s>");
-    {WS_OPEN_QX}      => QUEX_TKN_TAG(text=L"<ws>");
-    {WS_CLOSE_QX}     => QUEX_TKN_TAG(text=L"</ws>");
-    {WORD_OPEN_QX}    => QUEX_TKN_TAG(text=L"<w>");
-    {WORD_CLOSE_QX}   => QUEX_TKN_TAG(text=L"</w>");
-    {PUNCT_OPEN_QX}   => QUEX_TKN_TAG(text=L"<c>");
-    {PUNCT_CLOSE_QX}  => QUEX_TKN_TAG(text=L"</c>");
+    {SNT_OPEN_QX}       {self_send1(QUEX_TKN_TAG, L"<s>");}
+    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_TAG, L"</s>");}
+    {WS_OPEN_QX}        {self_send1(QUEX_TKN_TAG, L"<ws>");}
+    {WS_CLOSE_QX}       {self_send1(QUEX_TKN_TAG, L"</ws>");}
+    {WORD_OPEN_QX}      {self_send1(QUEX_TKN_TAG, L"<w>");}
+    {WORD_CLOSE_QX}     {self_send1(QUEX_TKN_TAG, L"</w>");}
+    {PUNCT_OPEN_QX}     {self_send1(QUEX_TKN_TAG, L"<c>");}
+    {PUNCT_CLOSE_QX}    {self_send1(QUEX_TKN_TAG, L"</c>");}
 
-    // hiba
-    on_failure          => QUEX_TKN_FAILURE(Lexeme);
-    // stream vege
-    on_end_of_stream    => QUEX_TKN_TERMINATION;
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>             => QUEX_TKN_TERMINATION;
 }
-
 
