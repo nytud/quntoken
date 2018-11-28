@@ -101,7 +101,7 @@ define {
 }
 
 
-mode TOKEN {
+mode PROGRAM {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // beginning / end of sentence

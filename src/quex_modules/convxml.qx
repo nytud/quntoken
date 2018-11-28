@@ -1,17 +1,16 @@
-token
-{
+token {
     TAG;
     ANYCHAR;
     FAILURE;
 }
 
 
-mode CONVERTER
-{
-    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
+mode PROGRAM {
+    // base characters
     [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => QUEX_TKN_ANYCHAR(Lexeme);
     {NEWLINECHAR}+      => QUEX_TKN_ANYCHAR(Lexeme);
 
+    // tags
     {SNT_OPEN_QX}       {self_send1(QUEX_TKN_TAG, L"<s>");}
     {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_TAG, L"</s>");}
     {WS_OPEN_QX}        {self_send1(QUEX_TKN_TAG, L"<ws>");}

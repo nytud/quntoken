@@ -4,9 +4,11 @@ token {
 }
 
 
-mode PREPROC {
+mode PROGRAM {
+    // base charactars without wspaces
     {NONWS}+ =>         QUEX_TKN_ANYCHAR(Lexeme);
 
+    // relevant tags
     {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
     {PUNCT_CLOSE_QX}    {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
     {WORD_CLOSE_QX}     {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }

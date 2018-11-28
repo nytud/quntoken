@@ -1,14 +1,11 @@
 token {
-    // alap karakterosztalyba tartozo karakterek nem ures sorozata
     LINE;
-    // egy db ismeretlen karakter helyettesitoje
     NEWLINES;
     FAILURE;
 }
 
 
-define
-{
+define {
     LINE            [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+
     HYPHEN          {LINE}(\G{LC}|\G{Lm})\P{Block=Combining_Diacritical_Marks}*("-"{NEWLINECHAR}\G{LC}{NONWS}*)+
 }
