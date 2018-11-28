@@ -5,8 +5,7 @@ token {
 
 
 mode PREPROC {
-    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {WSPACE}) :]+ => QUEX_TKN_ANYCHAR(Lexeme);
+    {NONWS}+ =>         QUEX_TKN_ANYCHAR(Lexeme);
 
     {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
     {PUNCT_CLOSE_QX}    {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }

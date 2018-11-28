@@ -9,8 +9,9 @@ token
 mode CONVERTER
 {
     // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => QUEX_TKN_ANYCHAR(Lexeme);
-    {NEWLINECHAR}+      => QUEX_TKN_ANYCHAR(Lexeme);
+    /* [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => QUEX_TKN_ANYCHAR(Lexeme); */
+    /* {NEWLINECHAR}+      => QUEX_TKN_ANYCHAR(Lexeme); */
+    {BASE_CLASS}+                   => QUEX_TKN_ANYCHAR(Lexeme);
 
     // close json items with comma and open another
     {SNT_CLOSE_QX}{WS_OPEN_QX}      {self_send1(QUEX_TKN_TAG, L"],\n\"ws\": \"");}
