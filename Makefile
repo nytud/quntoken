@@ -5,8 +5,17 @@ MODULES := preproc hyphen snt sntcorr token convxml convjson convtsv
 
 
 # build ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-all: build test
+all:
+	@make -s build OPT='-ggdb'
+	@make -s test
 .PHONY: all
+
+
+release:
+	@make -s build OPT='-O1'
+	@make -s test
+	@tar -czf "bin/quntoken_`uname -s`_`uname -m`_v.X.Y.Z.tar.gz" bin/quntoken_* --exclude=*tar.gz
+.PHONY: release
 
 
 test:
@@ -14,18 +23,18 @@ test:
 .PHONY: test
 
 
-BCMD := g++-5 -Wall -Werror -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
+COMPILER := g++-5 $(OPT) -Wall -Werror -Wno-error=maybe-uninitialized -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
 build: quex
 	@echo 'Compile binaries.'
 	@cp src/cpp/main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		 { $(BCMD) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
+		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: build
 
 
-QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py -b 4 --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
+QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
 quex: abbrev
 	@echo 'Run Quex.'
 	@cd tmp/ ; for module in $(MODULES) ; do \
