@@ -8,6 +8,7 @@ token {
     SNTFRAG;
     WHITESPACE;
     ANYCHAR;
+    FAILURE;
 }
 
 define {
@@ -216,9 +217,8 @@ mode PROGRAM {
     /*     /1* std::wcerr << L"SNTCORR: (anychar)" << Lexeme << std::endl; *1/ */
     /*     self_send1(QUEX_TKN_ANYCHAR, Lexeme); */
     /* } */
-    on_failure          => QUEX_TKN_TERMINATION;
-    /* on_failure          => QUEX_TKN_ANYCHAR(Lexeme); */
-    // Fajl vege:
+
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
     <<EOF>>             => QUEX_TKN_TERMINATION;
 }
 

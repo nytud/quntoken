@@ -9,6 +9,7 @@ token {
     SENTENCE;
     WHITESPACE;
     ANYCHAR;
+    FAILURE;
 }
 
 define {
@@ -145,9 +146,8 @@ mode PROGRAM {
     }
 
 
-    on_failure  => QUEX_TKN_TERMINATION;
+    <<FAIL>>    => QUEX_TKN_FAILURE(Lexeme);
     <<EOF>>     => QUEX_TKN_TERMINATION;
-    on_end_of_stream => QUEX_TKN_TERMINATION;
 }
 
 // vim:set syntax=cpp:

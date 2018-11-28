@@ -1,6 +1,7 @@
 # ABBREV := data/abbreviations_nytud-hu.txt
 ABBREV := data/abbreviations_orig-hu.txt
 MODULES := preproc hyphen snt sntcorr token convxml convjson convtsv
+# MODULES := token
 
 
 # build ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
