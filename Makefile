@@ -14,7 +14,7 @@ all:
 release:
 	@make -s build OPT='-O1'
 	@make -s test
-	@tar -czf "bin/quntoken_`uname -s`_`uname -m`_v.X.Y.Z.tar.gz" bin/quntoken_* --exclude=*tar.gz
+	@cd bin/ ; tar -czf "../quntoken_`uname -s`_`uname -m`_`cat ../VERSION`.tar.gz" qt_* quntoken
 .PHONY: release
 
 
@@ -28,7 +28,7 @@ build: quex
 	@echo 'Compile binaries.'
 	@cp src/cpp/main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/quntoken_$${module} ; echo "- $${module}" ; } & \
+		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/qt_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
 .PHONY: build

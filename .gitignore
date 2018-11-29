@@ -37,4 +37,7 @@ quex/
 # files
 test/example_*
 
+# compressed files
+*.tar.gz
+*.zip
 
