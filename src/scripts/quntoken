@@ -1,0 +1,93 @@
+#! /usr/bin/env python3
+"""Sentence splitter and tokenizer for hungarian texts in utf-8.
+Read from STDIN, write to STDOUT.
+"""
+
+
+import argparse
+import subprocess
+import sys
+
+
+FORMATS = {'json', 'raw', 'tsv', 'xml'}
+MODES = {'sentence', 'token'}
+
+
+def check_format(form):
+    """Check format argument.
+    """
+    if form not in FORMATS:
+        raise TypeError
+    return form
+
+
+def check_mode(mode):
+    """Check mode argument.
+    """
+    if mode not in MODES:
+        raise TypeError
+    return mode
+
+
+def get_args():
+    """Handling of commandline arguments.
+    """
+    pars = argparse.ArgumentParser(description=__doc__)
+    pars.add_argument(
+        '-f',
+        '--form',
+        help= 'Valid formats: json, tsv and xml. Default format: tsv.',
+        default='tsv',
+        type=check_format
+    )
+    pars.add_argument(
+        '-m',
+        '--mode',
+        help= 'Modes: sentence and token. Default: token',
+        default='token',
+        type=check_mode
+    )
+    pars.add_argument(
+        '-w',
+        '--word-break',
+        help='Eliminate word break from end of lines.',
+        action='store_true'
+    )
+    res = vars(pars.parse_args())
+    return res
+
+
+def get_commnad(form, mode, word_break):
+    res = [
+        './qt_preproc',
+        './qt_snt',
+        './qt_sntcorr',
+        './qt_sntcorr']
+    if mode == 'token':
+        res.append('./qt_token')
+    if word_break:
+        res.insert(1, './qt_hyphen')
+    if form != 'raw':
+        res.append('./qt_conv{0}'.format(form))
+    return ' | '.join(res)
+
+
+def tokenize(cmd):
+    """Low level entry point
+    """
+    print(cmd)
+    res = subprocess.run(cmd, shell=True, stdin=sys.stdin, stdout=subprocess.PIPE, check=True)
+    res = res.stdout.decode(encoding='utf-8')
+    print(res)
+
+
+def main(form, mode, word_break):
+    """Entry point.
+    """
+    cmd = get_commnad(form, mode, word_break)
+    tokenize(cmd)
+
+
+if __name__ == '__main__':
+    args = get_args()
+    main(**args)

@@ -31,6 +31,7 @@ build: quex
 		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/qt_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
+	@cp src/scripts/quntoken bin/
 .PHONY: build
 
 
