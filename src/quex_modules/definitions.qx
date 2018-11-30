@@ -350,7 +350,7 @@ define {
 
     ENDPAR      [: intersection( {BASE_CLASS}, [\)\]}] ) :]
 
-    ENDQUO      [: intersection( {BASE_CLASS}, ["'”’] ) :]
+    ENDQUO      [: intersection( {BASE_CLASS}, [«»"'”’] ) :]
 
     ENDQUOPAR   [: union( {ENDQUO}, {ENDPAR} ) :]
     /* ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :] */
