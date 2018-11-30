@@ -330,7 +330,7 @@ define {
 
     NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
 
-    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-+_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-+_§%°¡£¥¦©ª¬®¯±µ¶¿/]) ) :]
 
     WORDCHAR2   [: difference( {WORDCHAR}, [.]) :]
 
