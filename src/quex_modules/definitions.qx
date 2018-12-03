@@ -336,7 +336,7 @@ define {
 
     NONWORDCHAR [: difference( {BASE_CLASS}, {WORDCHAR}) :]
 
-    LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿»¶±¼¾¹³øº])) :]
+    LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿¶±¼¾¹³øº])) :]
 
     UPPER       [: intersection( {BASE_CLASS}, \G{Uppercase_Letter} ) :]
 
