@@ -28,14 +28,18 @@
 *.app
 
 # directories
-bin/
 tmp/
 others/
 googletest/
 quex/
 
+# Python
+__pycache__/
+*.py[cod]
+
 # files
 test/example_*
+qt_*
 
 # compressed files
 *.tar.gz

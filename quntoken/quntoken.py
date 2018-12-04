@@ -17,7 +17,7 @@ def check_format(form):
     """Check format argument.
     """
     if form not in FORMATS:
-        raise TypeError
+        raise argparse.ArgumentError
     return form
 
 
@@ -25,7 +25,7 @@ def check_mode(mode):
     """Check mode argument.
     """
     if mode not in MODES:
-        raise TypeError
+        raise argparse.ArgumentError
     return mode
 
 
@@ -86,6 +86,10 @@ def main(form, mode, word_break):
     """
     cmd = get_commnad(form, mode, word_break)
     tokenize(cmd)
+
+
+def xxx():
+    print('quntoken -- XXX')
 
 
 if __name__ == '__main__':

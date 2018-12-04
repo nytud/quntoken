@@ -14,13 +14,18 @@ all:
 release:
 	@make -s build OPT='-O1'
 	@make -s test
-	@cd bin/ ; tar -czf "../quntoken_`uname -s`_`uname -m`_`cat ../VERSION`.tar.gz" qt_* quntoken
+	@make -s targz
 .PHONY: release
 
 
 test:
-	@echo 'Test'
+	@./quntoken/test_quntoken.py
 .PHONY: test
+
+
+targz:
+	@tar -czf "quntoken_`uname -s`_`uname -m`_`cat VERSION`.tar.gz" quntoken/qt_* quntoken/quntoken.py
+.PHONY: targz
 
 
 COMPILER := g++-5 $(OPT) -Wall -Werror -Wno-error=maybe-uninitialized -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
@@ -28,10 +33,9 @@ build: quex
 	@echo 'Compile binaries.'
 	@cp src/cpp/main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
-		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../bin/qt_$${module} ; echo "- $${module}" ; } & \
+		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../quntoken/qt_$${module} ; echo "- $${module}" ; } & \
 	done ; wait ;
 	@echo -e 'Done.\n'
-	@cp src/scripts/quntoken bin/
 .PHONY: build
 
 
@@ -58,13 +62,12 @@ prereq: clean create_dirs install_quex
 
 
 clean:
-	@rm -rf bin
-	@rm -rf tmp/*
+	@rm -f quntoken/qt_*
+	@rm -rf tmp/
 .PHONY: clean
 
 
 create_dirs:
-	@mkdir -p bin
 	@mkdir -p tmp
 .PHONY: create_dirs
 
