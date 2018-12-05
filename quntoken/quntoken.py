@@ -7,6 +7,7 @@ Read from STDIN, write to STDOUT.
 import argparse
 import subprocess
 import sys
+import os
 
 
 FORMATS = {'json', 'raw', 'tsv', 'xml'}
@@ -57,39 +58,40 @@ def get_args():
     return res
 
 
-def get_commnad(form, mode, word_break):
-    res = [
-        './qt_preproc',
-        './qt_snt',
-        './qt_sntcorr',
-        './qt_sntcorr']
+def get_command(form, mode, word_break):
+    mydir = os.path.dirname((os.path.abspath(__file__)))
+    prefix = os.path.join(mydir, 'qt_')
+    cmd = ['preproc', 'snt', 'sntcorr', 'sntcorr']
     if mode == 'token':
-        res.append('./qt_token')
+        cmd.append('token')
     if word_break:
-        res.insert(1, './qt_hyphen')
+        cmd.insert(1, 'hyphen')
     if form != 'raw':
-        res.append('./qt_conv{0}'.format(form))
-    return ' | '.join(res)
+        cmd.append(f'conv{form}')
+    cmd = [prefix + x for x in cmd]
+    return ' | '.join(cmd)
 
 
-def tokenize(cmd):
+def tokenize(cmd, text):
     """Low level entry point
     """
-    print(cmd)
-    res = subprocess.run(cmd, shell=True, stdin=sys.stdin, stdout=subprocess.PIPE, check=True)
-    res = res.stdout.decode(encoding='utf-8')
-    print(res)
+    proc = subprocess.Popen(cmd, shell=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True)
+    out, err = proc.communicate(text)
+    return out, err
 
 
 def main(form, mode, word_break):
     """Entry point.
     """
-    cmd = get_commnad(form, mode, word_break)
-    tokenize(cmd)
-
-
-def xxx():
-    print('quntoken -- XXX')
+    cmd = get_command(form, mode, word_break)
+    text = sys.stdin.read()
+    out, err = tokenize(cmd, text)
+    print(out, file=sys.stdout)
+    print(err, file=sys.stderr)
 
 
 if __name__ == '__main__':

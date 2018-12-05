@@ -32,6 +32,7 @@ tmp/
 others/
 googletest/
 quex/
+.vscode/
 
 # Python
 __pycache__/
