@@ -8,6 +8,7 @@ token {
     SNTFRAG;
     WHITESPACE;
     ANYCHAR;
+    FAILURE;
 }
 
 define {
@@ -34,7 +35,7 @@ mode PROGRAM {
     {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{UPPER} {
         /* std::wcerr << L"SNTCORR (modatkezdo sorszamok): " << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -54,13 +55,13 @@ mode PROGRAM {
     {INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({SENTENCE_BOUNDARY}?{INT}".")?")"{SENTENCE_BOUNDARY}? {
         /* std::wcerr << L"SNTCORR (zarojelezett datum): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
     // Mondatkezdo verzio:
     {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}"("{ROMAN_MONTH}"."({SENTENCE_BOUNDARY}?{INT}".")?")"{SENTENCE_BOUNDARY}? {
         /* std::wcerr << L"SNTCORR (zarojelezett datum - mk): " << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -71,13 +72,13 @@ mode PROGRAM {
     ({INT}{DOT_SENTENCE_BOUNDARY})?{MONTH_ABBR}{DOT_SENTENCE_BOUNDARY}[0123]?[0-9] {
         /* std::wcerr << L"SNTCORR: (roviditett honap+nap)" << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
     // Mondatkezdo verzio:
     {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{MONTH_ABBR}{DOT_SENTENCE_BOUNDARY}[0123]?[0-9] {
         /* std::wcerr << L"SNTCORR (roviditett honap+nap - mk): " << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -93,7 +94,7 @@ mode PROGRAM {
     {INT}{DOT_SENTENCE_BOUNDARY}{MONTH_CAP} {
         /* std::wcerr << L"SNTCORR (ev+nagybetus honap): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -108,13 +109,13 @@ mode PROGRAM {
     {INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{INT}|"§") {
         /* std::wcerr << L"SNTCORR (sorszamot koveto szam, §, romai honap): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
     // Mondatkezdo verzio:
     {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{INT}|"§") {
         /* std::wcerr << L"SNTCORR (sorszamot koveto szam, §, romai honap - mk): " << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -130,14 +131,14 @@ mode PROGRAM {
     {INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{ARABIC_MONTH}){DOT_SENTENCE_BOUNDARY}{INT} {
         /* std::wcerr << L"SNTCORR (teljes datum): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
     // Mondatkezdo verzio:
     // esetleg: {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}{ROMAN_MONTH}{DOT_SENTENCE_BOUNDARY}{INT}({DOT_SENTENCE_BOUNDARY}{UPPER})?
     {SNT_OPEN_QX}{INT}{DOT_SENTENCE_BOUNDARY}({ROMAN_MONTH}|{ARABIC_MONTH}){DOT_SENTENCE_BOUNDARY}{INT} {
         /* std::wcerr << L"SNTCORR (teljes datum - mk): " << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -149,7 +150,7 @@ mode PROGRAM {
     ({BASE_CLASS}|{SNT_OPEN_QX}){DOT_SENTENCE_BOUNDARY}"*" {
         /* std::wcerr << L"SNTCORR (.*): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -166,16 +167,16 @@ mode PROGRAM {
     // kell.
     ({NONWORDCHAR}|{SNT_OPEN_QX})"CD"{DOT_SENTENCE_BOUNDARY} {
         /* std::wcerr << L"SNTCORR (romai szamok - CD): " << Lexeme << std::endl; */
-        self_send1(sntcorr_SNTFRAG, Lexeme);
+        self_send1(QUEX_TKN_SNTFRAG, Lexeme);
     }
     {NONWORDCHAR}{ROMAN_NUMBER}{DOT_SENTENCE_BOUNDARY} {
         /* std::wcerr << L"SNTCORR (romai szamok): " << Lexeme << std::endl; */
         if(Lexeme[1]==L'.'){
-            self_send1(sntcorr_SNTFRAG, Lexeme);
+            self_send1(QUEX_TKN_SNTFRAG, Lexeme);
         }
         else {
             std::wstring LEX(self.snt_boundary_correction(Lexeme));
-            self_send1(sntcorr_SNTFRAG, LEX.c_str());
+            self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
         }
     }
     // Mondatkezdo verzio:
@@ -184,7 +185,7 @@ mode PROGRAM {
     {SNT_OPEN_QX}{ROMAN_NUMBER}{DOT_SENTENCE_BOUNDARY} {
         /* std::wcerr << L"SNTCORR (romai szamok - mk): " << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
 
@@ -195,31 +196,30 @@ mode PROGRAM {
     {NONWORDCHAR}(({UPPER}{DOT_SENTENCE_BOUNDARY})|({ABBREV}{DOT_SENTENCE_BOUNDARY})) {
         /* std::wcerr << L"SNTCORR (roviditesek): " << Lexeme << std::endl; */
         std::wstring LEX(self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
     // Mondatkezdo verzio:
     {SNT_OPEN_QX}(({UPPER}{DOT_SENTENCE_BOUNDARY})|({ABBREV}{DOT_SENTENCE_BOUNDARY})) {
         /* std::wcerr << L"SNTCORR: (roviditesek - mk)" << Lexeme << std::endl; */
         std::wstring LEX(self.SNT_OPEN_CPP+self.snt_boundary_correction(Lexeme));
-        self_send1(sntcorr_SNTFRAG, LEX.c_str());
+        self_send1(QUEX_TKN_SNTFRAG, LEX.c_str());
     }
 
     // Mondatkozi whitespace-ek kiirasa:
-    {TAGGED_WS_SEQ}     => sntcorr_WHITESPACE(Lexeme);
+    {TAGGED_WS_SEQ}     => QUEX_TKN_WHITESPACE(Lexeme);
     /* {TAGGED_WS_SEQ} { */
     /*     std::wcerr << L"SNTCORR: (tagged ws seq)" << Lexeme << std::endl; */
-    /*     self_send1(sntcorr_ANYCHAR, Lexeme); */
+    /*     self_send1(QUEX_TKN_ANYCHAR, Lexeme); */
     /* } */
     // Ami nem illeszkedik, azt siman tovabbkuldjuk:
-    .|{NEWLINE}+        => sntcorr_ANYCHAR(Lexeme);
+    .|{NEWLINE}+        => QUEX_TKN_ANYCHAR(Lexeme);
     /* .|{NEWLINE}+ { */
     /*     /1* std::wcerr << L"SNTCORR: (anychar)" << Lexeme << std::endl; *1/ */
-    /*     self_send1(sntcorr_ANYCHAR, Lexeme); */
+    /*     self_send1(QUEX_TKN_ANYCHAR, Lexeme); */
     /* } */
-    on_failure          => sntcorr_TERMINATION;
-    /* on_failure          => sntcorr_ANYCHAR(Lexeme); */
-    // Fajl vege:
-    <<EOF>>             => sntcorr_TERMINATION;
+
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>             => QUEX_TKN_TERMINATION;
 }
 
 // vim:set syntax=cpp:

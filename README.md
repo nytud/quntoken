@@ -7,10 +7,11 @@ under the name [emToken](http://e-magyar.hu/hu/textmodules/emtoken).
 
 ## Requirements
 
-* linux
+* OS: linux x86-64
 * python 2.x as default python
 * python 3.x
-* g++ >= 4.8.2
+* g++ = 5
+* pytest
 
 ## Install
 

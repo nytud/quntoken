@@ -1,229 +1,86 @@
-# CONFIGURATION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Fejlesztoi konfiguracio megadasa (milyen modulok es tesztek forduljanak).
-# Uj valtozat keszitesenel egy uj config fajlt kell kesziteni es azt
-# megadni a default helyett. Peldaul:
-#   make clean
-#   make all CONFIG_FILE=alter_config.mk
-CONFIG_FILE 	:= default_config.mk
-include $(CONFIG_FILE)
+# ABBREV := data/abbreviations_nytud-hu.txt
+ABBREV := data/abbreviations_orig-hu.txt
+MODULES := preproc hyphen snt sntcorr token convxml convjson convtsv
+# MODULES := token
 
 
-# NAMES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NAME			:= quntoken
-QXSUFFIX		:= _Lexer
-CLASS			:= qxqueue
-
-
-# DIRECTORIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-BIN				:= bin
-LIB				:= lib
-TMP				:= tmp
-SRC				:= src
-SRC_CPP			:= $(SRC)/cpp
-SRC_SCRIPT		:= $(SRC)/scripts
-QUEX			:= quex
-GTEST			:= googletest/googletest
-GTEST_HEADERS	:= $(GTEST)/include/gtest/*.h $(GTEST)/include/gtest/internal/*.h
-
-
-# FILES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PROGBIN	    	:= $(BIN)/$(NAME)
-PROGOBJ	    	:= $(TMP)/$(NAME).o
-TESTBIN			:= $(BIN)/test_$(NAME)
-TESTOBJ			:= $(TESTBIN:$(BIN)/%=$(TMP)/%.o)
-TESTCPP			:= $(TESTOBJ:%.o=%.cpp)
-LIBRARY			:= $(LIB)/lib$(NAME).a
-CLASSOBJS		:= $(CLASS:%=$(TMP)/%.o)
-CPPOBJS			:= $(PROGOBJ) $(CLASSOBJS)
-QXOBJS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).o)
-QXCPPS			:= $(QXLEXERS:%=$(TMP)/%$(QXSUFFIX).cpp)
-ABBRLEXER		:= $(TMP)/$(basename $(notdir $(ABBREVIATIONS))).qx
-QXDEPS			:= $(SRC_QX)/$(DEFINITIONS) $(ABBRLEXER)
-
-
-# COMPILERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# quex command
-QXCMD		= export QUEX_PATH=$(QUEX) ; $(QUEX)/quex-exe.py
-
-# quex flags
-QXFLAGS = \
-	-i $^ \
-	--odir $(TMP)/ \
-	-o $(@:$(TMP)/%$(QXSUFFIX).cpp=%::$(subst _,,$(QXSUFFIX))) \
-	--token-id-prefix $(@:$(TMP)/%$(QXSUFFIX).cpp=%_) \
-	-b 4 \
-	--bet wchar_t \
-	--token-policy queue \
-	--iconv
-
-# c preprocesszor
-CPPFLAGS +=	-isystem $(GTEST)/include
-
-# g++ kapcsoloi altalaban
-CXXFLAGS += \
-	-Wall \
-	-Wextra \
-	-Wconversion \
-	-pedantic \
-	-Werror -Wno-sign-compare \
-	-o $@ \
-	-std=c++11 \
-	-DQUEX_OPTION_ASSERTS_DISABLED \
-	-DQUEX_OPTION_SEND_AFTER_TERMINATION_ADMISSIBLE \
-	-DQUEX_OPTION_MULTI \
-	-DQUEX_SETTING_BUFFER_SIZE=2097152 \
-	-I./ \
-	-I$(TMP)/ \
-	-I$(QUEX) \
-	-I$(SRC_CPP)
-	# -g
-	# -DENCODING_NAME='"UTF8"' \
-	# -DQUEX_OPTION_INFORMATIVE_BUFFER_OVERFLOW_MESSAGE \
-	# -DQUEX_OPTION_POSIX \
-	# -liconv \
-
-
-# g++ kapcsoloi gtest-es fajlokhoz
-CXXFLAGS_GTEST	= $(CXXFLAGS) -pthread
-
-
-# TARGETS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-all: common $(PROGBIN) $(TESTBIN) test
-
+# build ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+all:
+	@make -s build OPT='-ggdb'
+	@make -s test
 .PHONY: all
 
 
-common:
-	$(MAKE) -j $(QXCPPS)
-	$(MAKE) -j $(QXOBJS)
+release:
+	@make -s build OPT='-O1'
+	@make -s test
+	@make -s targz
+.PHONY: release
 
-.PHONY: common
 
-
-test: $(TESTBIN)
-	./$(TESTBIN) 2>/dev/null
-
+test:
+	@pytest --verbose quntoken/test_quntoken.py
 .PHONY: test
 
 
-$(PROGBIN): $(TMP)/$(NAME).o $(LIBRARY)
-	$(CXX) $< -L$(LIB) -static-libstdc++ -static -lquntoken -o $@
+targz:
+	@tar -czf "quntoken_`uname -s`_`uname -m`_`cat VERSION`.tar.gz" quntoken/qt_* quntoken/quntoken.py
+.PHONY: targz
 
 
-$(TESTBIN): $(TESTOBJ) $(LIBRARY) $(TMP)/gtest.a
-	$(CXX) $(CXXFLAGS_GTEST) -lpthread -static-libstdc++ $^
+COMPILER := g++-5 $(OPT) -Wall -Werror -Wno-error=maybe-uninitialized -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
+build: quex
+	@echo 'Compile binaries.'
+	@cp src/cpp/main.cpp tmp/
+	@cd tmp/ ; for module in $(MODULES) ; do \
+		 { $(COMPILER) $${module}Lexer.cpp main.cpp -DLEXER_CLASS="$${module}Lexer" -DMYLEXER="\"$${module}Lexer\"" -o ../quntoken/qt_$${module} ; echo "- $${module}" ; } & \
+	done ; wait ;
+	@echo -e 'Done.\n'
+.PHONY: build
 
 
-$(TESTOBJ): $(TESTCPP) $(SRC_CPP)/*.h $(QXCPPS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
+QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
+quex: abbrev
+	@echo 'Run Quex.'
+	@cd tmp/ ; for module in $(MODULES) ; do \
+		{ $(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer ; echo "- $${module}" ; } & \
+	done ; wait ;
+	@echo -e 'Done.\n'
+.PHONY: quex
 
 
-$(TESTCPP): $(SRC_SCRIPT)/test.tmpl2cpp.py $(TESTCPP:$(TMP)%=$(SRC_CPP)%) $(TEST_FILES)
-	./$< -t $(word 2, $^) -d $(TEST_FILES) -o $@
+abbrev:
+	@echo 'Generate abbrev.qx' ;
+	@./src/scripts/generate_abbrev.qx.py -d $(ABBREV) -o tmp/abbrev.qx
+	@echo -e 'Done.\n'
+.PHONY: abbrev
 
 
-$(LIBRARY): $(QXOBJS) $(CLASSOBJS)
-	$(AR) rscv $@ $^
-
-
-$(CPPOBJS): $(TMP)/%.o: $(SRC_CPP)/%.cpp $(SRC_CPP)/*.h
-	$(CXX) $(CXXFLAGS) -c $<
-
-
-$(QXOBJS): %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
-
-
-$(QXCPPS): $(TMP)/%$(QXSUFFIX).cpp: $(QXDEPS) $(SRC_QX)/%.qx
-	$(QXCMD) $(QXFLAGS)
-
-
-# abbreviations
-$(ABBRLEXER): $(SRC_SCRIPT)/generate_abbrev.qx.py $(ABBREVIATIONS)
-	./$< -d $(word 2, $^) -o $@
-
-
-# gtest
-$(TMP)/gtest-all.o: $(GTEST)/src/*.cc $(GTEST)/src/*.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) -I$(GTEST) $(CXXFLAGS_GTEST) -c $(GTEST)/src/gtest-all.cc
-
-$(TMP)/gtest.a : $(TMP)/gtest-all.o
-	$(AR) $(ARFLAGS) $@ $^
-
-
-# clean
-clean:
-	@rm -fv  $(PROGBIN)
-	@rm -fv  $(TESTBIN)
-	@rm -rfv $(LIBRARY)
-	@rm -rfv $(TMP)/*
-
-.PHONY: clean
-
-
-# install and update requirements ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-prereq: create_dirs install_gtest install_quex
-
+# aux ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+prereq: clean create_dirs install_quex
 .PHONY: prereq
 
 
-update: update_gtest update_quex
+clean:
+	@rm -f quntoken/qt_*
+	@rm -rf tmp/
+.PHONY: clean
 
-.PHONY: update
-
-
-CMD_INSTALL_GTEST = git clone https://github.com/google/googletest.git
-CMD_UPDATE_GTEST = cd $(GTEST) ; git pull
-# NOTE: a jelenlegi Quex verzio nem rossz, a 0.65.4-os az utolso hasznalhato
-# verzio. Ezert egyelore nem lehet hasznalni sem az aktualis verzio sima svn-es
-# letolteset, sem a svn-es frissitest. Ehelyett a history-bol kell letolteni es
-# nem szabad frissiteni.
-# CMD_INSTALL_QUEX =
-# 	cd $(TMP) ; \
-# 	svn checkout https://svn.code.sf.net/p/quex/code/trunk ; \
-# 	mv trunk/ ../$(QUEX)
-QUEX_STABLE_VERSION = quex-0.65.4
-QUEX_LINK = downloads.sourceforge.net/project/quex/HISTORY/0.65/$(QUEX_STABLE_VERSION).tar.gz
-CMD_INSTALL_QUEX = \
-	rm -rvf $(QUEX) ; \
-	cd $(TMP) ; \
-	wget $(QUEX_LINK) ; \
-	tar zxvf $(QUEX_STABLE_VERSION).tar.gz ; \
-	mv $(QUEX_STABLE_VERSION)/ ../$(QUEX) ; \
-	rm $(QUEX_STABLE_VERSION).tar.gz
-CMD_UPDATE_QUEX = cd $(QUEX) ; svn up
 
 create_dirs:
-	mkdir -p $(BIN)
-	mkdir -p $(TMP)
-	mkdir -p $(LIB)
-
+	@mkdir -p tmp
 .PHONY: create_dirs
 
-install_gtest:
-	if ! [ -d $(GTEST) ] ; then $(CMD_INSTALL_GTEST) ; fi
 
-.PHONY: install_gtest
-
+QUEX_VERSION = 0.67.5
+QUEX_VERSION_MINOR = `echo $(QUEX_VERSION) | sed -E 's/\.[0-9]+$$//'`
+QUEX_LINK = https://sourceforge.net/projects/quex/files/HISTORY/$(QUEX_VERSION_MINOR)/quex-$(QUEX_VERSION).tar.gz/download
 install_quex:
-	if ! [ -d $(QUEX) ] ; then $(CMD_INSTALL_QUEX) ; fi
-
+	@cd tmp ; \
+	rm -rf quex ; \
+	wget -q -O quex.tar.gz $(QUEX_LINK) ; \
+	tar zxf quex.tar.gz ; \
+	mv quex-$(QUEX_VERSION)/ quex ; \
+	rm quex.tar.gz
 .PHONY: install_quex
-
-
-update_gtest:
-	if [ -d $(GTEST) ] ; then $(CMD_UPDATE_GTEST) ; fi
-
-.PHONY: update_gtest
-
-
-update_quex:
-	@echo "Updating Quex is not secure!"
-	# if [ -d $(QUEX) ] ; then $(CMD_UPDATE_QUEX) ; fi
-
-.PHONY: update_quex
-
-
-
 

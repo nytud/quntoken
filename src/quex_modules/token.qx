@@ -1,9 +1,7 @@
 token {
     ANYCHAR;
-    NEWLINE;
     TOKEN;
-    PUNCT;
-    WS;
+    FAILURE;
 }
 
 
@@ -103,20 +101,15 @@ define {
 }
 
 
-
-// M O D E S
-start = PROGRAM;
-
-// basic processing
-mode PROGRAM : COMMON {
+mode PROGRAM {
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // beginning / end of sentence
-    {SNT_OPEN_QX}|{SNT_CLOSE_QX}   => token_ANYCHAR(Lexeme);
+    {SNT_OPEN_QX}|{SNT_CLOSE_QX}   => QUEX_TKN_ANYCHAR(Lexeme);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // whitespaces (out sentence)
-    {TAGGED_WS_SEQ} => token_WS(Lexeme);
+    {TAGGED_WS_SEQ} => QUEX_TKN_ANYCHAR(Lexeme);
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // whitespaces (in sentence)
@@ -124,7 +117,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"ws! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         LEX = self.WS_OPEN_CPP + LEX + self.WS_CLOSE_CPP;
-        self_send1(token_WS, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,20 +127,20 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"single punct! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-        self_send1(token_PUNCT, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
     }
     // more dots
     "."{2,} {
         /* std::wcerr << L"dots! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-        self_send1(token_PUNCT, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
     }
     "."{2,}{SNT_CLOSE_QX} {
         /* std::wcerr << L"dots! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX.substr(0, LEX.size()-1) + self.PUNCT_CLOSE_CPP + self.SNT_CLOSE_CPP;
-        self_send1(token_PUNCT, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -156,7 +149,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"abbrev! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig_abbrev(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,14 +159,14 @@ mode PROGRAM : COMMON {
         std::wstring LEX(Lexeme, wcslen(Lexeme)-2);
         /* std::wcerr << L"enum of names with hyphen (snt end): " << LEX<< std::endl; */
         self.enumofnames_sntend(LEX, true);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
     // mondatkozi verzio
     (\G{Uppercase_Letter}?\G{Lowercase_Letter}+)("-""("?\G{Uppercase_Letter}?\G{Lowercase_Letter}+")"?){2,}"."? {
         /* std::wcerr << L"enum of names with hyphen: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.enumofnames_sntend(LEX, false);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,7 +175,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"operations: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.operation_processing(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,7 +184,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"path! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,7 +193,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"filename! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -209,7 +202,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"joinable punct! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-        self_send1(token_PUNCT, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,7 +211,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"smiley! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-        self_send1(token_PUNCT, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
     }
 
 
@@ -237,14 +230,14 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"basic (-e): " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.particula_token_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
     // version for other cases:
     (({WORD_IN_PAR}?{WORDS_WITH_DOTS})|({WORDS_WITH_DOTS}{WORD_IN_PAR}{WORDS_WITH_DOTS}?))("."+{SNT_CLOSE_QX})? {
         /* std::wcerr << L"basic: " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.basic_token_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -253,7 +246,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"url! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -266,7 +259,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"wns! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -275,7 +268,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"uppercase with &! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -284,7 +277,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"words with apostroph! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -293,7 +286,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"nums with punct! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -302,7 +295,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"nums with spaces! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -311,7 +304,7 @@ mode PROGRAM : COMMON {
         /* std::wcerr << L"id! " << Lexeme << std::endl; */
         std::wstring LEX(Lexeme);
         self.sntend_corrig(LEX);
-        self_send1(token_TOKEN, LEX.c_str());
+        self_send1(QUEX_TKN_TOKEN, LEX.c_str());
     }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -322,28 +315,21 @@ mode PROGRAM : COMMON {
         std::wstring LEX(Lexeme);
         if(LEX.front() != L')'){
             LEX = self.WORD_OPEN_CPP + LEX + self.WORD_CLOSE_CPP;
-            self_send1(token_TOKEN, LEX.c_str());
+            self_send1(QUEX_TKN_TOKEN, LEX.c_str());
         }
         else {
             LEX = self.PUNCT_OPEN_CPP + LEX + self.PUNCT_CLOSE_CPP;
-            self_send1(token_PUNCT, LEX.c_str());
+            self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
         }
     }
 
-}
-
-
-// kozos dolgok
-mode COMMON : <inheritable: only> {
-    /* {NEWLINE}       => token_NEWLINE(Lexeme); */
-    on_failure      {
+    <<FAIL>>      {
         std::wcerr << L"TOKEN-ERROR ("
                    << self.line_number() << L", "
                    << self.column_number() << L"): "
                    << Lexeme << std::endl;
-        self_send1(token_ANYCHAR, Lexeme);
+        self_send1(QUEX_TKN_FAILURE, Lexeme);
     }
-    <<EOF>>         => token_TERMINATION;
-    on_end_of_stream => token_TERMINATION;
+    <<EOF>>         => QUEX_TKN_TERMINATION;
 }
 

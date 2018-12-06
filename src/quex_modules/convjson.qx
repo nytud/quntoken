@@ -1,44 +1,40 @@
-token
-{
+token {
     TAG;
     ANYCHAR;
     FAILURE;
 }
 
 
-mode CONVERTER
-{
-    // Az alap karakterosztalyba tartozo karaktereket atengedjuk.
-    [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => convjson_ANYCHAR(Lexeme);
-    {NEWLINECHAR}+      => convjson_ANYCHAR(Lexeme);
+mode PROGRAM {
+    // base characters
+    {BASE_CLASS}+                   => QUEX_TKN_ANYCHAR(Lexeme);
 
     // close json items with comma and open another
-    {SNT_CLOSE_QX}{WS_OPEN_QX}      => convjson_TAG(text=L"],\n\"ws\": \"" );
-    {SNT_CLOSE_QX}{SNT_OPEN_QX}     => convjson_TAG(text=L"],\n\"s\": [\n" );
-    {WS_CLOSE_QX}{SNT_OPEN_QX}      => convjson_TAG(text=L"\",\n\"s\": [\n");
-    {WS_CLOSE_QX}{WORD_OPEN_QX}     => convjson_TAG(text=L"\",\n\"w\": \"" );
-    {WS_CLOSE_QX}{PUNCT_OPEN_QX}    => convjson_TAG(text=L"\",\n\"c\": \"" );
-    {WORD_CLOSE_QX}{WS_OPEN_QX}     => convjson_TAG(text=L"\",\n\"ws\": \"");
-    {WORD_CLOSE_QX}{WORD_OPEN_QX}   => convjson_TAG(text=L"\",\n\"w\": \"" );
-    {WORD_CLOSE_QX}{PUNCT_OPEN_QX}  => convjson_TAG(text=L"\",\n\"c\": \"" );
-    {PUNCT_CLOSE_QX}{WS_OPEN_QX}    => convjson_TAG(text=L"\",\n\"ws\": \"");
-    {PUNCT_CLOSE_QX}{WORD_OPEN_QX}  => convjson_TAG(text=L"\",\n\"w\": \"" );
-    {PUNCT_CLOSE_QX}{PUNCT_OPEN_QX} => convjson_TAG(text=L"\",\n\"c\": \"" );
+    {SNT_CLOSE_QX}{WS_OPEN_QX}      {self_send1(QUEX_TKN_TAG, L"],\n\"ws\": \"");}
+    {SNT_CLOSE_QX}{SNT_OPEN_QX}     {self_send1(QUEX_TKN_TAG, L"],\n\"s\": [\n" );}
+    {WS_CLOSE_QX}{SNT_OPEN_QX}      {self_send1(QUEX_TKN_TAG, L"\",\n\"s\": [\n");}
+    {WS_CLOSE_QX}{WORD_OPEN_QX}     {self_send1(QUEX_TKN_TAG, L"\",\n\"w\": \"" );}
+    {WS_CLOSE_QX}{PUNCT_OPEN_QX}    {self_send1(QUEX_TKN_TAG, L"\",\n\"c\": \"" );}
+    {WORD_CLOSE_QX}{WS_OPEN_QX}     {self_send1(QUEX_TKN_TAG, L"\",\n\"ws\": \"");}
+    {WORD_CLOSE_QX}{WORD_OPEN_QX}   {self_send1(QUEX_TKN_TAG, L"\",\n\"w\": \"" );}
+    {WORD_CLOSE_QX}{PUNCT_OPEN_QX}  {self_send1(QUEX_TKN_TAG, L"\",\n\"c\": \"" );}
+    {PUNCT_CLOSE_QX}{WS_OPEN_QX}    {self_send1(QUEX_TKN_TAG, L"\",\n\"ws\": \"");}
+    {PUNCT_CLOSE_QX}{WORD_OPEN_QX}  {self_send1(QUEX_TKN_TAG, L"\",\n\"w\": \"" );}
+    {PUNCT_CLOSE_QX}{PUNCT_OPEN_QX} {self_send1(QUEX_TKN_TAG, L"\",\n\"c\": \"" );}
+
     // open json items
-    {SNT_OPEN_QX}                   => convjson_TAG(text=L"\"s\": [\n");
-    {WS_OPEN_QX}                    => convjson_TAG(text=L"\"ws\": \"");
-    {WORD_OPEN_QX}                  => convjson_TAG(text=L"\"w\": \"" );
-    {PUNCT_OPEN_QX}                 => convjson_TAG(text=L"\"c\": \"" );
+    {SNT_OPEN_QX}                   {self_send1(QUEX_TKN_TAG, L"\"s\": [\n");}
+    {WS_OPEN_QX}                    {self_send1(QUEX_TKN_TAG, L"\"ws\": \"");}
+    {WORD_OPEN_QX}                  {self_send1(QUEX_TKN_TAG, L"\"w\": \"" );}
+    {PUNCT_OPEN_QX}                 {self_send1(QUEX_TKN_TAG, L"\"c\": \"" );}
+
     // close json items
-    {SNT_CLOSE_QX}                  => convjson_TAG(text=L"]\n");
-    {WS_CLOSE_QX}                   => convjson_TAG(text=L"\"\n");
-    {WORD_CLOSE_QX}                 => convjson_TAG(text=L"\"\n");
-    {PUNCT_CLOSE_QX}                => convjson_TAG(text=L"\"\n");
+    {SNT_CLOSE_QX}                  {self_send1(QUEX_TKN_TAG, L"]\n");}
+    {WS_CLOSE_QX}                   {self_send1(QUEX_TKN_TAG, L"\"\n");}
+    {WORD_CLOSE_QX}                 {self_send1(QUEX_TKN_TAG, L"\"\n");}
+    {PUNCT_CLOSE_QX}                {self_send1(QUEX_TKN_TAG, L"\"\n");}
 
-    // hiba
-    on_failure                      => convjson_FAILURE(Lexeme);
-    // stream vege
-    on_end_of_stream                => convjson_TERMINATION;
+    <<FAIL>>                        => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>                         => QUEX_TKN_TERMINATION;
 }
-
 

@@ -33,5 +33,5 @@ OUT: Áríztűrő cõmbïning diācritica̖l ma̗rks̱.
 
 Nem standard spaciumok
 IN : Adagokban　kapjuk.
-OUT: Adagokban　kapjuk.
+OUT: Adagokban�kapjuk.
 

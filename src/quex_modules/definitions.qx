@@ -1,4 +1,4 @@
-// a modulok kozos definicioi
+// common definitions for quex modules
 
 body {
 
@@ -330,13 +330,13 @@ define {
 
     NONWS       [: difference( {BASE_CLASS}, {WSPACE}) :]
 
-    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-+_§%°¡£¥¦©ª«¬®¯±µ¶»¿/]) ) :]
+    WORDCHAR    [: intersection( {BASE_CLASS}, union(\G{Letter}, \G{Cased_Letter}, \G{Mark}, \G{Number}, [.\-+_§%°¡£¥¦©ª¬®¯±µ¶¿/]) ) :]
 
     WORDCHAR2   [: difference( {WORDCHAR}, [.]) :]
 
     NONWORDCHAR [: difference( {BASE_CLASS}, {WORDCHAR}) :]
 
-    LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿»¶±¼¾¹³øº])) :]
+    LOWER       [: intersection( {BASE_CLASS}, union(\G{Lowercase_Letter}, [¿¶±¼¾¹³øº])) :]
 
     UPPER       [: intersection( {BASE_CLASS}, \G{Uppercase_Letter} ) :]
 
@@ -350,7 +350,7 @@ define {
 
     ENDPAR      [: intersection( {BASE_CLASS}, [\)\]}] ) :]
 
-    ENDQUO      [: intersection( {BASE_CLASS}, ["'”’] ) :]
+    ENDQUO      [: intersection( {BASE_CLASS}, [«»"'”’] ) :]
 
     ENDQUOPAR   [: union( {ENDQUO}, {ENDPAR} ) :]
     /* ENDQUOPAR   [: intersection( {BASE_CLASS}, ["'\)\]] ) :] */
