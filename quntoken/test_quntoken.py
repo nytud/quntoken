@@ -10,7 +10,7 @@ except:
 
 
 def get_cmd(filename):
-    """Tesztfajl nevebol generalja a futtathato parancsot (str).
+    """Tesztfajl nevebol generalja a futtatando modulok listajat.
     """
     module = filename.split('_')[2]
     rawcmd = {
@@ -20,11 +20,8 @@ def get_cmd(filename):
         'sntcorr': 'preproc snt sntcorr sntcorr',
         'token': 'preproc snt sntcorr sntcorr token'
     }[module]
-    prefix = './quntoken/qt_'
     cmd = rawcmd.split()
     cmd.append('convxml')
-    cmd = [prefix + x for x in cmd]
-    cmd = ' | '.join(cmd)
     return cmd
 
 
@@ -75,7 +72,7 @@ def logging(cmd, inp, exp, out, err, logfile):
     myout = '\n'.join(myout)
     myerr = ['ERR: {0}'.format(x) for x in err.split('\n')]
     myerr = '\n'.join(myerr)
-    log = '\n'.join([cmd, myinp, myexp, myout, myerr, '\n'])
+    log = '\n'.join([str(cmd), myinp, myexp, myout, myerr, '\n'])
     print(log, file=logfile)
 
 

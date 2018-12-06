@@ -58,23 +58,22 @@ def get_args():
     return res
 
 
-def get_command(form, mode, word_break):
+def get_command(rawcmd):
+    """From list of modules generate a runnable command string.
+    """
     mydir = os.path.dirname((os.path.abspath(__file__)))
     prefix = os.path.join(mydir, 'qt_')
-    cmd = ['preproc', 'snt', 'sntcorr', 'sntcorr']
-    if mode == 'token':
-        cmd.append('token')
-    if word_break:
-        cmd.insert(1, 'hyphen')
-    if form != 'raw':
-        cmd.append('conv{0}'.format(form))
-    cmd = [prefix + x for x in cmd]
+    cmd = [prefix + x for x in rawcmd]
     return ' | '.join(cmd)
 
 
 def tokenize(cmd, text):
     """Low level entry point
+
+    cmd -- list of module names (str)
+    text -- text to tokenize
     """
+    cmd = get_command(cmd)
     proc = subprocess.Popen(cmd, shell=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -85,9 +84,15 @@ def tokenize(cmd, text):
 
 
 def main(form, mode, word_break):
-    """Entry point.
+    """Command line entry point.
     """
-    cmd = get_command(form, mode, word_break)
+    cmd = ['preproc', 'snt', 'sntcorr', 'sntcorr']
+    if mode == 'token':
+        cmd.append('token')
+    if word_break:
+        cmd.insert(1, 'hyphen')
+    if form != 'raw':
+        cmd.append('conv{0}'.format(form))
     text = sys.stdin.read()
     out, err = tokenize(cmd, text)
     print(out, file=sys.stdout)
