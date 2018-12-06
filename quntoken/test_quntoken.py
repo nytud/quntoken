@@ -1,9 +1,7 @@
 #! /usr/bin/env python3
 
-import io
-import os
-import sys
-from pprint import pprint
+
+import pytest
 from glob import glob
 try:
     from quntoken.quntoken import tokenize
@@ -11,22 +9,17 @@ except:
     from quntoken import tokenize
 
 
-def get_files(module):
-    """Modul nev alapjan visszaadja a hozza tartozo tesztfajlok listajat.
+def get_cmd(filename):
+    """Tesztfajl nevebol generalja a futtathato parancsot (str).
     """
-    if module == 'snt':
-        module = 'snt_'
-    mydir = os.path.dirname((os.path.abspath(__file__)))
-    testdir = os.path.join(mydir, '..', 'test')
-    files = glob(os.path.join(testdir, f'test_default_{module}*'))
-    files = [os.path.abspath(x) for x in files]
-    return files
-
-
-def get_cmd(rawcmd):
-    """Parameterkent veszi a modulnevek felsorolasat tartalmazo stringet,
-    visszater a Popen()-nek atadhato paranccsal.
-    """
+    module = filename.split('_')[2]
+    rawcmd = {
+        'hyphen': 'preproc hyphen',
+        'preproc': 'preproc',
+        'snt': 'preproc snt',
+        'sntcorr': 'preproc snt sntcorr sntcorr',
+        'token': 'preproc snt sntcorr sntcorr token'
+    }[module]
     prefix = './quntoken/qt_'
     cmd = rawcmd.split()
     cmd.append('convxml')
@@ -35,22 +28,8 @@ def get_cmd(rawcmd):
     return cmd
 
 
-def print_err(filename, cmd, inp, exp, out, err):
-    """Mindenfele adatot kiir hiba eseten.
-    """
-    print(f'filename: {filename}', file=sys.stderr)
-    print(f'cmd: {cmd}', file=sys.stderr)
-    print(f'inp: {inp}', file=sys.stderr)
-    print(f'out: {out}', file=sys.stderr)
-    print(f'exp: {exp}', file=sys.stderr)
-    for line in err.split('\n'):
-        print(f'err: {line}', file=sys.stderr)
-    print('~'*40)
-
-
 def get_pairs(filename):
-    """Teszt-fajlbol kigyujti az input-elvartoutput parokat.
-    Ezek listajat adja vissza.
+    """Teszt-fajlbol olvas, visszater az input-elvartoutput parok listajaval
     """
     with open(filename) as f:
         lines = f.readlines()
@@ -85,43 +64,45 @@ def get_pairs(filename):
     return pairs
 
 
-def common(rawcmd):
-    """Modulok tesztelesenek kozos fuggvenye.
+def logging(cmd, inp, exp, out, err, logfile):
+    """Megadott fajlobjektumba irja a megadott adatokat.
     """
-    # TODO: ezt at kene irni ilyen fixture-s megoldasra
-    cmd = get_cmd(rawcmd)
-    files = get_files(rawcmd.split()[-1])
-    for filename in files:
-        pairs = get_pairs(filename)
+    myinp = [f'INP: {x}' for x in inp.split('\n')]
+    myinp = '\n'.join(myinp)
+    myexp = [f'EXP: {x}' for x in exp.split('\n')]
+    myexp = '\n'.join(myexp)
+    myout = [f'OUT: {x}' for x in out.split('\n')]
+    myout = '\n'.join(myout)
+    myerr = [f'ERR: {x}' for x in err.split('\n')]
+    myerr = '\n'.join(myerr)
+    log = '\n'.join([cmd, myinp, myexp, myout, myerr, '\n'])
+    print(log, file=logfile)
+
+
+@pytest.fixture(params=sorted(glob('test/test_default_*')))
+def get_data(request):
+    """Pytest fixture.
+    
+    Fajlnev alapjan visszater a hozzatarozo logfajl nevevel,
+    a futtatand paranccsal es a fajlbol kiolvashato bemenet/elvart
+    kimenet parokkal.
+    """
+    filename = request.param
+    logname = filename.replace('test', 'tmp', 1).replace('.txt', '.log')
+    cmd = get_cmd(filename)
+    pairs = get_pairs(filename)
+    return logname, cmd, pairs
+
+
+def test_modules(get_data):
+    """Pytest teszt-fuggveny.
+    
+    Minden, tesztadatokat tartalmazo test/-beli
+    fajlra lefut.
+    """
+    logname, cmd, pairs = get_data
+    with open(logname, 'w') as logfile:
         for inp, exp in pairs:
-            out, err = tokenize(cmd, inp)
-            if err:
-                print_err(filename, cmd, inp, exp, out, err)
-            assert out == exp, f'Should be {exp}'
-
-
-def test_preproc():
-    common('preproc')
-
-
-def test_hyphen():
-    common('preproc hyphen')
-
-
-def test_snt():
-    common('preproc snt')
-
-
-def test_sntcorr():
-    common('preproc snt sntcorr sntcorr')
-
-
-def test_token():
-    common('preproc snt sntcorr sntcorr token')
-
-
-test_preproc()
-test_hyphen()
-test_snt()
-test_sntcorr()
-test_token()
+            out, err =  tokenize(cmd, inp)
+            logging(cmd, inp, exp, out, err, logfile)
+            assert out == exp
