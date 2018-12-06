@@ -67,7 +67,7 @@ def get_command(form, mode, word_break):
     if word_break:
         cmd.insert(1, 'hyphen')
     if form != 'raw':
-        cmd.append(f'conv{form}')
+        cmd.append('conv{0}'.format(form))
     cmd = [prefix + x for x in cmd]
     return ' | '.join(cmd)
 

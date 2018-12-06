@@ -8,8 +8,8 @@ under the name [emToken](http://e-magyar.hu/hu/textmodules/emtoken).
 ## Requirements
 
 * OS: linux x86-64
-* python 2.x as default python
-* python 3.x
+* python 2.7 as default python
+* python 3.5+
 * g++ = 5
 * pytest
 

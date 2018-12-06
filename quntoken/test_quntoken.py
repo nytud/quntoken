@@ -67,13 +67,13 @@ def get_pairs(filename):
 def logging(cmd, inp, exp, out, err, logfile):
     """Megadott fajlobjektumba irja a megadott adatokat.
     """
-    myinp = [f'INP: {x}' for x in inp.split('\n')]
+    myinp = ['INP: {0}'.format(x) for x in inp.split('\n')]
     myinp = '\n'.join(myinp)
-    myexp = [f'EXP: {x}' for x in exp.split('\n')]
+    myexp = ['EXP: {0}'.format(x) for x in exp.split('\n')]
     myexp = '\n'.join(myexp)
-    myout = [f'OUT: {x}' for x in out.split('\n')]
+    myout = ['OUT: {0}'.format(x) for x in out.split('\n')]
     myout = '\n'.join(myout)
-    myerr = [f'ERR: {x}' for x in err.split('\n')]
+    myerr = ['ERR: {0}'.format(x) for x in err.split('\n')]
     myerr = '\n'.join(myerr)
     log = '\n'.join([cmd, myinp, myexp, myout, myerr, '\n'])
     print(log, file=logfile)
