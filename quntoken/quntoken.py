@@ -67,8 +67,8 @@ def get_command(rawcmd):
     return ' | '.join(cmd)
 
 
-def tokenize(cmd, text):
-    """Low level entry point
+def tokenize(cmd, input_iterator):
+    """Low level entry point, return an iterator object.
 
     cmd -- list of module names (str)
     text -- text to tokenize
@@ -79,8 +79,26 @@ def tokenize(cmd, text):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         universal_newlines=True)
-    out, err = proc.communicate(text)
-    return out, err
+    input = iter(input_iterator)
+    handle = proc.stdin
+    if os.fork():
+        # parent
+        handle.close()
+        for line in proc.stdout:
+            yield line
+        else:
+            for err in proc.stderr:
+                print(err, file=sys.stderr)
+    else:
+        # child
+        try:
+            handle.writelines(input)
+            handle.close()
+        # An IOError here means some *other* part of the program
+        # crashed, so don't complain here.
+        except IOError:
+            pass
+        os._exit(0)
 
 
 def main(form, mode, word_break):
@@ -93,10 +111,9 @@ def main(form, mode, word_break):
         cmd.insert(1, 'hyphen')
     if form != 'raw':
         cmd.append('conv{0}'.format(form))
-    text = sys.stdin.read()
-    out, err = tokenize(cmd, text)
-    print(out, file=sys.stdout)
-    print(err, file=sys.stderr)
+    for line in tokenize(cmd, sys.stdin):
+        print(line, end='', file=sys.stdout)
+
 
 
 if __name__ == '__main__':

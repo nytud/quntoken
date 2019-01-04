@@ -61,7 +61,7 @@ def get_pairs(filename):
     return pairs
 
 
-def logging(cmd, inp, exp, out, err, logfile):
+def logging(cmd, inp, exp, out, logfile):
     """Megadott fajlobjektumba irja a megadott adatokat.
     """
     myinp = ['INP: {0}'.format(x) for x in inp.split('\n')]
@@ -70,9 +70,7 @@ def logging(cmd, inp, exp, out, err, logfile):
     myexp = '\n'.join(myexp)
     myout = ['OUT: {0}'.format(x) for x in out.split('\n')]
     myout = '\n'.join(myout)
-    myerr = ['ERR: {0}'.format(x) for x in err.split('\n')]
-    myerr = '\n'.join(myerr)
-    log = '\n'.join([str(cmd), myinp, myexp, myout, myerr, '\n'])
+    log = '\n'.join([str(cmd), myinp, myexp, myout, '\n'])
     print(log, file=logfile)
 
 
@@ -100,6 +98,7 @@ def test_modules(get_data):
     logname, cmd, pairs = get_data
     with open(logname, 'w') as logfile:
         for inp, exp in pairs:
-            out, err =  tokenize(cmd, inp)
-            logging(cmd, inp, exp, out, err, logfile)
+            # out, err =  tokenize(cmd, inp)
+            out = ''.join(tokenize(cmd, [inp]))
+            logging(cmd, inp, exp, out, logfile)
             assert out == exp
