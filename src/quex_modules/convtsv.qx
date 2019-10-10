@@ -4,25 +4,33 @@ token {
 }
 
 
+start = PROGRAM;
+
 mode PROGRAM {
-    // base charactars without wspaces
-    {NONWS}+ =>         QUEX_TKN_ANYCHAR(Lexeme);
+    // WORD+WS or PUNC+WS 
+    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX}{WS_OPEN_QX} {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -2);
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t+\n");
+    }
+    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX}{WS_OPEN_QX} {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -2);
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t+\n");
+    }
+    {WSPACE}+{WS_CLOSE_QX}  {}
+    // WORD+NONWS or PUNCT+NONWS
+    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX} {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t-\n");
+    }
+    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX} {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t-\n");
+    }
 
-    // relevant tags
-    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
-    {PUNCT_CLOSE_QX}    {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
-    {WORD_CLOSE_QX}     {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
-
-    // white spaces
-    {TAGGED_WS_SEQ}+    {}
-    {WSPACE}+           {}
-
-    // other tags
+    // mondat eleje, vege, mondatkozi szokozok
     {SNT_OPEN_QX}       {}
-    {WS_OPEN_QX}        {}
-    {WS_CLOSE_QX}       {}
-    {WORD_OPEN_QX}      {}
-    {PUNCT_OPEN_QX}     {}
+    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
+    {TAGGED_WS_SEQ}+    {}
 
     <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
     <<EOF>>             => QUEX_TKN_TERMINATION;
