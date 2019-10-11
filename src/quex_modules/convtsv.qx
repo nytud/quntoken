@@ -17,6 +17,7 @@ mode PROGRAM {
                         self_send1(QUEX_TKN_ANYCHAR, L"\t+\n");
     }
     {WSPACE}+{WS_CLOSE_QX}  {}
+
     // WORD+NONWS or PUNCT+NONWS
     {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX} {
                         self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
@@ -29,7 +30,12 @@ mode PROGRAM {
 
     // mondat eleje, vege, mondatkozi szokozok
     {SNT_OPEN_QX}       {}
-    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\n"); }
+    {SNT_CLOSE_QX}{TAGGED_WS_SEQ} {
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t+\n");
+    }
+    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\t-\n"); }
+
+    // ennek nem kene lefunia...
     {TAGGED_WS_SEQ}+    {}
 
     <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
