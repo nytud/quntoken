@@ -219,6 +219,21 @@ body {
         return;
     }
 
+    // modul: CONVTSV
+    // C-like escaping of whitespaces
+    void escape_ws(std::wstring &text){
+        for(size_t pos = 0; pos < text.size(); ++pos) {
+            switch(text[pos]) {
+                case '\n': text.replace(pos, 1, L"\\n"); break;
+                case '\r': text.replace(pos, 1, L"\\r"); break;
+                case '\t': text.replace(pos, 1, L"\\t"); break;
+                case '\v': text.replace(pos, 1, L"\\v"); break;
+                case '\f': text.replace(pos, 1, L"\\f"); break;
+            }
+        }
+        return;
+    }
+
 }
 
 
