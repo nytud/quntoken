@@ -7,47 +7,51 @@ token {
 start = PROGRAM;
 
 mode PROGRAM {
-    // WORD+WS or PUNC+WS 
-    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX}{WS_OPEN_QX} {
-                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -2);
+    // (WORD or PUNCT) + NONWS
+    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX}/({WORD_OPEN_QX}|{PUNCT_OPEN_QX}) {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n");
+    }
+    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX}/({WORD_OPEN_QX}|{PUNCT_OPEN_QX}) {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
+                        self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n");
+    }
+
+    // (WORD or PUNC) + WS
+    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX} {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
                         self_send1(QUEX_TKN_ANYCHAR, L"\t");
     }
-    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX}{WS_OPEN_QX} {
-                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -2);
+    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX} {
+                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
                         self_send1(QUEX_TKN_ANYCHAR, L"\t");
     }
-    {WSPACE}+{WS_CLOSE_QX} {
-        /* std::wcerr << L"convtsv: {WSPACE}+{WS_CLOSE_QX}" << std::endl; */
-        std::wstring LEX(LexemeBegin, LexemeEnd -1);
+
+    // mondat vege + WS
+    {SNT_CLOSE_QX}{TAGGED_WS_SEQ} {
+        std::wstring LEX(LexemeBegin+2, LexemeEnd-1);
+        self.escape_ws(LEX);
+        self_send1(QUEX_TKN_ANYCHAR, L"\"");
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
+        self_send1(QUEX_TKN_ANYCHAR, L"\"\n\n");
+    }
+
+    // mondat vege (ws nelkul)
+    {SNT_CLOSE_QX}       {
+        self_send1(QUEX_TKN_ANYCHAR, L"\"\"\n\n");
+    }
+
+    // WS
+    {TAGGED_WS_SEQ} {
+        std::wstring LEX(LexemeBegin+1, LexemeEnd -1);
         self.escape_ws(LEX);
         self_send1(QUEX_TKN_ANYCHAR, L"\"");
         self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
         self_send1(QUEX_TKN_ANYCHAR, L"\"\n");
     }
 
-    // WORD+NONWS or PUNCT+NONWS
-    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX} {
-                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
-                        self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n");
-    }
-    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX} {
-                        self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
-                        self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n");
-    }
-
-    // mondat eleje, vege, mondatkozi szokozok
+    // mondat eleje
     {SNT_OPEN_QX}       {}
-    {SNT_CLOSE_QX}{TAGGED_WS_SEQ} {
-        std::wstring LEX(LexemeBegin+2, LexemeEnd-1);
-        self.escape_ws(LEX);
-        self_send1(QUEX_TKN_ANYCHAR, L"\t\"");
-        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
-        self_send1(QUEX_TKN_ANYCHAR, L"\"\n");
-    }
-    {SNT_CLOSE_QX}      {self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n"); }
-
-    // ennek nem kene lefunia...
-    {TAGGED_WS_SEQ}+    {}
 
     <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
     <<EOF>>             => QUEX_TKN_TERMINATION;
