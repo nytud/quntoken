@@ -135,6 +135,10 @@ IN : A +12 500-ben van.
 OUT: <s><w>A</w><ws> </ws><w>+12 500-ben</w><ws> </ws><w>van</w><c>.</c></s>
 IN : A +12 500.
 OUT: <s><w>A</w><ws> </ws><w>+12 500</w><c>.</c></s>
+IN : Az 12 500. ember.
+OUT: <s><w>Az</w><ws> </ws><w>12 500</w><c>.</c><ws> </ws><w>ember</w><c>.</c></s>
+IN : Az 12 500, jó?
+OUT: <s><w>Az</w><ws> </ws><w>12 500</w><c>,</c><ws> </ws><w>jó</w><c>?</c></s>
 IN : A +12 500-ben.
 OUT: <s><w>A</w><ws> </ws><w>+12 500-ben</w><c>.</c></s>
 

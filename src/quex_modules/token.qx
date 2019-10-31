@@ -60,7 +60,7 @@ define {
     // Megj: a kotojelet felesleges belevenni, ugyis a word fog ra illeszkedni
     NUM_WITH_PUNCT  ([+\-]|\G{Currency_Symbol})?([0-9]([.,:;]|{DASH})?)*[0-9]
     // numbers with spaces
-    NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]*)?
+    NUM_WITH_SPACE  [+\-]?[0-9]{1,3}({SPACE}[0-9]{3})+([,.][0-9]+)?
 
     //O P E R A T I O N S ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     OPERAND         ([0-9]+[.,])?[0-9]+ // decimal fractions
