@@ -8,21 +8,21 @@ start = PROGRAM;
 
 mode PROGRAM {
     // (WORD or PUNCT) + NONWS
-    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX}/({WORD_OPEN_QX}|{PUNCT_OPEN_QX}) {
+    {WORD_OPEN_QX}{BASE_CLASS}+{WORD_CLOSE_QX}/({WORD_OPEN_QX}|{PUNCT_OPEN_QX}) {
                         self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
                         self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n");
     }
-    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX}/({WORD_OPEN_QX}|{PUNCT_OPEN_QX}) {
+    {PUNCT_OPEN_QX}{BASE_CLASS}+{PUNCT_CLOSE_QX}/({WORD_OPEN_QX}|{PUNCT_OPEN_QX}) {
                         self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
                         self_send1(QUEX_TKN_ANYCHAR, L"\t\"\"\n");
     }
 
     // (WORD or PUNC) + WS
-    {WORD_OPEN_QX}{NONWS}+{WORD_CLOSE_QX} {
+    {WORD_OPEN_QX}{BASE_CLASS}+{WORD_CLOSE_QX} {
                         self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
                         self_send1(QUEX_TKN_ANYCHAR, L"\t");
     }
-    {PUNCT_OPEN_QX}{NONWS}+{PUNCT_CLOSE_QX} {
+    {PUNCT_OPEN_QX}{BASE_CLASS}+{PUNCT_CLOSE_QX} {
                         self_send2(QUEX_TKN_ANYCHAR, LexemeBegin + 1, LexemeEnd -1);
                         self_send1(QUEX_TKN_ANYCHAR, L"\t");
     }
