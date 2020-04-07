@@ -19,7 +19,7 @@ release:
 
 
 test:
-	@pytest --verbose quntoken/test_quntoken.py
+	@pytest --verbose test/test_quntoken.py
 .PHONY: test
 
 
