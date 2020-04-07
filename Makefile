@@ -24,7 +24,7 @@ test:
 
 
 targz:
-	@tar -czf "quntoken_`uname -s`_`uname -m`_`cat VERSION`.tar.gz" quntoken/qt_* quntoken/quntoken.py quntoken/__init__.py
+	@tar -czf "quntoken_`uname -s`_`uname -m`_v`grep -Po '\d+\.\d+\.\d+' quntoken/version.py`.tar.gz" quntoken/qt_* quntoken/quntoken.py quntoken/__init__.py
 .PHONY: targz
 
 
