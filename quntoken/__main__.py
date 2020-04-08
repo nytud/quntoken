@@ -1,5 +1,4 @@
-# from quntoken.quntoken import tokenize
-from quntoken import tokenize
+from quntoken import tokenize, __version__
 import argparse
 import sys
 
@@ -47,6 +46,12 @@ def get_args():
         help='Eliminate word break from end of lines.',
         action='store_true'
     )
+    pars.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version=__version__
+    )
     res = vars(pars.parse_args())
     return res
 
@@ -54,18 +59,7 @@ def get_args():
 def main():
     """Command line entry point.
     """
-    args = get_args()
-    form = args['form']
-    mode = args['mode']
-    word_break = args['word_break']
-    cmd = ['preproc', 'snt', 'sntcorr', 'sntcorr']
-    if mode == 'token':
-        cmd.append('token')
-    if word_break:
-        cmd.insert(1, 'hyphen')
-    if form != 'raw':
-        cmd.append('conv{0}'.format(form))
-    for line in tokenize(cmd, sys.stdin):
+    for line in tokenize(inp=sys.stdin, **get_args()):
         print(line, end='', file=sys.stdout)
 
 

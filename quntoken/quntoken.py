@@ -9,28 +9,22 @@ import sys
 import os
 
 
-def get_command(rawcmd):
-    """From list of modules generate a runnable command string.
+def call_modules(inp, modules):
+    """Low level entry point.
+
+    inp -- input iterator
+    modules -- list of modules
     """
     mydir = os.path.dirname((os.path.abspath(__file__)))
     prefix = os.path.join(mydir, 'qt_')
-    cmd = [prefix + x for x in rawcmd]
-    return ' | '.join(cmd)
-
-
-def tokenize(cmd, input_iterator):
-    """Low level entry point, return an iterator object.
-
-    cmd -- list of module names (str)
-    text -- text to tokenize
-    """
-    cmd = get_command(cmd)
+    cmd = [prefix + x for x in modules]
+    cmd = ' | '.join(cmd)
     proc = subprocess.Popen(cmd, shell=True,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         universal_newlines=True)
-    input = iter(input_iterator)
+    inp = iter(inp)
     handle = proc.stdin
     if os.fork():
         # parent
@@ -43,11 +37,38 @@ def tokenize(cmd, input_iterator):
     else:
         # child
         try:
-            handle.writelines(input)
+            handle.writelines(inp)
             handle.close()
         # An IOError here means some *other* part of the program
         # crashed, so don't complain here.
         except IOError:
             pass
         os._exit(0)
+
+
+def get_modules(form, mode, word_break):
+    """Generate list of modules from 'form', 'mode', etc. parameters.
+    """
+    modules = ['preproc', 'snt', 'sntcorr', 'sntcorr']
+    if mode == 'token':
+        modules.append('token')
+    if word_break:
+        modules.insert(1, 'hyphen')
+    if form != 'raw':
+        modules.append('conv{0}'.format(form))
+    return modules
+
+
+def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False):
+    """Entry point, return an iterator object.
+
+    inp -- input iterator (default: stdin)
+    form -- format of result (tsv, xml, json, raw)
+    mode -- token (tokenization, default) or sentence (just sentence segmenting)
+    word_break -- eliminate word break from end of lines (default: False)
+    """
+    modules = get_modules(form, mode, word_break)
+    # for i in call_modules(modules):
+    #     yield i
+    return iter(call_modules(inp, modules))
 

@@ -4,25 +4,24 @@
 import pytest
 from glob import glob
 try:
-    from quntoken.quntoken import tokenize
+    from quntoken.quntoken import call_modules
 except:
-    from quntoken import tokenize
+    from quntoken import call_modules
 
 
-def get_cmd(filename):
+def get_modules(filename):
     """Tesztfajl nevebol generalja a futtatando modulok listajat.
     """
-    module = filename.split('_')[2]
-    rawcmd = {
+    modules = {
         'hyphen': 'preproc hyphen',
         'preproc': 'preproc',
         'snt': 'preproc snt',
         'sntcorr': 'preproc snt sntcorr sntcorr',
         'token': 'preproc snt sntcorr sntcorr token'
-    }[module]
-    cmd = rawcmd.split()
-    cmd.append('convxml')
-    return cmd
+    }[filename.split('_')[2]]
+    modules = modules.split()
+    modules.append('convxml')
+    return modules
 
 
 def get_pairs(filename):
@@ -61,7 +60,7 @@ def get_pairs(filename):
     return pairs
 
 
-def logging(cmd, inp, exp, out, logfile):
+def logging(modules, inp, exp, out, logfile):
     """Megadott fajlobjektumba irja a megadott adatokat.
     """
     myinp = ['INP: {0}'.format(x) for x in inp.split('\n')]
@@ -70,7 +69,7 @@ def logging(cmd, inp, exp, out, logfile):
     myexp = '\n'.join(myexp)
     myout = ['OUT: {0}'.format(x) for x in out.split('\n')]
     myout = '\n'.join(myout)
-    log = '\n'.join([str(cmd), myinp, myexp, myout, '\n'])
+    log = '\n'.join([str(modules), myinp, myexp, myout, '\n'])
     print(log, file=logfile)
 
 
@@ -84,9 +83,9 @@ def get_data(request):
     """
     filename = request.param
     logname = filename.replace('test', 'tmp', 1).replace('.txt', '.log')
-    cmd = get_cmd(filename)
+    modules = get_modules(filename)
     pairs = get_pairs(filename)
-    return logname, cmd, pairs
+    return logname, modules, pairs
 
 
 def test_modules(get_data):
@@ -95,10 +94,9 @@ def test_modules(get_data):
     Minden, tesztadatokat tartalmazo test/-beli
     fajlra lefut.
     """
-    logname, cmd, pairs = get_data
+    logname, modules, pairs = get_data
     with open(logname, 'w') as logfile:
         for inp, exp in pairs:
-            # out, err =  tokenize(cmd, inp)
-            out = ''.join(tokenize(cmd, [inp]))
-            logging(cmd, inp, exp, out, logfile)
+            out = ''.join(call_modules([inp], modules))
+            logging(modules, inp, exp, out, logfile)
             assert out == exp
