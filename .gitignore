@@ -1,4 +1,6 @@
 venv/
+build/
+dist/
 
 
 # Compiled Object files
