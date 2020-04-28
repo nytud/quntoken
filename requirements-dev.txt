@@ -1,0 +1,7 @@
+setuptools
+twine
+wheel
+
+autopep8
+pylint
+rope

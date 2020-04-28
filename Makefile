@@ -1,6 +1,6 @@
 # ABBREV := data/abbreviations_nytud-hu.txt
 ABBREV := data/abbreviations_orig-hu.txt
-MODULES := preproc hyphen snt sntcorr token convxml convjson convtsv
+MODULES := preproc hyphen snt sntcorr token convxml convjson convtsv convspl
 # MODULES := token
 
 
@@ -57,13 +57,20 @@ abbrev:
 
 
 # aux ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-prereq: clean create_dirs install_quex
+prereq: clean create_dirs install_quex venv
 .PHONY: prereq
+
+
+venv:
+	python3 -m venv venv
+	./venv/bin/pip3 install -r requirements-dev.txt
+.PHONY: venv
 
 
 clean:
 	@rm -f quntoken/qt_*
 	@rm -rf tmp/
+	@rm -rf venv/
 .PHONY: clean
 
 
