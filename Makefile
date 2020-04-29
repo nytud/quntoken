@@ -30,7 +30,7 @@ packaging:
 .PHONY: packaging
 
 test:
-	@pytest --verbose test/test_quntoken.py
+	@venv/bin/pytest --verbose test/test_quntoken.py
 .PHONY: test
 
 
