@@ -8,15 +8,26 @@ MODULES := preproc hyphen snt sntcorr token convxml convjson convtsv convspl
 all:
 	@make -s build OPT='-ggdb'
 	@make -s test
+	@make -s packaging
 .PHONY: all
 
 
-release:
+release: clean
 	@make -s build OPT='-O1'
 	@make -s test
 	@make -s targz
+	@make -s packaging
 .PHONY: release
 
+
+packaging:
+	@rm -rf build/
+	@rm -rf dist/
+	@rm -rf quntoken.egg-info/
+	@venv/bin/pip3 show quntoken && venv/bin/pip3 uninstall -y quntoken || echo -n ''
+	@venv/bin/python3 setup.py sdist bdist_wheel
+	@venv/bin/pip3 install .
+.PHONY: packaging
 
 test:
 	@pytest --verbose test/test_quntoken.py
@@ -30,6 +41,8 @@ targz:
 
 COMPILER := g++-5 $(OPT) -Wall -Werror -Wno-error=maybe-uninitialized -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
 build: quex
+	@rm -f quntoken/qt_*
+	@find tmp -maxdepth 1 -type f -exec rm -f {} \;
 	@echo 'Compile binaries.'
 	@cp src/cpp/main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
@@ -57,11 +70,12 @@ abbrev:
 
 
 # aux ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-prereq: clean create_dirs install_quex venv
+prereq: clean install_quex venv
 .PHONY: prereq
 
 
 venv:
+	@rm -rf venv/
 	python3 -m venv venv
 	./venv/bin/pip3 install -r requirements-dev.txt
 .PHONY: venv
@@ -69,20 +83,19 @@ venv:
 
 clean:
 	@rm -f quntoken/qt_*
-	@rm -rf tmp/
-	@rm -rf venv/
+	@find tmp -maxdepth 1 -type f -exec rm -f {} \;
+	@rm -rf build/
+	@rm -rf dist/
+	@rm -rf quntoken.egg-info/
 .PHONY: clean
-
-
-create_dirs:
-	@mkdir -p tmp
-.PHONY: create_dirs
 
 
 QUEX_VERSION = 0.67.5
 QUEX_VERSION_MINOR = `echo $(QUEX_VERSION) | sed -E 's/\.[0-9]+$$//'`
 QUEX_LINK = https://sourceforge.net/projects/quex/files/HISTORY/$(QUEX_VERSION_MINOR)/quex-$(QUEX_VERSION).tar.gz/download
 install_quex:
+	@rm -rf tmp/
+	@mkdir -p tmp
 	@cd tmp ; \
 	rm -rf quex ; \
 	wget -q -O quex.tar.gz $(QUEX_LINK) ; \

@@ -1,8 +1,13 @@
-from quntoken import tokenize, __version__
+try:
+    from quntoken.version import __version__
+except ModuleNotFoundError:
+    from version import __version__
+from quntoken import tokenize #, __version__
+# import quntoken
 import argparse
 import sys
 
-FORMATS = {'json', 'raw', 'tsv', 'xml'}
+FORMATS = {'json', 'raw', 'tsv', 'xml', 'spl'}
 MODES = {'sentence', 'token'}
 
 
@@ -29,7 +34,7 @@ def get_args():
     pars.add_argument(
         '-f',
         '--form',
-        help= 'Valid formats: json, tsv and xml. Default format: tsv.',
+        help= 'Valid formats: json, tsv, xml and spl (sentence per line). Default format: tsv.',
         default='tsv',
         type=check_format
     )

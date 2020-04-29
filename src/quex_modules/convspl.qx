@@ -1,0 +1,40 @@
+token {
+    ANYCHAR;
+    FAILURE;
+}
+
+
+start = PROGRAM;
+
+mode PROGRAM {
+    {SNT_OPEN_QX}       {self << INSNT;}
+    {WS_OPEN_QX}        {self << AFTERSNT;}
+
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>             => QUEX_TKN_TERMINATION;
+}
+
+// mondaton beluli WS sorozatok normalizalasa egy szokozre
+mode INSNT {
+    {WSPACE}+           {self_send1(QUEX_TKN_ANYCHAR, L" ");}
+    {NONWS}+            => QUEX_TKN_ANYCHAR(Lexeme);
+    {SNT_CLOSE_QX}      {
+        self_send1(QUEX_TKN_ANYCHAR, L"\n");
+        self << PROGRAM;
+    }
+
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>             => QUEX_TKN_TERMINATION;
+}
+
+// mondatok kozotti WS-ek
+mode AFTERSNT {
+    {NEWLINE}+{SPACE}*{NEWLINE}+ {
+        self_send1(QUEX_TKN_ANYCHAR, L"\n");
+    }
+    {WS_CLOSE_QX}      {self << PROGRAM;}
+    .                   {}
+
+    <<FAIL>>            => QUEX_TKN_FAILURE(Lexeme);
+    <<EOF>>             => QUEX_TKN_TERMINATION;
+}

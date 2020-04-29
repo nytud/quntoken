@@ -50,7 +50,7 @@ def get_modules(form, mode, word_break):
     """Generate list of modules from 'form', 'mode', etc. parameters.
     """
     modules = ['preproc', 'snt', 'sntcorr', 'sntcorr']
-    if mode == 'token':
+    if mode == 'token' and form != 'spl':
         modules.append('token')
     if word_break:
         modules.insert(1, 'hyphen')
@@ -68,7 +68,5 @@ def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False):
     word_break -- eliminate word break from end of lines (default: False)
     """
     modules = get_modules(form, mode, word_break)
-    # for i in call_modules(modules):
-    #     yield i
     return iter(call_modules(inp, modules))
 
