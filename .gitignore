@@ -1,6 +1,7 @@
 venv/
 build/
 dist/
+*.egg-info
 
 
 # Compiled Object files
