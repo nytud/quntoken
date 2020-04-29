@@ -4,4 +4,5 @@ wheel
 
 autopep8
 pylint
+pytest
 rope
