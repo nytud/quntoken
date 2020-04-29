@@ -8,29 +8,72 @@ under the name [emToken](http://e-magyar.hu/hu/textmodules/emtoken).
 ## Requirements
 
 * OS: linux x86-64
-* python 2.7 as default python
-* python 3.5+
+* python 3.6+
+
+Developer requirements: 
+
+* python 2.7 as default python (for quex)
 * g++ = 5
-* pytest
 
 ## Install
 
-```
-git clone https://github.com/dlt-rilmta/quntoken.git
-cd quntoken
-make prereq
-make all
+```sh
+pip3 install quntoken
 ```
 
 ## Usage
 
-```
-./quntoken [OPTIONS] [-f FORMAT] FILE
-```
-### Options
 
-* -d: Remove division of words at the end of the lines.
-* -f: Define output format. Valid formats: xml, json, vert. Default format: xml.
-* -V: Display version number and exit.
-* -h: Display help and exit.
+### Command line
 
+*quntoken* reads plain text in UTF-8 from STDIN and writes to STDOUT.
+
+The default (and recommended) format of output is TSV. It has two columns.
+The first contains the token, the second contains the white space sequence
+after the token. Sentence boundaries are marked with empty lines.
+
+Example: tokenizing *input.txt* file, writing the TSV output into *output.tsv* file.
+
+```
+quntoken <input.txt >output.tsv
+```
+
+Optional arguments:
+
+```txt
+  -h, --help            show this help message and exit
+  -f FORM, --form FORM  Valid formats: json, tsv, xml and spl (sentence per
+                        line). Default format: tsv.
+  -m MODE, --mode MODE  Modes: sentence or token. Default: token
+  -w, --word-break      Eliminate word break from end of lines.
+  -v, --version         show program's version number and exit
+```
+
+### Python API
+
+quntoken.**tokenize**(*inp=sys.stdin, form='tsv', mode='token',
+word_break=False*)
+ 
+<div style="text-indent: 2em;">
+Entry point, returns an iterator object. Parameters:
+
+*inp*: Input iterator, default: *sys.stdin*.
+
+*form*: Format of output. Valid formats: `'tsv'` (default), `'json'`, `'xml'`
+and `'spl'` (sentence per line).
+
+*mode*: `'sentence'` (only sentence segmenting) or `'token'` (full
+tokenization - default).
+
+*word_break*: If `'True'`, eliminates word break from end of lines. Default:
+`'False'`.
+</div>
+
+Example:
+
+```py
+from quntoken import tokenize
+
+for tok in tokenize(open('input.txt')):
+    print(tok, end='')
+```

@@ -42,7 +42,6 @@ targz:
 COMPILER := g++-5 $(OPT) -Wall -Werror -Wno-error=maybe-uninitialized -pedantic -static -std=c++11 -I./ -Iquex/ -DQUEX_OPTION_ASSERTS_DISABLED -DQUEX_OPTION_POSIX -DWITH_UTF8 -DQUEX_SETTING_BUFFER_SIZE=2097152 -DQUEX_OPTION_ASSERTS_DISABLED
 build: quex
 	@rm -f quntoken/qt_*
-	@find tmp -maxdepth 1 -type f -exec rm -f {} \;
 	@echo 'Compile binaries.'
 	@cp src/cpp/main.cpp tmp/
 	@cd tmp/ ; for module in $(MODULES) ; do \
@@ -53,7 +52,9 @@ build: quex
 
 
 QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
-quex: abbrev
+quex:
+	@find tmp -maxdepth 1 -type f -exec rm -f {} \;
+	@make -s abbrev
 	@echo 'Run Quex.'
 	@cd tmp/ ; for module in $(MODULES) ; do \
 		{ $(QXCMD) ../src/quex_modules/$${module}.qx -o $${module}Lexer ; echo "- $${module}" ; } & \
