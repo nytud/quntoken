@@ -51,7 +51,7 @@ build: quex
 .PHONY: build
 
 
-QXCMD := export QUEX_PATH=quex ; quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
+QXCMD := export QUEX_PATH=quex ; python2 quex/quex-exe.py --bet wchar_t -i ../src/quex_modules/definitions.qx abbrev.qx
 quex:
 	@find tmp -maxdepth 1 -type f -exec rm -f {} \;
 	@make -s abbrev

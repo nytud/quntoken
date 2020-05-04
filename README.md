@@ -12,7 +12,7 @@ under the name [emToken](http://e-magyar.hu/hu/textmodules/emtoken).
 
 Developer requirements: 
 
-* python 2.7 as default python (for quex)
+* python 2.7 (for quex)
 * g++ = 5
 
 ## Install
