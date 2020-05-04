@@ -4,10 +4,16 @@ token {
     FAILURE;
 }
 
+define {
+    IGNORABLE       [\X200D]
+}
+
 mode PROGRAM {
     // sorokra tordelunk, kulonben tul hosszuak lennenek a tokenek
     [: difference({BASE_CLASS}, {NEWLINECHAR}) :]+ => QUEX_TKN_BASECHARS(Lexeme);
     {NEWLINECHAR}+      => QUEX_TKN_BASECHARS(Lexeme);
+
+    {IGNORABLE}+        {}
 
     .                   {
         std::cerr << "invalid character ("

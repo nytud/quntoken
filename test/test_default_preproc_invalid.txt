@@ -35,3 +35,7 @@ Nem standard spaciumok
 IN : Adagokban　kapjuk.
 OUT: Adagokban�kapjuk.
 
+IN : M‍l‍ó‍g‍
+OUT: Mlóg
+
+
