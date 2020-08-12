@@ -70,3 +70,30 @@ def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False):
     modules = get_modules(form, mode, word_break)
     return iter(call_modules(inp, modules))
 
+
+class EmTokenPy:
+    """API for emtsv / xtsv.
+    (https://github.com/dlt-rilmta/emtsv, https://github.com/dlt-rilmta/xtsv)
+    """
+    pass_header = True
+
+    def __init__(self, source_fields=None, target_fields=None):
+
+        # Field names for e-magyar TSV
+        if source_fields is None:
+            source_fields = set()
+
+        if target_fields is None:
+            target_fields = []
+
+        self.source_fields = source_fields
+        self.target_fields = target_fields
+
+    @staticmethod
+    def process_sentence(sen, _=None):
+        res = tokenize(sen)
+        return res
+
+    @staticmethod
+    def prepare_fields(field_names):
+        return field_names
