@@ -43,7 +43,7 @@ def call_modules(inp, modules):
         # crashed, so don't complain here.
         except IOError:
             pass
-        os._exit(0)
+        os._exit(os.EX_OK)
 
 
 def get_modules(form, mode, word_break):
