@@ -3,7 +3,7 @@
 Read from STDIN, write to STDOUT.
 """
 
-
+import threading
 import subprocess
 import sys
 import os
@@ -20,30 +20,29 @@ def call_modules(inp, modules):
     cmd = [prefix + x for x in modules]
     cmd = ' | '.join(cmd)
     proc = subprocess.Popen(cmd, shell=True,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            universal_newlines=True)
     inp = iter(inp)
-    handle = proc.stdin
-    if os.fork():
-        # parent
-        handle.close()
-        for line in proc.stdout:
-            yield line
-        else:
-            for err in proc.stderr:
-                print(err, file=sys.stderr)
-    else:
-        # child
-        try:
-            handle.writelines(inp)
-            handle.close()
-        # An IOError here means some *other* part of the program
-        # crashed, so don't complain here.
-        except IOError:
-            pass
-        os._exit(os.EX_OK)
+
+    def stdin_writer():
+        with proc.stdin as stdin:
+            stdin.writelines(inp)
+
+    def stderr_writer():
+        with proc.stderr as stderr:
+            for err_line in stderr:
+                print(err_line, file=sys.stderr)
+
+    stdin_writer_thread = threading.Thread(target=stdin_writer)
+    stderr_writer_thread = threading.Thread(target=stderr_writer)
+    stdin_writer_thread.start()
+    stderr_writer_thread.start()
+    for line in proc.stdout:
+        yield line
+    stdin_writer_thread.join()
+    stderr_writer_thread.join()
 
 
 def get_modules(form, mode, word_break):

@@ -39,6 +39,7 @@ others/
 googletest/
 quex/
 .vscode/
+.idea/
 
 # Python
 __pycache__/

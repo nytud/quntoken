@@ -78,6 +78,7 @@ prereq: clean install_quex venv
 venv:
 	@rm -rf venv/
 	python3 -m venv venv
+	./venv/bin/pip3 install wheel  # Needed to be installed separately before other packages
 	./venv/bin/pip3 install -r requirements-dev.txt
 .PHONY: venv
 
