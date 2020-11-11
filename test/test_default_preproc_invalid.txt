@@ -38,4 +38,6 @@ OUT: Adagokban�kapjuk.
 IN : M‍l‍ó‍g‍
 OUT: Mlóg
 
-
+Ignorálás (ZERO WIDTH JOINER, U+200D)
+IN : >>‍<
+OUT: >><
