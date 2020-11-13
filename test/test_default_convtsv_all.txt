@@ -1,0 +1,17 @@
+IN : A kutya elment sétálni.
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	""
+OUT: .	
+OUT: 
+
+IN : A kutya elment sétálni.
+IN : 
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	""
+OUT: .	"\n"
+OUT: 
+OUT: 

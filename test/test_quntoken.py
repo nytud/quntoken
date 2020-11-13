@@ -17,7 +17,8 @@ def get_modules(filename):
         'preproc': 'preproc',
         'snt': 'preproc snt',
         'sntcorr': 'preproc snt sntcorr sntcorr',
-        'token': 'preproc snt sntcorr sntcorr token'
+        'token': 'preproc snt sntcorr sntcorr token',
+        'convtsv': 'preproc snt sntcorr sntcorr token convtsv'
     }[filename.split('_')[2]]
     modules = modules.split()
     modules.append('convxml')
