@@ -52,16 +52,20 @@ mode PROGRAM {
     }
 
     // mondat vege (ws nelkul)
-    {SNT_CLOSE_QX}       { // EOF
-        // std::wcerr << L"PROGRAM: SNTEND + EOF" << std::endl;
-        self_send1(QUEX_TKN_ANYCHAR, L"\n");
-    }
     {SNT_CLOSE_QX}/.       {
         // std::wcerr << L"PROGRAM: SNTEND ..." << std::endl;
         self_send1(QUEX_TKN_ANYCHAR, L"\"\"\n\n");
     }
     {SNT_CLOSE_QX}$       {
         // std::wcerr << L"PROGRAM: SNTEND + $" << std::endl;
+        self_send1(QUEX_TKN_ANYCHAR, L"\"\"\n\n");
+    }
+    {TAGGED_WS_SEQ}/{SNT_CLOSE_QX}{WSPACE}*/       {
+        // std::wcerr << L"PROGRAM: {TAGGED_WS_SEQ}/ SNTEND {WSPACE}*" << std::endl;
+        self_send1(QUEX_TKN_ANYCHAR, L"\n");
+    }
+    {SNT_CLOSE_QX}{WSPACE}*       { // EOF
+        // std::wcerr << L"PROGRAM: SNTEND + EOF" << std::endl;
         self_send1(QUEX_TKN_ANYCHAR, L"\"\"\n\n");
     }
 
@@ -83,7 +87,7 @@ mode PROGRAM {
 }
 
 mode WSHACK {
-    {TAGGED_WS_SEQ}{SNT_CLOSE_QX} {
+    {TAGGED_WS_SEQ}{SNT_CLOSE_QX}/{TAGGED_WS_SEQ} {
         // std::wcerr << L"WSHACK: TAGGED_WS_SEQ + SNT_CLOSE_QX" << std::endl;
         self_send1(QUEX_TKN_ANYCHAR, L"\"");
         std::wstring LEX(LexemeBegin+1, LexemeEnd -2);
@@ -95,6 +99,7 @@ mode WSHACK {
         // std::wcerr << L"WSHACK: TAGGED_WS_SEQ" << std::endl;
         std::wstring LEX(LexemeBegin+1, LexemeEnd -1);
         self.escape_ws(LEX);
+        self_send1(QUEX_TKN_ANYCHAR, LEX.c_str());
         self_send1(QUEX_TKN_ANYCHAR, L"\"\n\n");
         self << PROGRAM;
     }
