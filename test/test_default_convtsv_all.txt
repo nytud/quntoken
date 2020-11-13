@@ -1,11 +1,14 @@
+# dot without new line
 IN : A kutya elment sétálni.
 OUT: A	" "
 OUT: kutya	" "
 OUT: elment	" "
 OUT: sétálni	""
-OUT: .	
+OUT: .	""
+OUT: 
 OUT: 
 
+# dot with new line
 IN : A kutya elment sétálni.
 IN : 
 OUT: A	" "
@@ -13,5 +16,64 @@ OUT: kutya	" "
 OUT: elment	" "
 OUT: sétálni	""
 OUT: .	"\n"
+OUT: 
+OUT: 
+
+# word without new line
+IN : A kutya elment sétálni
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	""
+OUT: 
+OUT: 
+
+# word with new line
+IN : A kutya elment sétálni
+IN : 
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	"\n"
+OUT: 
+OUT: 
+
+# dot+space without new line
+IN : A kutya elment sétálni. 
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	""
+OUT: .	" "
+OUT: 
+OUT: 
+
+# dot+space with new line
+IN : A kutya elment sétálni. 
+IN : 
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	""
+OUT: .	" \n"
+OUT: 
+OUT: 
+
+# word+space without new line
+IN : A kutya elment sétálni 
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	" "
+OUT: 
+OUT: 
+
+# word+space with new line
+IN : A kutya elment sétálni 
+IN : 
+OUT: A	" "
+OUT: kutya	" "
+OUT: elment	" "
+OUT: sétálni	" \n"
 OUT: 
 OUT: 
