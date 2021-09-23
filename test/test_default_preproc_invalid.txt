@@ -41,3 +41,7 @@ OUT: Mlóg
 Ignorálás (ZERO WIDTH JOINER, U+200D)
 IN : >>‍<
 OUT: >><
+
+Ignorálás (zero width no-break space , U+FEFF)
+IN : >>﻿<
+OUT: >><

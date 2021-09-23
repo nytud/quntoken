@@ -5,7 +5,7 @@ token {
 }
 
 define {
-    IGNORABLE       [\X200D]
+    IGNORABLE       [\X200D\XFEFF]
 }
 
 mode PROGRAM {
