@@ -34,14 +34,14 @@ def get_args():
     pars.add_argument(
         '-f',
         '--form',
-        help= 'Valid formats: json, tsv, xml and spl (sentence per line). Default format: tsv.',
+        help='Valid formats: json, tsv, xml and spl (sentence per line, ignores mode). Default format: tsv.',
         default='tsv',
         type=check_format
     )
     pars.add_argument(
         '-m',
         '--mode',
-        help= 'Modes: sentence and token. Default: token',
+        help='Modes: sentence and token (does not apply for form=spl). Default: token',
         default='token',
         type=check_mode
     )
@@ -70,4 +70,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
