@@ -76,7 +76,7 @@ class EmTokenPy:
     """
     pass_header = True
 
-    def __init__(self, source_fields=None, target_fields=None):
+    def __init__(self, source_fields=None, target_fields=None, w_conll_text_meta_field=False):
 
         # Field names for e-magyar TSV
         if source_fields is None:
@@ -88,10 +88,33 @@ class EmTokenPy:
         self.source_fields = source_fields
         self.target_fields = target_fields
 
+        if w_conll_text_meta_field:
+            self.process_sentence = self.process_sentence_w_conll_text_meta_field
+        else:
+            self.process_sentence = self.process_sentence_tsv
+
     @staticmethod
-    def process_sentence(sen, _=None):
+    def process_sentence_tsv(sen, _=None):
         res = tokenize(sen)
         return res
+
+    @staticmethod
+    def process_sentence_w_conll_text_meta_field(sen, _=None):
+        sent = []
+        sent_orig = []
+        for tok in tokenize(sen):
+            if len(tok) > 1:
+                sent_orig.append(tok)
+                form, wsafter = tok.rstrip().split('\t', maxsplit=1)
+                wsafter = ' ' if len(wsafter) > 2 else ''
+                sent.append(form)
+                sent.append(wsafter)
+            else:
+                yield f'# text = {"".join(sent)}\n'
+                yield from sent_orig
+                sent = []
+                sent_orig = []
+                yield tok
 
     @staticmethod
     def prepare_fields(field_names):
