@@ -43,8 +43,8 @@ Optional arguments:
 ```txt
   -h, --help            show this help message and exit
   -f FORM, --form FORM  Valid formats: json, tsv, xml and spl (sentence per
-                        line). Default format: tsv.
-  -m MODE, --mode MODE  Modes: sentence or token. Default: token
+                        line, ignores mode). Default format: tsv.
+  -m MODE, --mode MODE  Modes: sentence or token (does not apply for form=spl). Default: token
   -w, --word-break      Eliminate word break from end of lines.
   -v, --version         show program's version number and exit
 ```
@@ -58,9 +58,9 @@ word_break=False*)
 >
 >- *inp*: Input iterator, default: *sys.stdin*.
 >- *form*: Format of output. Valid formats: `'tsv'` (default), `'json'`, `'xml'`
->and `'spl'` (sentence per line).
+>and `'spl'` (sentence per line, ignores `mode`).
 >- *mode*: `'sentence'` (only sentence segmenting) or `'token'` (full
->tokenization - default).
+>tokenization - default, does not apply for `form=spl`).
 >- *word_break*: If `'True'`, eliminates word break from end of lines. Default:
 >`'False'`.
 
