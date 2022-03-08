@@ -64,7 +64,7 @@ word_break=False, w_conll_text_meta_field=False*)
 >
 >- *inp*: Input iterator, default: *sys.stdin*.
 >- *form*: Format of output. Valid formats: `'tsv'` (default), `'json'`, `'xml'`
->and `'spl'` (sentence per line).
+>and `'spl'` (sentence per line, ignores `mode`).
 >- *mode*: `'sentence'` (only sentence segmenting) or `'token'` (full
 >tokenization - default, does not apply for `form=spl`).
 >- *word_break*: If `True`, eliminates word break from end of lines. Default:
