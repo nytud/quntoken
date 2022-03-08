@@ -2,29 +2,13 @@ try:
     from quntoken.version import __version__
 except ModuleNotFoundError:
     from version import __version__
-from quntoken import tokenize #, __version__
+from quntoken import tokenize  # , __version__
 # import quntoken
 import argparse
 import sys
 
 FORMATS = {'json', 'raw', 'tsv', 'xml', 'spl'}
 MODES = {'sentence', 'token'}
-
-
-def check_format(form):
-    """Check format argument.
-    """
-    if form not in FORMATS:
-        raise argparse.ArgumentError
-    return form
-
-
-def check_mode(mode):
-    """Check mode argument.
-    """
-    if mode not in MODES:
-        raise argparse.ArgumentError
-    return mode
 
 
 def get_args():
@@ -34,17 +18,27 @@ def get_args():
     pars.add_argument(
         '-f',
         '--form',
-        help= 'Valid formats: json, tsv, xml and spl (sentence per line). Default format: tsv.',
+        help='Valid formats: json, tsv, xml and spl (sentence per line). Default format: tsv.',
         default='tsv',
-        type=check_format
+        choices=FORMATS
     )
     pars.add_argument(
         '-m',
         '--mode',
-        help= 'Modes: sentence and token. Default: token',
+        help='Modes: sentence and token. Default: token',
         default='token',
-        type=check_mode
+        choices=MODES
     )
+    conll_text_arg = \
+        pars.add_argument(
+            '-c',
+            '--conll-text',
+            help='Add CoNLL text metafield to contain the detokenized sentence '
+                 '(only for mode == token and format == tsv). Default: False',
+            dest='w_conll_text_meta_field',
+            default=False,
+            action='store_true'
+        )
     pars.add_argument(
         '-w',
         '--word-break',
@@ -58,6 +52,9 @@ def get_args():
         version=__version__
     )
     res = vars(pars.parse_args())
+    if res['w_conll_text_meta_field'] and (res['mode'] != 'token' or res['form'] != 'tsv'):
+        raise argparse.ArgumentError(conll_text_arg, 'can only be set if mode == token and form == tsv !')
+
     return res
 
 
@@ -70,4 +67,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
