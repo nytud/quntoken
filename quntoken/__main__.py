@@ -18,16 +18,16 @@ def get_args():
     pars.add_argument(
         '-f',
         '--form',
-        help='Valid formats: json, tsv, xml and spl (sentence per line). Default format: tsv.',
+        help='Valid formats: json, tsv, xml and spl (sentence per line, ignores mode). Default format: tsv.',
         default='tsv',
-        choices=FORMATS
+        choices=sorted(FORMATS)
     )
     pars.add_argument(
         '-m',
         '--mode',
-        help='Modes: sentence and token. Default: token',
+        help='Modes: sentence or token (does not apply for form=spl). Default: token',
         default='token',
-        choices=MODES
+        choices=sorted(MODES)
     )
     conll_text_arg = \
         pars.add_argument(
