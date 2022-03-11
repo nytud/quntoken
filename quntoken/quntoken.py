@@ -84,6 +84,7 @@ def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False, conll_te
     form -- format of result (tsv, xml, json, raw)
     mode -- token (tokenization, default) or sentence (just sentence segmenting)
     word_break -- eliminate word break from end of lines (default: False)
+    conll_text -- add CoNLL text metafield to contain the detokenized sentence (default: False)
     """
     modules = get_modules(form, mode, word_break)
     call_modules_fun = call_modules(inp, modules)
