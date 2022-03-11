@@ -70,7 +70,7 @@ def add_conll_text_meta_field(sen):
             sent.append(wsafter)
 
         else:
-            yield f'# text = {"".join(sent).rstrip()}\n'
+            yield f'# text = {"".join(sent[:-1])}\n'
             yield from sent_orig
             sent = []
             sent_orig = []
