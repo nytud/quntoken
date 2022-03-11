@@ -68,15 +68,16 @@ def add_conll_text_meta_field(sen):
             wsafter = ' ' if len(wsafter) > 2 else ''
             sent.append(form)
             sent.append(wsafter)
+
         else:
-            yield f'# text = {"".join(sent)}\n'
+            yield f'# text = {"".join(sent).rstrip()}\n'
             yield from sent_orig
             sent = []
             sent_orig = []
             yield tok
 
 
-def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False, w_conll_text_meta_field=False):
+def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False, conll_text=False):
     """Entry point, return an iterator object.
 
     inp -- input iterator (default: stdin)
@@ -87,9 +88,9 @@ def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False, w_conll_
     modules = get_modules(form, mode, word_break)
     call_modules_fun = call_modules(inp, modules)
 
-    if w_conll_text_meta_field:
+    if conll_text:
         if mode != 'token' or form != 'tsv':
-            raise ValueError('Parameter w_conll_text_meta_field can only be true if mode == token and form == tsv !')
+            raise ValueError('Parameter conll_text can only be true if mode == token and form == tsv !')
         call_modules_fun = add_conll_text_meta_field(call_modules_fun)
 
     return iter(call_modules_fun)
@@ -101,7 +102,7 @@ class EmTokenPy:
     """
     pass_header = True
 
-    def __init__(self, source_fields=None, target_fields=None, w_conll_text_meta_field=False):
+    def __init__(self, source_fields=None, target_fields=None, conll_text=False):
 
         # Field names for e-magyar TSV
         if source_fields is None:
@@ -113,10 +114,10 @@ class EmTokenPy:
         self.source_fields = source_fields
         self.target_fields = target_fields
 
-        self._w_conll_text_meta_field = w_conll_text_meta_field
+        self._conll_text = conll_text
 
     def process_sentence(self, sen, _=None):
-        res = tokenize(sen, w_conll_text_meta_field=self._w_conll_text_meta_field)
+        res = tokenize(sen, conll_text=self._conll_text)
         return res
 
     @staticmethod

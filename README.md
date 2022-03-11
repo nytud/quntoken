@@ -58,7 +58,7 @@ Optional arguments:
 ### Python API
 
 quntoken.**tokenize**(*inp=sys.stdin, form='tsv', mode='token',
-word_break=False, w_conll_text_meta_field=False*)
+word_break=False, conll_text=False*)
  
 >Entry point, returns an iterator object. Parameters:
 >
@@ -69,7 +69,7 @@ word_break=False, w_conll_text_meta_field=False*)
 >tokenization - default, does not apply for `form=spl`).
 >- *word_break*: If `True`, eliminates word break from end of lines. Default:
 >`False`.
->- *w_conll_text_meta_field*: If `True`, add CoNLL text metafield to contain the detokenized
+>- *conll_text*: If `True`, add CoNLL text metafield to contain the detokenized
 >sentence (Only for mode == token and format == tsv). Default:
 >`False`.
 

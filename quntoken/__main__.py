@@ -35,7 +35,6 @@ def get_args():
             '--conll-text',
             help='Add CoNLL text metafield to contain the detokenized sentence '
                  '(only for mode == token and format == tsv). Default: False',
-            dest='w_conll_text_meta_field',
             default=False,
             action='store_true'
         )
@@ -52,7 +51,7 @@ def get_args():
         version=__version__
     )
     res = vars(pars.parse_args())
-    if res['w_conll_text_meta_field'] and (res['mode'] != 'token' or res['form'] != 'tsv'):
+    if res['conll_text'] and (res['mode'] != 'token' or res['form'] != 'tsv'):
         raise argparse.ArgumentError(conll_text_arg, 'can only be set if mode == token and form == tsv !')
 
     return res
