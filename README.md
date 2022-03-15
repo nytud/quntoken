@@ -42,9 +42,15 @@ Optional arguments:
 
 ```txt
   -h, --help            show this help message and exit
-  -f FORM, --form FORM  Valid formats: json, tsv, xml and spl (sentence per
+  -f {json,raw,spl,tsv,xml}, --form {json,raw,spl,tsv,xml}
+                        Valid formats: json, tsv, xml and spl (sentence per
                         line, ignores mode). Default format: tsv.
-  -m MODE, --mode MODE  Modes: sentence or token (does not apply for form=spl). Default: token
+  -m {sentence,token}, --mode {sentence,token}
+                        Modes: sentence or token (does not apply for
+                        form=spl). Default: token
+  -c, --conll-text      Add CoNLL text metafield to contain the detokenized
+                        sentence (only for mode == token and format == tsv).
+                        Default: False
   -w, --word-break      Eliminate word break from end of lines.
   -v, --version         show program's version number and exit
 ```
@@ -52,7 +58,7 @@ Optional arguments:
 ### Python API
 
 quntoken.**tokenize**(*inp=sys.stdin, form='tsv', mode='token',
-word_break=False*)
+word_break=False, conll_text=False*)
  
 >Entry point, returns an iterator object. Parameters:
 >
@@ -61,8 +67,11 @@ word_break=False*)
 >and `'spl'` (sentence per line, ignores `mode`).
 >- *mode*: `'sentence'` (only sentence segmenting) or `'token'` (full
 >tokenization - default, does not apply for `form=spl`).
->- *word_break*: If `'True'`, eliminates word break from end of lines. Default:
->`'False'`.
+>- *word_break*: If `True`, eliminates word break from end of lines. Default:
+>`False`.
+>- *conll_text*: If `True`, add CoNLL text metafield to contain the detokenized
+>sentence (Only for mode == token and format == tsv). Default:
+>`False`.
 
 Example:
 

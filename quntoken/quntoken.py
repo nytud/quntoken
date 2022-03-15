@@ -58,16 +58,43 @@ def get_modules(form, mode, word_break):
     return modules
 
 
-def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False):
+def add_conll_text_meta_field(sen):
+    sent = []
+    sent_orig = []
+    for tok in sen:
+        if len(tok) > 1:
+            sent_orig.append(tok)
+            form, wsafter = tok.rstrip().split('\t', maxsplit=1)
+            wsafter = ' ' if len(wsafter) > 2 else ''
+            sent.append(form)
+            sent.append(wsafter)
+
+        else:
+            yield f'# text = {"".join(sent[:-1])}\n'
+            yield from sent_orig
+            sent = []
+            sent_orig = []
+            yield tok
+
+
+def tokenize(inp=sys.stdin, form='tsv', mode='token', word_break=False, conll_text=False):
     """Entry point, return an iterator object.
 
     inp -- input iterator (default: stdin)
     form -- format of result (tsv, xml, json, raw)
     mode -- token (tokenization, default) or sentence (just sentence segmenting)
     word_break -- eliminate word break from end of lines (default: False)
+    conll_text -- add CoNLL text metafield to contain the detokenized sentence (default: False)
     """
     modules = get_modules(form, mode, word_break)
-    return iter(call_modules(inp, modules))
+    call_modules_fun = call_modules(inp, modules)
+
+    if conll_text:
+        if mode != 'token' or form != 'tsv':
+            raise ValueError('Parameter conll_text can only be true if mode == token and form == tsv !')
+        call_modules_fun = add_conll_text_meta_field(call_modules_fun)
+
+    return iter(call_modules_fun)
 
 
 class EmTokenPy:
@@ -76,7 +103,7 @@ class EmTokenPy:
     """
     pass_header = True
 
-    def __init__(self, source_fields=None, target_fields=None):
+    def __init__(self, source_fields=None, target_fields=None, conll_text=False):
 
         # Field names for e-magyar TSV
         if source_fields is None:
@@ -88,9 +115,10 @@ class EmTokenPy:
         self.source_fields = source_fields
         self.target_fields = target_fields
 
-    @staticmethod
-    def process_sentence(sen, _=None):
-        res = tokenize(sen)
+        self._conll_text = conll_text
+
+    def process_sentence(self, sen, _=None):
+        res = tokenize(sen, conll_text=self._conll_text)
         return res
 
     @staticmethod
